@@ -13,7 +13,8 @@ import FormationDisplay from "./sous-composant/FormationDisplay"
 import { Formation, Identite, PaiementData } from '@/lib/db'
 import PaiementForm from "./sous-composant/PayementForm"
 import { useRouter } from "next/navigation"
-import { db } from "@/lib/db"
+import { db ,EtudiantRecherche} from "@/lib/db"
+import { set } from "date-fns"
 
 export function InscriptionForm() {
   const [step, setStep] = useState("identite");
@@ -23,6 +24,8 @@ export function InscriptionForm() {
   const [errorInscription, setErrorInscription] = useState("");
   const [successMessageInscription, setSuccessMessageInscription] = useState(""); // État pour le message de succès
   const [loadingEtudiant, setLoadingEtudiant] = useState(false);
+  const [loadingRecherche, setLoadingRecherche] = useState(false);
+  const [afficherListeEtudiants, setAfficherListeEtudiants] = useState(false);
   const [validatedDocs, setValidatedDocs] = useState<Record<string, boolean>>({
     photo: false,
     acte: false,
@@ -37,26 +40,6 @@ export function InscriptionForm() {
   const [identite, setIdentite] = useState<Identite | null>(null)
   const [formation, setFormation] = useState<Formation | null>(null)
   const [parcoursType, setParcoursType] = useState<string>("");
-  // const identites = {
-  //   id: 1,
-  //   nom: "RAKOTO",
-  //   prenom: "Jean Pierre",
-  //   dateNaissance: "2003-03-15",
-  //   lieuNaissance: "Antsirabe",
-  //   sexe: "Masculin",
-  //   nationalite: "Malagasy",
-  //   telephone: "+261 34 00 000 00",
-  //   contact: {
-  //     adresse: "123 Rue Analakely, Antananarivo 101",
-  //     email: "jean.rakoto@exemple.mg"
-  //   }
-  // };
-  // const formations = {
-  //   formation: "Académique",
-  //   formationType: "Académique",
-  //   niveau: "Licence 1",
-  //   mention: "Télécommunications"
-  // };
   const [paiementData, setPaiementData] = useState<PaiementData>({
     refAdmin: "",
     dateAdmin: "",
@@ -69,6 +52,7 @@ export function InscriptionForm() {
     dateEcolage: "",
 
   });
+  const [etudiantsTrouves, setEtudiantsTrouves] = useState<EtudiantRecherche[]>([]);
 
   // 2. Fonction de mise à jour partielle
   const updatePaiement = (fields: Partial<PaiementData>) => {
@@ -80,6 +64,7 @@ export function InscriptionForm() {
     setValidatedDocs((prev) => ({ ...prev, [docId]: !prev[docId] }))
   }
   const resetForm = () => {
+    setEtudiantsTrouves([]);
     setIdentite(null);
     setFormation(null);
     setPaiementData({
@@ -95,7 +80,7 @@ export function InscriptionForm() {
     });
   };
   const rechercheEtudiants = async () => {
-        setLoadingEtudiant(true);
+        setLoadingRecherche(true);
         resetForm();
         try {
           const res = await fetch("/api/etudiants/recherche", 
@@ -121,26 +106,66 @@ export function InscriptionForm() {
               // console.log("Erreur lors de la récupération des données :", errorData || res.statusText);
               const msg = errorData.message ||errorData.error|| `Erreur ${res.status} lors de la récupération des données`;
               alert(msg);
-              setLoadingEtudiant(false);
+              setLoadingRecherche(false);
               // throw new Error(errorData.message || "Erreur lors de la récupération");
               return;
           }
+
           
           
           const response = await res.json();
-          const data = response.data.data;
-          setIdentite(data.identite);
-          setFormation(data.formation);
-          setParcoursType(data.formation.formationType);
+          const data = response.data;
+          setEtudiantsTrouves(data);
           
         } catch (err: unknown) {
           console.error("erreur de recuperation donne user",err)
           // setError(err.message);
         } finally {
-          setLoadingEtudiant(false);
+          setLoadingRecherche(false);
+          setAfficherListeEtudiants(true);
           
         }
       };
+  const fetchEtudiant = async (idEtudiant : number|string) => {
+    try {
+      setLoadingEtudiant(true);
+
+      const res = await fetch(
+        `/api/etudiants?idEtudiant=${encodeURIComponent(idEtudiant)}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      // 🔐 Non autorisé → logout
+      if (res.status === 401 || res.status === 403) {
+        setLoadingEtudiant(false);
+
+        await fetch("/api/auth/logout", { method: "POST" });
+        router.push(login);
+        return; // ⬅️ arrêter la fonction
+      }
+
+      if (!res.ok) {
+        throw new Error("Erreur de récupération étudiant");
+      }
+      const response = await res.json();
+      const data = response.data;
+            setIdentite(data.identite);
+            setFormation(data.formation);
+            setParcoursType(data.formation.formationType);
+
+    } catch (err) {
+      console.error("Erreur récupération étudiant :", err);
+    } finally {
+      setLoadingEtudiant(false);
+      setAfficherListeEtudiants(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
       setLoadingInscription(true);
@@ -168,7 +193,7 @@ export function InscriptionForm() {
           const res = await fetch("/api/etudiants/inscription", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ ...paiementData}),
+              body: JSON.stringify({ ...inscriptionData}),
           });
 
           if (res.status === 401 || res.status === 403) {
@@ -236,11 +261,31 @@ export function InscriptionForm() {
             disabled={loadingEtudiant}
             className="bg-blue-900 text-amber-400 hover:bg-blue-800 w-full"
           >
-            {loadingEtudiant ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4 mr-2" />}
+            {loadingRecherche ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4 mr-2" />}
             Rechercher
           </Button>
         </div>
       </div>
+      {etudiantsTrouves.length > 0 && afficherListeEtudiants && (
+        <div className="mt-4 border rounded-lg divide-y">
+          {etudiantsTrouves.map((etudiant) => (
+            <button
+              key={etudiant.id}
+              type="button"
+              onClick={() => fetchEtudiant(etudiant.id)}
+              className="w-full text-left px-4 py-3 hover:bg-slate-100 transition"
+            >
+              <p className="font-semibold">
+                {etudiant.nom} {etudiant.prenom}
+              </p>
+              {/* <p className="text-sm text-slate-500">
+                ID : {etudiant.id}
+              </p> */}
+            </button>
+          ))}
+        </div>
+      )}
+
       {identite && formation ? (
         <form onSubmit={handleSubmit} className="space-y-6">
           <Tabs value={step} onValueChange={setStep}>

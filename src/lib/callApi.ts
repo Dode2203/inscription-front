@@ -93,7 +93,7 @@ export async function callApiPost(
     });
 
     return NextResponse.json(
-      { message: "Créé avec succès", data: response.data },
+      response.data,
       { status: 201 }
     );
   } catch (err: unknown) {

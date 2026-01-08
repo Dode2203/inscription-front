@@ -21,10 +21,13 @@ const PaiementForm: React.FC<PaiementFormProps> = ({
 }) => {
   
   // Fonction pour gérer les changements d'input dynamiquement
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { id, value } = e.target;
-    updateData({ [id]: value });
-  };
+ const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const { id, type, value, checked } = e.target;
+
+  updateData({
+    [id]: type === "checkbox" ? checked : value,
+  });
+};
 
   return (
     <div className="space-y-6 mt-6">
@@ -32,11 +35,11 @@ const PaiementForm: React.FC<PaiementFormProps> = ({
         <h3 className="text-lg font-semibold text-foreground border-b pb-2">Bordereaux de versement</h3>
         
        <div className="space-y-2">
-              <Label htmlFor="dateAdmin">Date du Paiement *</Label>
+              <Label htmlFor="passant">Passant *</Label>
               <Input 
                 id="passant" 
-                type="boolean" 
-                value={formData.passant} 
+                type="checkbox"
+                checked={formData.passant ?? false}
                 onChange={handleChange} 
               />
             </div>

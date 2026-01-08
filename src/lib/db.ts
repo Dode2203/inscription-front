@@ -70,6 +70,11 @@ export interface PaiementData {
   refEcolage?: string;
   dateEcolage?: string;
 }
+export interface EtudiantRecherche {
+  id: number|string;
+  nom: string;
+  prenom: string;
+}
 export interface PaiementData {
   refAdmin: string;
   dateAdmin: string;
@@ -80,7 +85,7 @@ export interface PaiementData {
   montantEcolage?: string;
   refEcolage?: string;
   dateEcolage?: string;
-  passant?: boolean| string;
+  passant?: boolean;
 }
 export interface InscriptionData {
   refAdmin: string;
