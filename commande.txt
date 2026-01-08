@@ -1,0 +1,2 @@
+#Pour installer jspdf
+npm install jspdf

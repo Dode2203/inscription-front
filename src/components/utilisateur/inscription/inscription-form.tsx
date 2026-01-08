@@ -113,6 +113,7 @@ export function InscriptionForm() {
         router.push(login);
         return;
       }
+      console.log("mandalorian fetchEtudiant");
 
       const response = await res.json();
       const data = response.data;
