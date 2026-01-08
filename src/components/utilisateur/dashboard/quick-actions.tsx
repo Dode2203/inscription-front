@@ -9,7 +9,7 @@ export function QuickActions() {
       title: "Nouvelle Inscription",
       description: "Inscrire un nouvel étudiant",
       icon: UserPlus,
-      href: "/inscription",
+      href: "/utilisateur/inscription",
       color: "text-primary",
     },
     {

@@ -1,5 +1,5 @@
 "use client"
-import { InscriptionForm } from "@/components/utilisateur/inscription/Inscription-form" 
+import { InscriptionForm } from "@/components/utilisateur/inscription/inscription-form"
 import { useState, useEffect } from "react"
 import { User} from "@/lib/db" // Assurez-vous que les types User et Event sont bien définis
 import Header from "@/components/static/Header"
