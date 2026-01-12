@@ -1,5 +1,5 @@
 "use client"
-
+import { toast } from 'sonner';
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -10,11 +10,12 @@ import { Search, Loader2, CheckCircle } from "lucide-react"
 import DocumentsForm from "./sous-composant/DocumentsForm"
 import IdentiteDisplay from "./sous-composant/IdentiteDisplay"
 import FormationDisplay from "./sous-composant/FormationDisplay"
-import { Formation, Identite, PaiementData, EtudiantRecherche } from '@/lib/db'
+import { Formation, Identite, PaiementData, EtudiantRecherche, Inscription, Niveau } from '@/lib/db'
 import PaiementForm from "./sous-composant/PayementForm"
 import { useRouter } from "next/navigation"
 import { generateReceiptPDF } from "@/lib/generateReceipt" // Import de l'utilitaire
-
+import { useEffect } from 'react';
+import { getInitialData } from '@/lib/appConfig';
 export function InscriptionForm() {
   const [step, setStep] = useState("identite");
   const router = useRouter();
@@ -30,10 +31,18 @@ export function InscriptionForm() {
   const [nomSearch, setNomSearch] = useState("")
   const [prenomSearch, setPrenomSearch] = useState("")
   const [etudiantsTrouves, setEtudiantsTrouves] = useState<EtudiantRecherche[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [niveaux, setNiveaux] = useState<Niveau[]>([]);
+  const [formations, setFormations] = useState<Formation[]>([]);
+
+  // const { niveaux, formations } = await getAppData();
 
   // États pour les données
   const [identite, setIdentite] = useState<Identite | null>(null)
   const [formation, setFormation] = useState<Formation | null>(null)
+  const [inscription, setInscription] = useState<Inscription>({
+    id: "",matricule: "", dateInscription: "", description: ""
+  });
   const [parcoursType, setParcoursType] = useState<string>("");
   const [paiementData, setPaiementData] = useState<PaiementData>({
     refAdmin: "",
@@ -45,7 +54,9 @@ export function InscriptionForm() {
     montantEcolage: "",
     refEcolage: "",
     dateEcolage: "",
-    passant: false
+    idNiveau: "",
+    idFormation: ""
+    
   });
 
   const [validatedDocs, setValidatedDocs] = useState<Record<string, boolean>>({
@@ -68,13 +79,15 @@ export function InscriptionForm() {
       refAdmin: "", dateAdmin: "", montantAdmin: "",
       refPedag: "", datePedag: "", montantPedag: "",
       montantEcolage: "", refEcolage: "", dateEcolage: "",
-      passant: false
+      idNiveau: "", idFormation: ""
     });
   };
+
 
   const rechercheEtudiants = async () => {
     setLoadingRecherche(true);
     resetForm();
+
     try {
       const res = await fetch("/api/etudiants/recherche", {
         method: "POST",
@@ -82,23 +95,36 @@ export function InscriptionForm() {
         body: JSON.stringify({ nom: nomSearch, prenom: prenomSearch })
       });
 
+      // Cas de déconnexion
       if (res.status === 401 || res.status === 403) {
+        toast.error("Session expirée. Redirection...");
         await fetch("/api/auth/logout", { method: "POST" });
         router.push(login);
         return;
       }
 
+      // Gestion des erreurs de réponse
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({}));
-        alert(errorData.error || "Erreur de recherche");
+        toast.error(errorData.error || "Erreur lors de la recherche");
         return;
       }
 
       const response = await res.json();
+      
+      // Succès
       setEtudiantsTrouves(response.data);
       setAfficherListeEtudiants(true);
+      
+      if (response.data.length > 0) {
+        toast.success(`${response.data.length} étudiant(s) trouvé(s)`);
+      } else {
+        toast.error("Aucun étudiant trouvé");
+      }
+
     } catch (err) {
       console.error(err);
+      toast.error("Une erreur technique est survenue");
     } finally {
       setLoadingRecherche(false);
     }
@@ -117,6 +143,8 @@ export function InscriptionForm() {
 
       const response = await res.json();
       const data = response.data;
+
+      
       setIdentite(data.identite);
       setFormation(data.formation);
       setParcoursType(data.formation.formationType);
@@ -147,16 +175,20 @@ export function InscriptionForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(inscriptionData),
       });
-
+      const response = await res.json();
       if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Erreur lors de l'inscription");
+        
+        throw new Error(response.error || "Erreur lors de l'inscription");
       }
-
+      setInscription(
+        {id: response.data.id, matricule: response.data.matricule, dateInscription: response.data.dateInscription, description: response.data.description}
+      );
+      console.log("inscription", inscription);
+      // console.log("Inscription réussie:", response.data);
       setSuccessMessageInscription("Inscription réussie !");
       
       // GÉNÉRATION DU PDF
-      generateReceiptPDF(identite, formation, paiementData);
+      generateReceiptPDF(identite, formation, paiementData,inscription);
 
       setTimeout(() => {
         router.push('/utilisateur/dashboard');
@@ -167,6 +199,16 @@ export function InscriptionForm() {
       setLoadingInscription(false);
     }
   };
+  useEffect(() => {
+    getInitialData()
+      .then((data) => {
+        setNiveaux(data.niveaux);
+        setFormations(data.formations);
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) return <p>Chargement...</p>;
 
   return (
     <Card className="max-w-4xl mx-auto p-6 shadow-lg border-t-4 border-blue-900">
@@ -221,7 +263,7 @@ export function InscriptionForm() {
             </TabsContent>
 
             <TabsContent value="paiement" className="mt-6">
-              <PaiementForm formData={paiementData} updateData={updatePaiement} parcoursType={parcoursType} onBack={() => setStep("academique")} onNext={() => setStep("documents")} />
+              <PaiementForm formData={paiementData} updateData={updatePaiement} niveaux={niveaux} formations={formations} parcoursType={parcoursType} onBack={() => setStep("academique")} onNext={() => setStep("documents")} />
             </TabsContent>
 
             <TabsContent value="documents" className="mt-6">
