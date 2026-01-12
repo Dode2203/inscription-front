@@ -10,8 +10,8 @@ import { Search, Loader2, CheckCircle } from "lucide-react"
 import DocumentsForm from "./sous-composant/DocumentsForm"
 import IdentiteDisplay from "./sous-composant/IdentiteDisplay"
 import FormationDisplay from "./sous-composant/FormationDisplay"
-import { Formation, Identite, PaiementData, EtudiantRecherche } from '@/lib/db'
 import PaiementForm from "./sous-composant/PayementForm"
+import { Formation, Identite, PaiementData, EtudiantRecherche } from '@/lib/db'
 import { useRouter } from "next/navigation"
 import { generateReceiptPDF } from "@/lib/generateReceipt" // Import de l'utilitaire
 
@@ -156,7 +156,7 @@ export function InscriptionForm() {
       
       // GÉNÉRATION DU PDF
       generateReceiptPDF(identite, formation, paiementData);
-
+     
       setTimeout(() => {
         router.push('/utilisateur/dashboard');
       }, 2000);
