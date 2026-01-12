@@ -6,7 +6,7 @@ export const generateReceiptPDF = (
   identite: Identite,
   formation: Formation,
   paiement: PaiementData,
-  inscription: Inscription
+  inscription: Inscription,
 ) => {
   const doc = new jsPDF();
   
@@ -14,7 +14,7 @@ export const generateReceiptPDF = (
   // Le chemin part du dossier 'public' de Next.js
   const logoUrl = "/espa-logo.png"; 
 
-  const numQuittance = inscription.matricule || `Q-${identite.id}-${new Date().getTime().toString().slice(-6)}`;
+  const numQuittance = inscription?.matricule || `Q-${identite.id}-${new Date().getTime().toString().slice(-6)}`;
 
   // --- Design de l'En-tête ---
   // Rectangle bleu de fond

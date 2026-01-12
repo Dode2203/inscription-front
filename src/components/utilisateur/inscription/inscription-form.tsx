@@ -40,9 +40,6 @@ export function InscriptionForm() {
   // États pour les données
   const [identite, setIdentite] = useState<Identite | null>(null)
   const [formation, setFormation] = useState<Formation | null>(null)
-  const [inscription, setInscription] = useState<Inscription>({
-    id: "",matricule: "", dateInscription: "", description: ""
-  });
   const [parcoursType, setParcoursType] = useState<string>("");
   const [paiementData, setPaiementData] = useState<PaiementData>({
     refAdmin: "",
@@ -180,15 +177,16 @@ export function InscriptionForm() {
         
         throw new Error(response.error || "Erreur lors de l'inscription");
       }
-      setInscription(
-        {id: response.data.id, matricule: response.data.matricule, dateInscription: response.data.dateInscription, description: response.data.description}
-      );
-      console.log("inscription", inscription);
-      // console.log("Inscription réussie:", response.data);
+      const newInscription: Inscription = {
+        id: response.data.id,
+        matricule: response.data.matricule.toUpperCase(),
+        dateInscription: new Date(response.data.dateInscription).toLocaleDateString(),
+        description: response.data.description || "Aucune description"
+      };
+      
       setSuccessMessageInscription("Inscription réussie !");
       
-      // GÉNÉRATION DU PDF
-      generateReceiptPDF(identite, formation, paiementData,inscription);
+      generateReceiptPDF(identite, formation, paiementData, newInscription);
 
       setTimeout(() => {
         router.push('/utilisateur/dashboard');
