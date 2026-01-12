@@ -6,7 +6,7 @@ export const generateReceiptPDF = (
   identite: Identite,
   formation: Formation,
   paiement: PaiementData,
-  inscription: Inscription,
+  inscription?: Inscription|null,
 ) => {
   const doc = new jsPDF();
   
