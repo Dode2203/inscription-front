@@ -167,12 +167,14 @@ export function InscriptionForm() {
       setSuccessMessageInscription("Inscription réussie !");
       
       generateReceiptPDF(identite, formation, paiementData, newInscription);
+      toast.success("Inscription réussie pour l'étudiant " + identite.nom + " " + identite.prenom);
       setTimeout(() => {
         router.push('/utilisateur/dashboard');
       }, 2000);
 
     } catch (err: any) {
       setErrorInscription(err.message);
+      toast.error(err.message || "Erreur lors de l'inscription");
       setLoadingInscription(false);
     }
   };
