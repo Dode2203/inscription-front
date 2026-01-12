@@ -36,7 +36,6 @@ export function InscriptionForm() {
   const [niveaux, setNiveaux] = useState<Niveau[]>([]);
   const [formations, setFormations] = useState<Formation[]>([]);
 
-  // États pour les données
   const [identite, setIdentite] = useState<Identite | null>(null)
   const [formation, setFormation] = useState<Formation | null>(null);
   const [parcoursType, setParcoursType] = useState<string>("");
@@ -50,6 +49,9 @@ export function InscriptionForm() {
   const [validatedDocs, setValidatedDocs] = useState<Record<string, boolean>>({
     photo: false, acte: false, diplome: false, cni: false, medical: false,
   });
+
+  // LOGIQUE AJOUTÉE : Vérification des documents
+  const allDocsValidated = validatedDocs.photo && validatedDocs.acte && validatedDocs.diplome && validatedDocs.cni && validatedDocs.medical;
 
   const updatePaiement = (fields: Partial<PaiementData>) => {
     setPaiementData(prev => ({ ...prev, ...fields }));
@@ -168,6 +170,7 @@ export function InscriptionForm() {
       
       generateReceiptPDF(identite, formation, paiementData, newInscription);
       toast.success("Inscription réussie pour l'étudiant " + identite.nom + " " + identite.prenom);
+
       setTimeout(() => {
         router.push('/utilisateur/dashboard');
       }, 2000);
@@ -192,7 +195,6 @@ export function InscriptionForm() {
 
   return (
     <Card className="max-w-4xl mx-auto p-6 shadow-lg border-t-4 border-blue-900">
-      {/* Barre de Recherche */}
       <div className="mb-8 p-4 bg-slate-50 border rounded-xl">
         <Label className="text-blue-900 font-bold mb-4 block italic">Rechercher un étudiant</Label>
         <div className="grid md:grid-cols-5 gap-3 items-end">
@@ -211,7 +213,6 @@ export function InscriptionForm() {
         </div>
       </div>
 
-      {/* Liste des résultats */}
       {etudiantsTrouves.length > 0 && afficherListeEtudiants && (
         <div className="mt-4 border rounded-lg divide-y bg-white shadow-sm overflow-hidden mb-6">
           {etudiantsTrouves.map((etudiant) => (
@@ -223,7 +224,6 @@ export function InscriptionForm() {
         </div>
       )}
 
-      {/* Formulaire Multi-étapes */}
       {identite && formation ? (
         <form onSubmit={handleSubmit} className="space-y-6">
           <Tabs value={step} onValueChange={setStep}>
@@ -254,8 +254,8 @@ export function InscriptionForm() {
           {errorInscription && <p className="text-red-500 text-sm font-medium">{errorInscription}</p>}
 
           <div className="flex gap-4 pt-6 border-t">
-            {step === "documents" ? (
-              /* Le bouton de validation n'apparaît QUE sur le dernier onglet */
+            {/* LOGIQUE AJOUTÉE : Condition d'affichage du bouton final */}
+            {step === "documents" && allDocsValidated ? (
               <Button 
                 type="submit" 
                 disabled={loadingInscription || !!successMessageInscription} 
@@ -268,10 +268,11 @@ export function InscriptionForm() {
                 ) : "Valider l'inscription & Générer Reçu"}
               </Button>
             ) : (
-              /* Message d'aide si on n'est pas à la fin */
               <div className="flex items-center justify-center w-full p-3 bg-blue-50 text-blue-700 rounded-lg border border-blue-100 italic text-sm">
                 <Info className="w-4 h-4 mr-2" />
-                Veuillez compléter les étapes jusqu'aux documents pour valider l'inscription.
+                {step !== "documents" 
+                  ? "Veuillez terminer les étapes précédentes." 
+                  : "Veuillez cocher tous les documents pour valider."}
               </div>
             )}
           </div>

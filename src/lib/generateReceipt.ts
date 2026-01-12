@@ -16,28 +16,25 @@ export const generateReceiptPDF = (
 
   const numQuittance = inscription?.matricule || `Q-${identite.id}-${new Date().getTime().toString().slice(-6)}`;
 
-  // --- Design de l'En-tête ---
-  // Rectangle bleu de fond
-  doc.setFillColor(30, 58, 138); 
+  doc.setFillColor(33, 33, 33); // Noir charbon (presque noir)
   doc.rect(0, 0, 210, 45, 'F');
   
-  // AJOUT DU LOGO
-  // addImage(src, format, x, y, largeur, hauteur)
   try {
+    // On garde le logo tel quel (en couleur)
     doc.addImage(logoUrl, 'PNG', 15, 7, 30, 30);
   } catch (e) {
-    console.error("Logo non trouvé ou format invalide", e);
+    console.error("Logo non trouvé", e);
   }
 
   doc.setFontSize(22);
-  doc.setTextColor(255, 255, 255);
+  doc.setTextColor(255, 255, 255); // Texte blanc sur fond noir
   doc.text("RECEPISSE D'INSCRIPTION", 115, 22, { align: "center" });
   
   doc.setFontSize(10);
   doc.text("ECOLE SUPERIEURE POLYTECHNIQUE D'ANTANANARIVO", 115, 32, { align: "center" });
 
   // --- Corps du document ---
-  doc.setTextColor(0, 0, 0);
+  doc.setTextColor(0, 0, 0); // Retour au noir pour le texte
   doc.setFont("helvetica", "bold");
   doc.text(`NUMÉRO DE SÉRIE : ${identite.id}`, 14, 55);
   doc.text(`QUITTANCE N° : ${numQuittance}`, 140, 55);
@@ -45,7 +42,7 @@ export const generateReceiptPDF = (
   // --- Section Informations Étudiant ---
   autoTable(doc, {
     startY: 65,
-    head: [[{ content: 'IDENTIFICATION DE L\'ETUDIANT', colSpan: 2, styles: { halign: 'center', fillColor: [30, 58, 138] } }]],
+    head: [[{ content: 'IDENTIFICATION DE L\'ETUDIANT', colSpan: 2, styles: { halign: 'center', fillColor: [60, 60, 60] } }]],
     body: [
       ['Nom & Prénoms', `${identite.nom.toUpperCase()} ${identite.prenom}`],
       ['Date & Lieu de Naissance', `${identite.dateNaissance} à ${identite.lieuNaissance}`],
@@ -53,27 +50,27 @@ export const generateReceiptPDF = (
       ['Email', identite.contact.email],
     ],
     theme: 'grid',
-    headStyles: { textColor: [255, 255, 255] },
-    columnStyles: { 0: { fontStyle: 'bold', cellWidth: 60, fillColor: [245, 245, 245] } }
+    headStyles: { textColor: [255, 255, 255], fontStyle: 'bold' },
+    columnStyles: { 0: { fontStyle: 'bold', cellWidth: 60, fillColor: [240, 240, 240] } }
   });
 
   // --- Section Académique ---
   autoTable(doc, {
-    startY: (doc as any).lastAutoTable.finalY + 10,
-    head: [[{ content: 'PARCOURS ACADÉMIQUE', colSpan: 2, styles: { halign: 'center', fillColor: [30, 58, 138] } }]],
+    startY: (doc as any).lastAutoTable.finalY + 8,
+    head: [[{ content: 'PARCOURS ACADÉMIQUE', colSpan: 2, styles: { halign: 'center', fillColor: [60, 60, 60] } }]],
     body: [
       ['Formation / Mention', `${formation.formation} - ${formation.mention}`],
-      ['Niveau', formation.niveau],
+      ['Niveau', formation.niveau], // Vérification du nom du champ
       ['Type de Parcours', formation.formationType],
     ],
     theme: 'grid',
-    headStyles: { textColor: [255, 255, 255] },
-    columnStyles: { 0: { fontStyle: 'bold', cellWidth: 60, fillColor: [245, 245, 245] } }
+    headStyles: { textColor: [255, 255, 255], fontStyle: 'bold' },
+    columnStyles: { 0: { fontStyle: 'bold', cellWidth: 60, fillColor: [240, 240, 240] } }
   });
 
-  // --- Section Financière ---
+  // --- Section Financière (Utilisation de gris clair pour le zébrage) ---
   autoTable(doc, {
-    startY: (doc as any).lastAutoTable.finalY + 10,
+    startY: (doc as any).lastAutoTable.finalY + 8,
     head: [['DÉSIGNATION', 'RÉFÉRENCE', 'DATE', 'MONTANT']],
     body: [
       ['Droits Administratifs', paiement.refAdmin, paiement.dateAdmin, `${paiement.montantAdmin} Ar`],
@@ -81,7 +78,8 @@ export const generateReceiptPDF = (
       ['Écolage', paiement.refEcolage || '-', paiement.dateEcolage || '-', `${paiement.montantEcolage || 0} Ar`],
     ],
     theme: 'striped',
-    headStyles: { fillColor: [251, 191, 36], textColor: [30, 58, 138] }, 
+    headStyles: { fillColor: [0, 0, 0], textColor: [255, 255, 255] }, // Entête Noir pur
+    alternateRowStyles: { fillColor: [250, 250, 250] } // Gris très clair pour la lisibilité
   });
 
   // --- Signature et Cachet ---
@@ -95,9 +93,9 @@ export const generateReceiptPDF = (
   doc.setFontSize(8);
   doc.text("(Signature précédée de la mention 'Lu et approuvé')", 25, finalY + 5);
 
-  // Bordure décorative
-  doc.setDrawColor(30, 58, 138);
-  doc.setLineWidth(0.5);
+  // Bordure décorative noire fine
+  doc.setDrawColor(0, 0, 0);
+  doc.setLineWidth(0.2);
   doc.rect(5, 5, 200, 287);
 
   // Sauvegarde
