@@ -16,6 +16,7 @@ import PaiementForm from "./sous-composant/PayementForm"
 import { useRouter } from "next/navigation"
 import { generateReceiptPDF } from "@/lib/generateReceipt" 
 import { getInitialData } from '@/lib/appConfig';
+import useSound from 'use-sound';
 
 export function InscriptionForm() {
   const [step, setStep] = useState("identite");
@@ -102,6 +103,8 @@ export function InscriptionForm() {
       setAfficherListeEtudiants(true);
       
       if (response.data.length > 0) {
+        const successAudio = new Audio("/sounds/successed-295058.mp3");
+        successAudio.play();
         toast.success(`${response.data.length} étudiant(s) trouvé(s)`);
       } else {
         toast.error("Aucun étudiant trouvé");
@@ -155,6 +158,10 @@ export function InscriptionForm() {
         body: JSON.stringify(inscriptionData),
       });
       const response = await res.json();
+      if (res.status === 401 || res.status === 403) {
+        router.push(login);
+        return;
+      }
       if (!res.ok) {
         throw new Error(response.error || "Erreur lors de l'inscription");
       }
@@ -169,6 +176,8 @@ export function InscriptionForm() {
       setSuccessMessageInscription("Inscription réussie !");
       
       generateReceiptPDF(identite, formation, paiementData, newInscription);
+      const successAudio = new Audio("/sounds/success-221935.mp3");
+      successAudio.play();
       toast.success("Inscription réussie pour l'étudiant " + identite.nom + " " + identite.prenom);
 
       setTimeout(() => {
@@ -178,6 +187,8 @@ export function InscriptionForm() {
     } catch (err: any) {
       setErrorInscription(err.message);
       toast.error(err.message || "Erreur lors de l'inscription");
+      const errorAudio = new Audio("/sounds/error-011-352286.mp3");
+      errorAudio.play();
       setLoadingInscription(false);
     }
   };
