@@ -48,7 +48,7 @@ export const generateReceiptPDF = (
     body: [
       ['Nom & Prénoms', `${identite.nom.toUpperCase()} ${identite.prenom}`],
       ['Date & Lieu de Naissance', `${identite.dateNaissance} à ${identite.lieuNaissance}`],
-      ['Contact', `${identite.contact.telephone || 'Non renseigné'}`],
+      ['Contact', `${identite.contact.adresse || 'Non renseigné'}`], 
       ['Email', identite.contact.email],
     ],
     theme: 'grid',

@@ -101,6 +101,44 @@ export interface InscriptionData {
   typeFormation:string;
   passant?:boolean
 }
+
+// Refactorisation Liste etudiant 
+export interface PaiementEtudiant {
+  id?: number;
+  montant: number;
+  datePaiement: string;
+  typeDroit: string;
+  reference: string;
+  modePaiement?: string;
+  libelle?: string;
+  statut?: string;
+}
+
+export interface Student {
+  id: number;
+  matricule?: string | null;
+  nom: string;
+  prenom: string;
+  dateNaissance: string;
+  lieuNaissance?: string;
+  sexe?: string;
+  email?: string;
+  contact?: Contact;
+  typeFormation: {
+    id: number;
+    nom: string;
+  };
+  niveauEtude?: string;
+  dureeFormation?: string;
+  fraisInscription?: number;
+  fraisScolarite?: number;
+  typeParcours?: string;
+  mention?: string;
+  anneeAcademique?: string;
+  droitsPayes?: PaiementEtudiant[];
+  ecolage?: any;
+}
+
 // In-memory storage (replace with database)
 let users: User[] = [
   {
@@ -179,3 +217,5 @@ export const db = {
     },
   },
 }
+
+
