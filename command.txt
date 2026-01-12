@@ -10,3 +10,9 @@ npm install @radix-ui/react-dialog
 
 npm install @emailjs/browser
 npm install @radix-ui/react-aspect-ratio
+
+#Pour installer jspdf
+npm install jspdf
+
+#Pour faire alert
+npm install react-hot-toast

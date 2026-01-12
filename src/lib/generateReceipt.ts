@@ -10,7 +10,7 @@ export const generateReceiptPDF = (
   const doc = new jsPDF();
   
   const logoUrl = "/espa-logo.png"; 
-  const numQuittance =  `Q-${identite.id}-${new Date().getTime().toString().slice(-6)}`;
+  const numQuittance = `Q-${identite.id}-${new Date().getTime().toString().slice(-6)}`;
 
   // --- En-tête (Fini le bleu, place au Noir/Gris foncé) ---
   doc.setFillColor(33, 33, 33); // Noir charbon (presque noir)
@@ -57,7 +57,7 @@ export const generateReceiptPDF = (
     head: [[{ content: 'PARCOURS ACADÉMIQUE', colSpan: 2, styles: { halign: 'center', fillColor: [60, 60, 60] } }]],
     body: [
       ['Formation / Mention', `${formation.formation} - ${formation.mention}`],
-      ['Niveau',  formation.niveau], // Vérification du nom du champ
+      ['Niveau', formation.niveau], // Vérification du nom du champ
       ['Type de Parcours', formation.formationType],
     ],
     theme: 'grid',
