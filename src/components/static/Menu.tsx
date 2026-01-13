@@ -1,20 +1,31 @@
 "use client";
 
 import Link from "next/link";
-import { BarChart3,Users } from "lucide-react";
+import { BarChart3, Filter, Users } from "lucide-react";
 import { User } from "@/lib/db";
 import { usePathname } from "next/navigation";
+import React from "react";
+
 interface MenuProps {
   user: User | null;
   activeTab: string;
   setActiveTab: (tab: string) => void;
 }
 
-export default function Menu({ user }: MenuProps) {
-  const pathname = usePathname(); // URL courante
+// Définition d'une interface pour les onglets pour sécuriser le typage
+interface TabItem {
+  key: string;
+  label: string;
+  icon: React.ReactNode;
+}
 
-  const tabs = [  
-  ];
+export default function Menu({ user }: MenuProps) {
+  const pathname = usePathname();
+
+  // On initialise le tableau avec le type TabItem[]
+  const tabs: TabItem[] = [];
+
+  // Onglets pour le rôle Utilisateur
   if (user?.role === "Utilisateur") {
     tabs.push(
       {
@@ -26,11 +37,16 @@ export default function Menu({ user }: MenuProps) {
         key: "/utilisateur/inscription",
         label: "Inscription",
         icon: <Users size={18} />,
+      },
+      {
+        key: "/utilisateur/filtrage", // Corrigé : minuscule
+        label: "Filtrage",
+        icon: <Filter size={18} />, // Corrigé : minuscule
       }
     );
   }
 
-  // Ajouter les onglets admin seulement si Admin
+  // Onglets pour le rôle Admin
   if (user?.role === "Admin") {
     tabs.push(
       {
