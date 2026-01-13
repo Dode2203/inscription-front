@@ -71,8 +71,14 @@ export function InscriptionForm() {
       refAdmin: "", dateAdmin: "", montantAdmin: "",
       refPedag: "", datePedag: "", montantPedag: "",
       montantEcolage: "", refEcolage: "", dateEcolage: "",
-      idNiveau: "", idFormation: ""
+      idNiveau: "", idFormation: "",
+
     });
+    setValidatedDocs({
+      photo: false, acte: false, diplome: false, cni: false, medical: false,
+    });
+    setErrorInscription("");
+    setSuccessMessageInscription("");
   };
 
   const rechercheEtudiants = async () => {
@@ -125,14 +131,20 @@ export function InscriptionForm() {
         router.push(login);
         return;
       }
+      
       const response = await res.json();
+      if (!res.ok) {
+        throw new Error(response.error || "Erreur lors de l'inscription");
+      }
       const data = response.data;
       setIdentite(data.identite);
       setFormation(data.formation);
       setParcoursType(data.formation.formationType);
       setAfficherListeEtudiants(false);
-    } catch (err) {
-      console.error(err);
+    } catch (err : any) {
+      toast.error(err.message || "Erreur lors de l'application etudiant");
+      const errorAudio = new Audio("/sounds/error-011-352286.mp3");
+      errorAudio.play();
     } finally {
       setLoadingEtudiant(false);
     }
