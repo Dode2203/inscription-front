@@ -2,9 +2,10 @@ import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
-
+import { Toaster } from 'sonner';
 const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
+import { getInitialData } from '@/lib/appConfig';
 
 export const metadata: Metadata = {
   title: 'Gestion des inscriptions',
@@ -37,14 +38,16 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const initialData = await getInitialData();
   return (
     <html lang="en">
       <body className={`font-sans antialiased`}>
+      <Toaster position="top-right" />
         {children}
         <Analytics />
       </body>

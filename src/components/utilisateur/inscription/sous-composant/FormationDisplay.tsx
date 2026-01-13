@@ -21,6 +21,7 @@ const FormationDisplay= ({ data, onBack, onNext }: FormationDisplayProps) => {
           <DetailItem label="Type de Formation" value={data.formationType} />
           <DetailItem label="Niveau" value={data.niveau} />
           <DetailItem label="Mention / Filière" value={data.mention} />
+          <DetailItem label="Statut Étudiant" value={data.statusEtudiant || 'Concour'} />
         </div>
       </div>
 

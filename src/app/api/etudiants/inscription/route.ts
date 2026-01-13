@@ -1,5 +1,15 @@
 import { NextRequest } from "next/server";
 import { callApiPost } from "@/lib/callApi";
 export async function POST(request: NextRequest) {
-     return callApiPost(request, "/etudiants/inscrire", []);
+     const requiredFields = [
+    "idNiveau",
+    "idFormation",
+     "refAdmin",
+    "dateAdmin",
+     "montantAdmin",
+     "refPedag",
+     "datePedag",
+     "montantPedag",
+  ];
+     return callApiPost(request, "/etudiants/inscrire", requiredFields);
 }

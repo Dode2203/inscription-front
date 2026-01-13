@@ -2,12 +2,14 @@ import React from 'react';
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { PaiementData } from '@/lib/db';
+import { Formation, Niveau, PaiementData } from '@/lib/db';
 
 interface PaiementFormProps {
   formData: PaiementData;
   updateData: (fields: Partial<PaiementData>) => void;
   parcoursType: string;
+  niveaux: Niveau[];
+  formations: Formation[];
   onBack: () => void;
   onNext: () => void;
 }
@@ -16,16 +18,33 @@ const PaiementForm: React.FC<PaiementFormProps> = ({
   formData,
   updateData,
   parcoursType,
+  niveaux,
+  formations,
   onBack,
   onNext
 }) => {
   
   // Fonction pour gérer les changements d'input dynamiquement
- const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  const { id, type, value, checked } = e.target;
+//  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+//   const { id, type, value, checked } = e.target;
+
+//   updateData({
+//     [id]: type === "checkbox" ? checked : value,
+//   });
+// };
+// On ajoute HTMLSelectElement à l'union de types
+const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  
+  const target = e.target;
+  const id = target.id;
+  const value = target.value;
+  
+   const val = (target instanceof HTMLInputElement && target.type === "checkbox") 
+    ? target.checked 
+    : value;
 
   updateData({
-    [id]: type === "checkbox" ? checked : value,
+    [id]: val,
   });
 };
 
@@ -33,16 +52,46 @@ const PaiementForm: React.FC<PaiementFormProps> = ({
     <div className="space-y-6 mt-6">
       <div className="space-y-6">
         <h3 className="text-lg font-semibold text-foreground border-b pb-2">Bordereaux de versement</h3>
-        
-       <div className="space-y-2">
-              <Label htmlFor="passant">Passant *</Label>
-              <Input 
-                id="passant" 
-                type="checkbox"
-                checked={formData.passant ?? false}
-                onChange={handleChange} 
-              />
-            </div>
+        <div className="flex flex-col gap-2">
+          <label htmlFor="formation-select" className="text-sm font-medium text-gray-700">
+            Type de formation
+          </label>
+          <select
+            id="idFormation"
+            name="idFormation"
+            onChange={handleChange}
+            defaultValue={formData.idFormation}
+            className="block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+          >
+            <option value="">-- Choisir une formation --</option>
+            {formations.map((f: Formation) => (
+              // CORRECTION : value doit être f.id, pas formData.idFormation
+              <option key={f.id} value={f.id}>
+                {f.nom} ({f.typeFormation})
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="flex flex-col gap-2">
+          <label htmlFor="niveau-select" className="text-sm font-medium text-gray-700">
+            Niveau
+          </label>
+          <select
+            id="idNiveau"
+            name="idNiveau"
+            onChange={handleChange}
+            defaultValue={formData.idNiveau}
+            className="block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+          >
+            <option value="">-- Choisir une niveau --</option>
+            {niveaux.map((f: Niveau) => (
+              // CORRECTION : value doit être f.id, pas formData.idFormation
+              <option key={f.id} value={f.id}>
+                {f.nom} ({f.grade})
+              </option>
+            ))}
+          </select>
+        </div>
 
         <div className="grid md:grid-cols-2 gap-6">
           {/* Droits Administratifs */}

@@ -1,9 +1,10 @@
 // src/components/utilisateur/dashboard/student-table.tsx
 'use client';
 
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Download } from "lucide-react";
+import { Download, Loader2 } from "lucide-react";
 import { Student } from "@/lib/db";
 import { downloadReceipt } from "@/lib/receipt-helper";
 
@@ -12,6 +13,19 @@ interface StudentTableProps {
 }
 
 export function StudentTable({ students }: StudentTableProps) {
+  const [loadingStudentId, setLoadingStudentId] = useState<number | null>(null);
+
+  const handleDownload = async (student: Student) => {
+    try {
+      setLoadingStudentId(student.id);
+      await downloadReceipt(student);
+    } catch (error) {
+      console.error('Erreur:', error);
+    } finally {
+      setLoadingStudentId(null);
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -36,11 +50,21 @@ export function StudentTable({ students }: StudentTableProps) {
                   <TableCell>{student.typeFormation?.nom || 'Non spécifié'}</TableCell>
                   <TableCell className="text-right">
                     <button
-                      onClick={() => downloadReceipt(student)}
-                      className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary/90"
+                      onClick={() => handleDownload(student)}
+                      disabled={loadingStudentId === student.id}
+                      className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      <Download className="h-4 w-4 mr-1" />
-                      Télécharger le reçu
+                      {loadingStudentId === student.id ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                          Chargement...
+                        </>
+                      ) : (
+                        <>
+                          <Download className="h-4 w-4 mr-1" />
+                          Télécharger le reçu
+                        </>
+                      )}
                     </button>
                   </TableCell>
                 </TableRow>

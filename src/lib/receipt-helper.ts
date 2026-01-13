@@ -55,11 +55,46 @@ export function prepareReceiptData(student: Student) {
   return { identite, formation, paiementData };
 }
 
-export function downloadReceipt(student: Student) {
+/**
+ * Récupère les détails complets d'un étudiant depuis l'API
+ */
+async function fetchStudentDetails(studentId: number): Promise<Student> {
+  const currentYear = new Date().getFullYear();
+  const response = await fetch(`/api/etudiants/details-par-annee?idEtudiant=${studentId}&annee=${currentYear}`);
+  
+  if (!response.ok) {
+    throw new Error('Erreur lors de la récupération des détails de l\'étudiant');
+  }
+  
+  const result = await response.json();
+  
+  if (result.status !== 'success' || !result.data) {
+    throw new Error('Données de l\'étudiant non disponibles');
+  }
+  
+  return result.data;
+}
+
+/**
+ * Télécharge le reçu d'un étudiant
+ * Version asynchrone qui récupère d'abord les détails complets
+ */
+export async function downloadReceipt(student: Student) {
   try {
-    const { identite, formation, paiementData } = prepareReceiptData(student);
+    // Afficher un message de chargement
+    console.log('Récupération des détails de l\'étudiant...');
+    
+    // Récupérer les détails complets de l'étudiant
+    const fullStudentData = await fetchStudentDetails(student.id);
+    
+    // Préparer les données pour le PDF
+    const { identite, formation, paiementData } = prepareReceiptData(fullStudentData);
+    
+    // Générer le PDF
     generateReceiptPDF(identite, formation, paiementData);
+    
   } catch (error) {
+    console.error('Erreur lors de la génération du reçu:', error);
     alert((error as Error).message);
   }
 }
