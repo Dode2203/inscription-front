@@ -24,7 +24,7 @@ export default function Header({ user}: HeaderProps) {
             {user?.role} Dashboard
           </h1>
           <p className="text-primary-foreground/80 text-sm">
-            Welcome, {user?.name}
+            Bienvenue, {user?.name}
           </p>
         </div>
 
