@@ -61,6 +61,13 @@ export interface Formation {
   statusEtudiant?: string;
 
 }
+
+export interface Mention {
+  id: number;
+  nom: string;
+  abr: string;
+}
+
 export interface PaiementData {
   refAdmin: string;
   dateAdmin: string;

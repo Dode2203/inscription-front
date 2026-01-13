@@ -4,6 +4,7 @@ import { Niveau , Formation } from './db';
 export interface InitialData {
   niveaux: Niveau[];
   formations: Formation[];
+  
 }
 
 /**
