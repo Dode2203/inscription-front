@@ -52,7 +52,6 @@ export default function UtilisateurDashboard() {
     fetchData();
   }, [login]);
 
-  // 🆕 Nouveau useEffect pour les statistiques
   useEffect(() => {
     const fetchStats = async () => {
       try {
@@ -103,7 +102,6 @@ export default function UtilisateurDashboard() {
           <p className="text-muted-foreground">Vue d'ensemble de l'activité étudiante</p>
         </div>
 
-        {/* 🆕 Utilisation du nouveau composant avec les vraies données de l'API */}
         <div className="mb-8">
           <DashboardStats 
             statsData={statsData}
