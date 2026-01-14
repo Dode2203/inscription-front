@@ -29,7 +29,7 @@ export const getInitialData = cache(async (): Promise<InitialData> => {
   try {
     const [resNiveaux, resMentions] = await Promise.all([
       fetch(`${baseUrl}/api/etudiants/niveaux`, { next: { revalidate: 3600 } }),
-      fetch(`${baseUrl}/api/etudiants/formations`, { next: { revalidate: 3600 } })
+      fetch(`${baseUrl}/api/etudiants/mentions`, { next: { revalidate: 3600 } })
     ]);
 
     const niveaux = await safeParse<Niveau>(resNiveaux);
