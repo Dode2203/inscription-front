@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Formation, Niveau, PaiementData } from '@/lib/db';
 import { useState , useEffect} from "react";
 import { getNextGradeId , getByIdNiveau } from '@/lib/utils/grade-utils';
+import { format } from 'path';
 interface PaiementFormProps {
   formData: PaiementData;
   updateData: (fields: Partial<PaiementData>) => void;
@@ -58,7 +59,8 @@ const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   const niveauActuelType = niveauActuel?.type ?? 0;
   const niveauActuelGrade = niveauActuel?.grade ?? 0;
   const [typeFormation, setTypeFormation] = useState(1);
-
+  formData.idFormation=formation.idFormation;
+  
   
   // ✅ CORRECT
 useEffect(() => {
@@ -69,6 +71,8 @@ useEffect(() => {
     const nextNiveau = getNextGradeId(niveaux,typeFormation,niveauActuelGrade) 
     if (nextNiveau) {
       setDefaultNiveau(nextNiveau);
+      formData.idFormation=nextNiveau;
+
     }
   }
   // console.log("mandejoaj"+ defaultNiveau)
@@ -88,7 +92,7 @@ useEffect(() => {
             id="idFormation"
             name="idFormation"
             onChange={handleChange}
-            defaultValue={formation.idFormation}
+            defaultValue={formData.idFormation}
             className="block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
           >
 
@@ -108,7 +112,7 @@ useEffect(() => {
             id="idNiveau"
             name="idNiveau"
             // ✅ Utiliser 'value' au lieu de 'defaultValue' pour forcer la mise à jour
-            value={defaultNiveau} 
+            value={formData.idNiveau} 
             onChange={(e) => {
               // Mettre à jour l'état local pour que l'affichage change
               setDefaultNiveau(Number(e.target.value));
