@@ -3,31 +3,48 @@
 
 import { Card } from "@/components/ui/card";
 import { Users, CreditCard, FileText } from "lucide-react";
-import { Student } from "@/lib/db";
+import { StatsData } from "@/lib/db";
 
 interface DashboardStatsProps {
-  students: Student[];
+  statsData?: StatsData;
+  isLoading?: boolean;
+  error?: string | null;
 }
 
-export function DashboardStats({ students }: DashboardStatsProps) {
-  const totalStudents = students.length;
-  
-  const totalPayments = students.reduce((total, student) => 
-    total + (student.droitsPayes?.reduce((sum, payment) => sum + payment.montant, 0) || 0), 
-  0);
-  
-  const recentInscriptions = students.filter(student => {
-    const oneWeekAgo = new Date();
-    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-    return student.droitsPayes?.some(payment => 
-      new Date(payment.datePaiement) >= oneWeekAgo
-    ) || false;
-  }).length;
+const defaultStats: StatsData = {
+  total_etudiants: 0,
+  total_paiements: 0,
+  nouvelles_inscriptions: 0
+};
+
+export function DashboardStats({ statsData = defaultStats, isLoading = false, error = null }: DashboardStatsProps) {
+  if (isLoading) {
+    return (
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {[1, 2, 3].map((i) => (
+          <Card key={i} className="p-6 animate-pulse">
+            <div className="h-6 bg-gray-200 rounded w-3/4 mb-4"></div>
+            <div className="h-8 bg-gray-200 rounded w-1/2"></div>
+          </Card>
+        ))}
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-red-500 p-4 bg-red-50 rounded-lg">
+        Erreur lors du chargement des statistiques: {error}
+      </div>
+    );
+  }
+
+  const { total_etudiants, total_paiements, nouvelles_inscriptions } = statsData;
 
   const stats = [
     {
       title: "Étudiants Inscrits",
-      value: totalStudents.toLocaleString('fr-MG'),
+      value: total_etudiants.toLocaleString('fr-MG'),
       change: "Total des étudiants inscrits",
       icon: Users,
       color: "text-primary",
@@ -35,7 +52,7 @@ export function DashboardStats({ students }: DashboardStatsProps) {
     },
     {
       title: "Paiements Reçus",
-      value: `${totalPayments.toLocaleString('fr-MG')} MGA`,
+      value: `${total_paiements.toLocaleString('fr-MG')} MGA`,
       change: "Total des paiements reçus",
       icon: CreditCard,
       color: "text-secondary",
@@ -43,7 +60,7 @@ export function DashboardStats({ students }: DashboardStatsProps) {
     },
     {
       title: "Nouvelles Inscriptions",
-      value: recentInscriptions,
+      value: nouvelles_inscriptions,
       change: "7 derniers jours",
       icon: FileText,
       color: "text-primary",

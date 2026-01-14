@@ -147,6 +147,12 @@ export interface PaiementEtudiant {
   statut?: string;
 }
 
+export interface StatsData {
+  total_etudiants: number;
+  total_paiements: number;
+  nouvelles_inscriptions: number;
+}
+
 export interface Student {
   id: number;
   nom: string;
