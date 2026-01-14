@@ -54,11 +54,16 @@ export interface Identite {
   contact: Contact;
 }
 export interface Formation {
+  idFormation:string|number;
   formation: string;
   formationType: string;
+  idNiveau:string|number;
+  typeNiveau: number;
+  gradeNiveau: number
   niveau: string;
   mention: string;
   statusEtudiant?: string;
+
 
 }
 
@@ -121,13 +126,87 @@ export interface Inscription {
 export interface Niveau {
   id: number|string;
   nom: string;
-  grade: string|number;
+  grade: number;
+  type: number;
 }
 export interface Formation{
   id: number|string;
   nom: string;
   typeFormation: string|number;
 }
+
+// Refactorisation Liste etudiant 
+export interface PaiementEtudiant {
+  id?: number;
+  montant: number;
+  datePaiement: string;
+  typeDroit: string;
+  reference: string;
+  modePaiement?: string;
+  libelle?: string;
+  statut?: string;
+}
+
+export interface Student {
+  id: number;
+  nom: string;
+  prenom: string;
+  dateNaissance: string;
+  lieuNaissance?: string;
+  sexe?: string;
+  matricule?: string;
+  contact?: {
+    adresse?: string;
+    email?: string;
+    telephone?: string;
+  };
+  
+  // Formation (structure de l'API)
+  formation?: {
+    nom: string;
+    type?: {
+      nom: string;
+    };
+  };
+  
+  // Ancienne structure (compatibilité)
+  typeFormation?: {
+    nom: string;
+  };
+  
+  // Niveau et mention
+  niveau?: {
+    nom: string;
+  };
+  mention?: {
+    nom: string;
+  };
+  parcours?: {
+    nom: string;
+  };
+  
+  // Inscription
+  inscription?: {
+    matricule?: string;
+    anneeUniversitaire?: string;
+  };
+  
+  // Paiements
+  droitsPayes?: Array<{
+    typeDroit: string;
+    montant: number;
+    reference: string;
+    datePaiement: string;
+  }>;
+  
+  ecolage?: Array<{
+    tranche: number;
+    montant: number;
+    reference: string;
+    datePaiement: string;
+  }>;
+}
+
 // In-memory storage (replace with database)
 let users: User[] = [
   {
@@ -206,3 +285,5 @@ export const db = {
     },
   },
 }
+
+

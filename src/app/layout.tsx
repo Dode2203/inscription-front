@@ -5,7 +5,6 @@ import './globals.css'
 import { Toaster } from 'sonner';
 const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
-import { getInitialData } from '@/lib/appConfig';
 
 export const metadata: Metadata = {
   title: 'Gestion des inscriptions',
@@ -38,12 +37,11 @@ export const metadata: Metadata = {
   },
 }
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const initialData = await getInitialData();
   return (
     <html lang="en">
       <body className={`font-sans antialiased`}>

@@ -1,44 +1,58 @@
-import { Card } from "@/components/ui/card"
-import { Users, FileText, Award, Clock } from "lucide-react"
+// src/components/utilisateur/dashboard/dashboard-stats.tsx
+'use client';
 
-export function DashboardStats() {
+import { Card } from "@/components/ui/card";
+import { Users, CreditCard, FileText } from "lucide-react";
+import { Student } from "@/lib/db";
+
+interface DashboardStatsProps {
+  students: Student[];
+}
+
+export function DashboardStats({ students }: DashboardStatsProps) {
+  const totalStudents = students.length;
+  
+  const totalPayments = students.reduce((total, student) => 
+    total + (student.droitsPayes?.reduce((sum, payment) => sum + payment.montant, 0) || 0), 
+  0);
+  
+  const recentInscriptions = students.filter(student => {
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+    return student.droitsPayes?.some(payment => 
+      new Date(payment.datePaiement) >= oneWeekAgo
+    ) || false;
+  }).length;
+
   const stats = [
     {
       title: "Étudiants Inscrits",
-      value: "1,247",
-      change: "+12% ce mois",
+      value: totalStudents.toLocaleString('fr-MG'),
+      change: "Total des étudiants inscrits",
       icon: Users,
       color: "text-primary",
       bgColor: "bg-primary/10",
     },
     {
-      title: "Demandes en Attente",
-      value: "34",
-      change: "8 nouvelles aujourd'hui",
-      icon: Clock,
+      title: "Paiements Reçus",
+      value: `${totalPayments.toLocaleString('fr-MG')} MGA`,
+      change: "Total des paiements reçus",
+      icon: CreditCard,
       color: "text-secondary",
       bgColor: "bg-secondary/10",
     },
     {
-      title: "Certificats Émis",
-      value: "892",
-      change: "+5% ce mois",
+      title: "Nouvelles Inscriptions",
+      value: recentInscriptions,
+      change: "7 derniers jours",
       icon: FileText,
       color: "text-primary",
       bgColor: "bg-primary/10",
     },
-    {
-      title: "Diplômes Délivrés",
-      value: "156",
-      change: "Session 2024",
-      icon: Award,
-      color: "text-secondary",
-      bgColor: "bg-secondary/10",
-    },
-  ]
+  ];
 
   return (
-    <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {stats.map((stat) => (
         <Card key={stat.title} className="p-6">
           <div className="flex items-start justify-between">
@@ -54,5 +68,5 @@ export function DashboardStats() {
         </Card>
       ))}
     </div>
-  )
+  );
 }

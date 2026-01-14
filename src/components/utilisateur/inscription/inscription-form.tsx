@@ -16,19 +16,18 @@ import PaiementForm from "./sous-composant/PayementForm"
 import { useRouter } from "next/navigation"
 import { generateReceiptPDF } from "@/lib/generateReceipt" 
 import { getInitialData } from '@/lib/appConfig';
+import useSound from 'use-sound';
 
 export function InscriptionForm() {
   const [step, setStep] = useState("identite");
   const router = useRouter();
-  const login = process.env.NEXT_PUBLIC_LOGIN_URL || '/login';
-  
+  const login= process.env.NEXT_PUBLIC_LOGIN_URL || '/login';
   const [loadingInscription, setLoadingInscription] = useState(false);
   const [errorInscription, setErrorInscription] = useState("");
   const [successMessageInscription, setSuccessMessageInscription] = useState("");
-  const [loadingRecherche, setLoadingRecherche] = useState(false);
   const [loadingEtudiant, setLoadingEtudiant] = useState(false);
+  const [loadingRecherche, setLoadingRecherche] = useState(false);
   const [afficherListeEtudiants, setAfficherListeEtudiants] = useState(false);
-
   const [nomSearch, setNomSearch] = useState("")
   const [prenomSearch, setPrenomSearch] = useState("")
   const [etudiantsTrouves, setEtudiantsTrouves] = useState<EtudiantRecherche[]>([]);
@@ -50,7 +49,7 @@ export function InscriptionForm() {
     photo: false, acte: false, diplome: false, cni: false, medical: false,
   });
 
-  // LOGIQUE AJOUTÉE : Vérification des documents
+  // Vérification des documents
   const allDocsValidated = validatedDocs.photo && validatedDocs.acte && validatedDocs.diplome && validatedDocs.cni && validatedDocs.medical;
 
   const updatePaiement = (fields: Partial<PaiementData>) => {
@@ -70,8 +69,14 @@ export function InscriptionForm() {
       refAdmin: "", dateAdmin: "", montantAdmin: "",
       refPedag: "", datePedag: "", montantPedag: "",
       montantEcolage: "", refEcolage: "", dateEcolage: "",
-      idNiveau: "", idFormation: ""
+      idNiveau: "", idFormation: "",
+
     });
+    setValidatedDocs({
+      photo: false, acte: false, diplome: false, cni: false, medical: false,
+    });
+    setErrorInscription("");
+    setSuccessMessageInscription("");
   };
 
   const rechercheEtudiants = async () => {
@@ -102,6 +107,8 @@ export function InscriptionForm() {
       setAfficherListeEtudiants(true);
       
       if (response.data.length > 0) {
+        const successAudio = new Audio("/sounds/successed-295058.mp3");
+        successAudio.play();
         toast.success(`${response.data.length} étudiant(s) trouvé(s)`);
       } else {
         toast.error("Aucun étudiant trouvé");
@@ -119,19 +126,28 @@ export function InscriptionForm() {
     try {
       const res = await fetch(`/api/etudiants?idEtudiant=${encodeURIComponent(idEtudiant)}`);
       if (res.status === 401 || res.status === 403) {
+        setLoadingEtudiant(false);
+        await fetch("/api/auth/logout", { method: "POST" });
         router.push(login);
         return;
       }
+      
       const response = await res.json();
+      if (!res.ok) {
+        throw new Error(response.error || "Erreur lors de l'inscription");
+      }
       const data = response.data;
       setIdentite(data.identite);
       setFormation(data.formation);
       setParcoursType(data.formation.formationType);
       setAfficherListeEtudiants(false);
-    } catch (err) {
-      console.error(err);
+    } catch (err : any) {
+      toast.error(err.message || "Erreur lors de l'application etudiant");
+      const errorAudio = new Audio("/sounds/error-011-352286.mp3");
+      errorAudio.play();
     } finally {
       setLoadingEtudiant(false);
+      setAfficherListeEtudiants(false);
     }
   };
 
@@ -155,6 +171,10 @@ export function InscriptionForm() {
         body: JSON.stringify(inscriptionData),
       });
       const response = await res.json();
+      if (res.status === 401 || res.status === 403) {
+        router.push(login);
+        return;
+      }
       if (!res.ok) {
         throw new Error(response.error || "Erreur lors de l'inscription");
       }
@@ -169,6 +189,8 @@ export function InscriptionForm() {
       setSuccessMessageInscription("Inscription réussie !");
       
       generateReceiptPDF(identite, formation, paiementData, newInscription);
+      const successAudio = new Audio("/sounds/success-221935.mp3");
+      successAudio.play();
       toast.success("Inscription réussie pour l'étudiant " + identite.nom + " " + identite.prenom);
 
       setTimeout(() => {
@@ -178,6 +200,8 @@ export function InscriptionForm() {
     } catch (err: any) {
       setErrorInscription(err.message);
       toast.error(err.message || "Erreur lors de l'inscription");
+      const errorAudio = new Audio("/sounds/error-011-352286.mp3");
+      errorAudio.play();
       setLoadingInscription(false);
     }
   };
@@ -196,19 +220,35 @@ export function InscriptionForm() {
   return (
     <Card className="max-w-4xl mx-auto p-6 shadow-lg border-t-4 border-blue-900">
       <div className="mb-8 p-4 bg-slate-50 border rounded-xl">
-        <Label className="text-blue-900 font-bold mb-4 block italic">Rechercher un étudiant</Label>
+        <Label className="text-slate-600 font-bold mb-4 block italic">
+          Rechercher un étudiant 
+        </Label>
         <div className="grid md:grid-cols-5 gap-3 items-end">
           <div className="md:col-span-2 space-y-2">
-            <Label>Nom</Label>
-            <Input placeholder="Nom" value={nomSearch} onChange={(e) => setNomSearch(e.target.value)} />
+            <Label htmlFor="nom">Nom</Label>
+            <Input 
+              id="nom" 
+              placeholder="Nom de l'étudiant" 
+              value={nomSearch} 
+              onChange={(e) => setNomSearch(e.target.value)}
+            />
           </div>
           <div className="md:col-span-2 space-y-2">
-            <Label>Prénom</Label>
-            <Input placeholder="Prénom" value={prenomSearch} onChange={(e) => setPrenomSearch(e.target.value)} />
+            <Label htmlFor="prenom">Prénom</Label>
+            <Input 
+              id="prenom" 
+              placeholder="Prénom de l'étudiant" 
+              value={prenomSearch} 
+              onChange={(e) => setPrenomSearch(e.target.value)}
+            />
           </div>
-          <Button onClick={rechercheEtudiants} disabled={loadingRecherche} className="bg-blue-900 text-amber-400 hover:bg-blue-800">
-            {loadingRecherche ? <Loader2 className="animate-spin" /> : <Search className="w-4 h-4 mr-2" />}
-            Chercher
+          <Button 
+            onClick={rechercheEtudiants} 
+            disabled={loadingEtudiant}
+            className="bg-blue-900 text-amber-400 hover:bg-blue-800 w-full"
+          >
+            {loadingRecherche ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4 mr-2" />}
+            Rechercher
           </Button>
         </div>
       </div>
@@ -216,9 +256,15 @@ export function InscriptionForm() {
       {etudiantsTrouves.length > 0 && afficherListeEtudiants && (
         <div className="mt-4 border rounded-lg divide-y bg-white shadow-sm overflow-hidden mb-6">
           {etudiantsTrouves.map((etudiant) => (
-            <button key={etudiant.id} type="button" onClick={() => fetchEtudiant(etudiant.id)} className="w-full text-left px-4 py-3 hover:bg-blue-50 transition flex justify-between items-center">
-              <span className="font-medium">{etudiant.nom} {etudiant.prenom}</span>
-              <span className="text-xs text-slate-400">ID: {etudiant.id}</span>
+            <button
+              key={etudiant.id}
+              type="button"
+              onClick={() => fetchEtudiant(etudiant.id)}
+              className="w-full text-left px-4 py-3 hover:bg-slate-100 transition"
+            >
+              <p className="font-semibold">
+                {etudiant.nom} {etudiant.prenom}
+              </p>
             </button>
           ))}
         </div>
@@ -230,31 +276,42 @@ export function InscriptionForm() {
             <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="identite">1. Identité</TabsTrigger>
               <TabsTrigger value="academique">2. Académique</TabsTrigger>
-              <TabsTrigger value="paiement">3. Paiements</TabsTrigger>
+              <TabsTrigger value="paiement">3. Bordereaux</TabsTrigger>
               <TabsTrigger value="documents">4. Documents</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="identite" className="mt-6">
-              <IdentiteDisplay identite={identite} onNext={() => setStep("academique")} />
+            <TabsContent value="identite" className="space-y-6 mt-6">
+              <IdentiteDisplay 
+                identite={identite} 
+                onNext={() => setStep("academique")} 
+              />
             </TabsContent>
 
-            <TabsContent value="academique" className="mt-6">
-              <FormationDisplay data={formation} onBack={() => setStep("identite")} onNext={() => setStep("paiement")} />
+            <TabsContent value="academique" className="space-y-6 mt-6">
+              <FormationDisplay 
+                data={formation} 
+                onBack={() => setStep("identite")}
+                onNext={() => setStep("paiement")}
+              />
             </TabsContent>
 
             <TabsContent value="paiement" className="mt-6">
-              <PaiementForm formData={paiementData} updateData={updatePaiement} niveaux={niveaux} formations={formations} parcoursType={parcoursType} onBack={() => setStep("academique")} onNext={() => setStep("documents")} />
+              <PaiementForm formData={paiementData} updateData={updatePaiement} formation = {formation} niveaux={niveaux} formations={formations} parcoursType={parcoursType} onBack={() => setStep("academique")} onNext={() => setStep("documents")} />
             </TabsContent>
 
-            <TabsContent value="documents" className="mt-6">
-              <DocumentsForm validatedDocs={validatedDocs} onToggleDoc={toggleDoc} onBack={() => setStep("paiement")} onNext={() => {}} />
+            <TabsContent value="documents" className="space-y-6 mt-6">
+              <DocumentsForm 
+                validatedDocs={validatedDocs}
+                onToggleDoc={toggleDoc}
+                onBack={() => setStep("paiement")}
+                onNext={() => setStep("documents")}
+              />
             </TabsContent>
           </Tabs>
 
           {errorInscription && <p className="text-red-500 text-sm font-medium">{errorInscription}</p>}
 
           <div className="flex gap-4 pt-6 border-t">
-            {/* LOGIQUE AJOUTÉE : Condition d'affichage du bouton final */}
             {step === "documents" && allDocsValidated ? (
               <Button 
                 type="submit" 
@@ -277,11 +334,15 @@ export function InscriptionForm() {
             )}
           </div>
         </form>
+        
       ) : (
         <div className="py-20 text-center border-2 border-dashed rounded-xl bg-slate-50/50">
-          <p className="text-slate-500">Aucun dossier chargé. Utilisez la recherche ci-dessus.</p>
+          <p className="text-slate-500">
+            Veuillez utiliser la barre de recherche ci-dessus pour charger un dossier étudiant.
+          </p>
         </div>
       )}
+
     </Card>
   )
 }
