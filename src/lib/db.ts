@@ -149,27 +149,62 @@ export interface PaiementEtudiant {
 
 export interface Student {
   id: number;
-  matricule?: string | null;
   nom: string;
   prenom: string;
   dateNaissance: string;
   lieuNaissance?: string;
   sexe?: string;
-  email?: string;
-  contact?: Contact;
-  typeFormation: {
-    id: number;
+  matricule?: string;
+  contact?: {
+    adresse?: string;
+    email?: string;
+    telephone?: string;
+  };
+  
+  // Formation (structure de l'API)
+  formation?: {
+    nom: string;
+    type?: {
+      nom: string;
+    };
+  };
+  
+  // Ancienne structure (compatibilité)
+  typeFormation?: {
     nom: string;
   };
-  niveauEtude?: string;
-  dureeFormation?: string;
-  fraisInscription?: number;
-  fraisScolarite?: number;
-  typeParcours?: string;
-  mention?: string;
-  anneeAcademique?: string;
-  droitsPayes?: PaiementEtudiant[];
-  ecolage?: any;
+  
+  // Niveau et mention
+  niveau?: {
+    nom: string;
+  };
+  mention?: {
+    nom: string;
+  };
+  parcours?: {
+    nom: string;
+  };
+  
+  // Inscription
+  inscription?: {
+    matricule?: string;
+    anneeUniversitaire?: string;
+  };
+  
+  // Paiements
+  droitsPayes?: Array<{
+    typeDroit: string;
+    montant: number;
+    reference: string;
+    datePaiement: string;
+  }>;
+  
+  ecolage?: Array<{
+    tranche: number;
+    montant: number;
+    reference: string;
+    datePaiement: string;
+  }>;
 }
 
 // In-memory storage (replace with database)
