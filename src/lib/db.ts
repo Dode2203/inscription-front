@@ -57,8 +57,9 @@ export interface Formation {
   idFormation:string|number;
   formation: string;
   formationType: string;
-  typeNiveau: string|number;
-  gradeNiveau: string|number
+  idNiveau:string|number;
+  typeNiveau: number;
+  gradeNiveau: number
   niveau: string;
   mention: string;
   statusEtudiant?: string;
@@ -125,8 +126,8 @@ export interface Inscription {
 export interface Niveau {
   id: number|string;
   nom: string;
-  grade: string|number;
-  type: string|number;
+  grade: number;
+  type: number;
 }
 export interface Formation{
   id: number|string;

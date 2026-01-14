@@ -3,11 +3,13 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Formation, Niveau, PaiementData } from '@/lib/db';
-
+import { useState , useEffect} from "react";
+import { getNextGradeId , getByIdNiveau } from '@/lib/utils/grade-utils';
 interface PaiementFormProps {
   formData: PaiementData;
   updateData: (fields: Partial<PaiementData>) => void;
   parcoursType: string;
+  formation:Formation;
   niveaux: Niveau[];
   formations: Formation[];
   onBack: () => void;
@@ -18,6 +20,7 @@ const PaiementForm: React.FC<PaiementFormProps> = ({
   formData,
   updateData,
   parcoursType,
+  formation,
   niveaux,
   formations,
   onBack,
@@ -48,6 +51,31 @@ const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   });
 };
 
+
+
+  const [defaultNiveau,setDefaultNiveau] = useState(formation.idNiveau);
+  const niveauActuel = getByIdNiveau(niveaux,formation.idNiveau);
+  const niveauActuelType = niveauActuel?.type ?? 0;
+  const niveauActuelGrade = niveauActuel?.grade ?? 0;
+  const [typeFormation, setTypeFormation] = useState(1);
+
+  
+  // ✅ CORRECT
+useEffect(() => {
+  if (formData.idFormation!=1) {
+    setTypeFormation(2);
+  }
+  if (formation.statusEtudiant==="Passant") {
+    const nextNiveau = getNextGradeId(niveaux,typeFormation,niveauActuelGrade) 
+    if (nextNiveau) {
+      setDefaultNiveau(nextNiveau);
+    }
+  }
+  // console.log("mandejoaj"+ defaultNiveau)
+}, [formData.idFormation]); // S'exécute une seule fois au montage
+
+
+
   return (
     <div className="space-y-6 mt-6">
       <div className="space-y-6">
@@ -60,10 +88,10 @@ const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
             id="idFormation"
             name="idFormation"
             onChange={handleChange}
-            defaultValue={formData.idFormation}
+            defaultValue={formation.idFormation}
             className="block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
           >
-            <option value="">-- Choisir une formation --</option>
+
             {formations.map((f: Formation) => (
               // CORRECTION : value doit être f.id, pas formData.idFormation
               <option key={f.id} value={f.id}>
@@ -73,23 +101,31 @@ const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
           </select>
         </div>
         <div className="flex flex-col gap-2">
-          <label htmlFor="niveau-select" className="text-sm font-medium text-gray-700">
-            Niveau
+          <label htmlFor="idNiveau" className="text-sm font-medium text-gray-700">
+            Niveau actuel 
           </label>
           <select
             id="idNiveau"
             name="idNiveau"
-            onChange={handleChange}
-            defaultValue={formData.idNiveau}
+            // ✅ Utiliser 'value' au lieu de 'defaultValue' pour forcer la mise à jour
+            value={defaultNiveau} 
+            onChange={(e) => {
+              // Mettre à jour l'état local pour que l'affichage change
+              setDefaultNiveau(Number(e.target.value));
+              // Appeler votre handleChange habituel pour le formulaire global
+              handleChange(e);
+            }}
             className="block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
           >
-            <option value="">-- Choisir une niveau --</option>
-            {niveaux.map((f: Niveau) => (
-              // CORRECTION : value doit être f.id, pas formData.idFormation
-              <option key={f.id} value={f.id}>
-                {f.nom} ({f.grade})
-              </option>
-            ))}
+            {niveaux
+              .filter((f: Niveau) => f.grade >= formation.gradeNiveau)
+              .slice(0, 2)
+              .map((f: Niveau) => (
+                <option key={f.id} value={f.id}>
+                  {f.nom} ({f.grade})
+                </option>
+              ))
+            }
           </select>
         </div>
 
