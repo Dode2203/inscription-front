@@ -92,7 +92,7 @@ export default function WelcomePage() {
                  {/* Ici vous pouvez mettre une capture d'écran de l'app ou une illustration */}
                 <div className="bg-slate-50 rounded-2xl aspect-video flex items-center justify-center border border-dashed border-muted-foreground/30">
                    <img 
-                    src="/api/placeholder/600/400" 
+                    src="/Tableau_de_bord.png" 
                     alt="Dashboard Preview" 
                     className="rounded-lg opacity-80"
                    />
