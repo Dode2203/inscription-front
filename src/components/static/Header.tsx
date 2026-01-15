@@ -11,7 +11,7 @@ export default function Header({ user}: HeaderProps) {
       const logout = process.env.NEXT_PUBLIC_LOGOUT_URL;
       const handleLogout = async () => {
         await fetch("/api/auth/logout", { method: "POST" })
-        window.location.href = logout || "/login";
+        window.location.href = logout || "/";
       };
 
     return (
