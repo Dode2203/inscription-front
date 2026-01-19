@@ -60,26 +60,7 @@ export default function AdminDashboard() {
   }, [login]);
 
   // Récupérer les données des étudiants
-  useEffect(() => {
-    if (!user) return;
-
-    const fetchStudents = async () => {
-      try {
-        const response = await fetch('/api/etudiants');
-        if (!response.ok) {
-          throw new Error('Erreur lors de la récupération des étudiants');
-        }
-        const data = await response.json();
-        setStudents(data.data || []);
-      } catch (error) {
-        console.error('Erreur:', error);
-      } finally {
-        setStatsLoading(false);
-      }
-    };
-
-    fetchStudents();
-  }, [user]);
+  
 
   // Calculer les statistiques
   const totalStudents = students.length;
