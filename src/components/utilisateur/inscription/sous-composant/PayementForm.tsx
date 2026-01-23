@@ -96,7 +96,7 @@ useEffect(() => {
             className="block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
           >
 
-            {formations.map((f: Formation) => (
+            {formations?.map((f: Formation) => (
               // CORRECTION : value doit être f.id, pas formData.idFormation
               <option key={f.id} value={f.id}>
                 {f.nom} ({f.typeFormation})

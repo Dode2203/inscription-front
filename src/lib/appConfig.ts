@@ -1,10 +1,11 @@
 // lib/appConfig.ts
 import { cache } from 'react';
-import { Niveau, Mention } from './db';
+import { Niveau, Mention, Formation } from './db';
 
 export interface InitialData {
   niveaux: Niveau[];
   mentions: Mention[]; // Changé de 'formations' à 'mentions'
+  formations : Formation[];
 }
 
 async function safeParse<T>(res: Response): Promise<T[]> {
@@ -27,17 +28,19 @@ export const getInitialData = cache(async (): Promise<InitialData> => {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
 
   try {
-    const [resNiveaux, resMentions] = await Promise.all([
-      fetch(`${baseUrl}/api/etudiants/niveaux`, { next: { revalidate: 3600 } }),
-      fetch(`${baseUrl}/api/etudiants/mentions`, { next: { revalidate: 3600 } })
+    const [resNiveaux, resMentions, resFormations] = await Promise.all([
+      fetch(`${baseUrl}/api/etudiants/niveaux`, { next: { revalidate: 3600 } }), 
+      fetch(`${baseUrl}/api/etudiants/mentions`, { next: { revalidate: 3600 } }),
+      fetch(`${baseUrl}/api/etudiants/formations`, { next: { revalidate: 3600 } }),
     ]);
 
     const niveaux = await safeParse<Niveau>(resNiveaux);
     const mentions = await safeParse<Mention>(resMentions);
+    const formations = await safeParse<Formation>(resFormations);
 
-    return { niveaux, mentions };
+    return { niveaux, mentions, formations };
   } catch (error) {
     console.error("❌ Erreur getInitialData:", error);
-    return { niveaux: [], mentions: [] };
+    return { niveaux: [], mentions: [], formations: []};
   }
 });
