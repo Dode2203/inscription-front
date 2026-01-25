@@ -142,72 +142,78 @@ export function StudentDetailsModal({ student, onClose }: StudentDetailsModalPro
           </section>
 
           {/* Paiements */}
-          {student.droitsPayes && student.droitsPayes.length > 0 && (
+          {/* Section Droits (Pédagogiques & Administratifs) */}
+          {student.payments && student.payments.filter(p => p.typeDroit !== 'Ecolage').length > 0 && (
             <section>
               <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <CreditCard className="h-5 w-5 text-blue-600" />
                 Droits payés
               </h3>
               <div className="space-y-3">
-                {student.droitsPayes.map((paiement, index) => (
-                  <div
-                    key={index}
-                    className="bg-gray-50 rounded-lg p-4 border border-gray-200"
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="font-semibold text-gray-900">
-                        {paiement.typeDroit}
-                      </span>
-                      <span className="text-lg font-bold text-blue-600">
-                        {formatMontant(paiement.montant)}
-                      </span>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div>
-                        <p className="text-gray-500">Référence</p>
-                        <p className="font-medium">{paiement.reference}</p>
+                {student.payments
+                  .filter(p => p.typeDroit !== 'Ecolage')
+                  .map((paiement, index) => (
+                    <div
+                      key={index}
+                      className="bg-gray-50 rounded-lg p-4 border border-gray-200"
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="font-semibold text-gray-900">
+                          {paiement.typeDroit}
+                        </span>
+                        <span className="text-lg font-bold text-blue-600">
+                          {formatMontant(paiement.montant)}
+                        </span>
                       </div>
-                      <div>
-                        <p className="text-gray-500">Date de paiement</p>
-                        <p className="font-medium">{formatDate(paiement.datePaiement)}</p>
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <p className="text-gray-500">Référence</p>
+                          <p className="font-medium">{paiement.reference}</p>
+                        </div>
+                        <div>
+                          <p className="text-gray-500">Date de paiement</p>
+                          <p className="font-medium">{formatDate(paiement.datePaiement)}</p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
               </div>
             </section>
           )}
 
-          {/* Écolage */}
-          {student.ecolage && student.ecolage.length > 0 && (
-            <section>
+          {/* Section Écolage */}
+          {student.payments && student.payments.filter(p => p.typeDroit === 'Ecolage').length > 0 && (
+            <section className="mt-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Écolage</h3>
               <div className="space-y-3">
-                {student.ecolage.map((paiement: any, index: number) => (
-                  <div
-                    key={index}
-                    className="bg-gray-50 rounded-lg p-4 border border-gray-200"
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="font-semibold text-gray-900">
-                        Tranche {paiement.tranche}
-                      </span>
-                      <span className="text-lg font-bold text-green-600">
-                        {formatMontant(paiement.montant)}
-                      </span>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div>
-                        <p className="text-gray-500">Référence</p>
-                        <p className="font-medium">{paiement.reference}</p>
+                {student.payments
+                  .filter(p => p.typeDroit === 'Ecolage')
+                  .map((paiement, index) => (
+                    <div
+                      key={index}
+                      className="bg-gray-50 rounded-lg p-4 border border-gray-200"
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="font-semibold text-gray-900">
+                          {/* Si vous n'avez pas de propriété 'tranche', on affiche le type */}
+                          {paiement.typeDroit}
+                        </span>
+                        <span className="text-lg font-bold text-green-600">
+                          {formatMontant(paiement.montant)}
+                        </span>
                       </div>
-                      <div>
-                        <p className="text-gray-500">Date de paiement</p>
-                        <p className="font-medium">{formatDate(paiement.datePaiement)}</p>
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <p className="text-gray-500">Référence</p>
+                          <p className="font-medium">{paiement.reference}</p>
+                        </div>
+                        <div>
+                          <p className="text-gray-500">Date de paiement</p>
+                          <p className="font-medium">{formatDate(paiement.datePaiement)}</p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
               </div>
             </section>
           )}
