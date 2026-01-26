@@ -21,7 +21,7 @@ import useSound from 'use-sound';
 export function InscriptionForm() {
   const [step, setStep] = useState("identite");
   const router = useRouter();
-  const login= process.env.NEXT_PUBLIC_LOGIN_URL || '/login';
+  const login = process.env.NEXT_PUBLIC_LOGIN_URL || '/login';
   const [loadingInscription, setLoadingInscription] = useState(false);
   const [errorInscription, setErrorInscription] = useState("");
   const [successMessageInscription, setSuccessMessageInscription] = useState("");
@@ -70,7 +70,6 @@ export function InscriptionForm() {
       refPedag: "", datePedag: "", montantPedag: "",
       montantEcolage: "", refEcolage: "", dateEcolage: "",
       idNiveau: "", idFormation: "",
-
     });
     setValidatedDocs({
       photo: false, acte: false, diplome: false, cni: false, medical: false,
@@ -103,7 +102,15 @@ export function InscriptionForm() {
       }
 
       const response = await res.json();
-      setEtudiantsTrouves(response.data);
+      
+      // LOGIQUE DE TRI : On trie par Nom, puis par Prénom
+      const sortedStudents = response.data.sort((a: EtudiantRecherche, b: EtudiantRecherche) => {
+        const compareNom = a.nom.localeCompare(b.nom);
+        if (compareNom !== 0) return compareNom;
+        return a.prenom.localeCompare(b.prenom);
+      });
+
+      setEtudiantsTrouves(sortedStudents);
       setAfficherListeEtudiants(true);
       
       if (response.data.length > 0) {
@@ -296,7 +303,7 @@ export function InscriptionForm() {
             </TabsContent>
 
             <TabsContent value="paiement" className="mt-6">
-              <PaiementForm formData={paiementData} updateData={updatePaiement} formation = {formation} niveaux={niveaux} formations={formations} parcoursType={parcoursType} onBack={() => setStep("academique")} onNext={() => setStep("documents")} />
+              <PaiementForm formData={paiementData} updateData={updatePaiement} formation={formation} niveaux={niveaux} formations={formations} parcoursType={parcoursType} onBack={() => setStep("academique")} onNext={() => setStep("documents")} />
             </TabsContent>
 
             <TabsContent value="documents" className="space-y-6 mt-6">
