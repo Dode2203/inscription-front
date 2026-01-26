@@ -129,11 +129,7 @@ export interface Niveau {
   grade: number;
   type: number;
 }
-export interface Formation{
-  id: number|string;
-  nom: string;
-  typeFormation: string|number;
-}
+
 
 // Refactorisation Liste etudiant 
 export interface PaiementEtudiant {
