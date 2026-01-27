@@ -24,8 +24,7 @@ async function safeParse<T>(res: Response): Promise<T[]> {
   }
 }
 
-export const getInitialData = cache(async (): Promise<InitialData> => {
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+export const getInitialData = cache(async (): Promise<InitialData> => {  const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
 
   try {
     const [resNiveaux, resMentions, resFormations] = await Promise.all([

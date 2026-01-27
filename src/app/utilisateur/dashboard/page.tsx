@@ -1,4 +1,3 @@
-// src/app/utilisateur/dashboard/page.tsx
 "use client"
 
 import { useState, useEffect } from "react";
@@ -16,13 +15,15 @@ export default function UtilisateurDashboard() {
   const [statsLoading, setStatsLoading] = useState(true);
   const [statsError, setStatsError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  
+  // Correction ici : On initialise activeTab avec useState pour pouvoir passer setActiveTab
+  const [activeTab, setActiveTab] = useState("/utilisateur/dashboard");
+  
   const login = process.env.NEXT_PUBLIC_LOGIN_URL || '/login';
-  const activeTab = "/utilisateur/dashboard";
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Vérification de l'authentification
         const authResponse = await fetch('/api/auth/me');
         if (!authResponse.ok) {
           window.location.href = login;
@@ -32,7 +33,6 @@ export default function UtilisateurDashboard() {
         const userData = await authResponse.json();
         setUser(userData.user);
 
-        // Récupération des étudiants
         const currentYear = new Date().getFullYear();
         const studentsResponse = await fetch(`/api/etudiants/inscrits-par-annee?annee=${currentYear}`);
         
@@ -80,7 +80,7 @@ export default function UtilisateurDashboard() {
     };
 
     fetchStats();
-  }, []); // Se déclenche une seule fois au montage du composant
+  }, []);
 
   if (loading) {
     return (
@@ -95,7 +95,8 @@ export default function UtilisateurDashboard() {
       <Header user={user} />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Menu user={user} activeTab={activeTab} />
+        {/* Correction ici : Ajout de la prop setActiveTab manquante */}
+        <Menu user={user} activeTab={activeTab} setActiveTab={setActiveTab} />
         
         <div className="mb-8">
           <h2 className="text-3xl font-bold text-foreground mb-2">Tableau de bord</h2>
