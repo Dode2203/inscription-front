@@ -24,13 +24,13 @@ async function safeParse<T>(res: Response): Promise<T[]> {
   }
 }
 
-export const getInitialData = cache(async (): Promise<InitialData> => {  const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+export const getInitialData = cache(async (): Promise<InitialData> => { 
 
   try {
     const [resNiveaux, resMentions, resFormations] = await Promise.all([
-      fetch(`${baseUrl}/api/etudiants/niveaux`, { next: { revalidate: 3600 } }), 
-      fetch(`${baseUrl}/api/etudiants/mentions`, { next: { revalidate: 3600 } }),
-      fetch(`${baseUrl}/api/etudiants/formations`, { next: { revalidate: 3600 } }),
+      fetch(`/api/etudiants/niveaux`, { next: { revalidate: 3600 } }), 
+      fetch(`/api/etudiants/mentions`, { next: { revalidate: 3600 } }),
+      fetch(`/api/etudiants/formations`, { next: { revalidate: 3600 } }),
     ]);
 
     const niveaux = await safeParse<Niveau>(resNiveaux);

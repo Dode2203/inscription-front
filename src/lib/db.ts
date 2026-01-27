@@ -63,7 +63,9 @@ export interface Formation {
   niveau: string;
   mention: string;
   statusEtudiant?: string;
-
+  id?:string|number;
+  nom?:string;
+  typeFormation?:string;
 
 }
 
@@ -130,7 +132,6 @@ export interface Niveau {
   type: number;
 }
 
-
 // Refactorisation Liste etudiant 
 export interface PaiementEtudiant {
   id?: number;
@@ -149,6 +150,14 @@ export interface StatsData {
   nouvelles_inscriptions: number;
 }
 
+// 1. Interface pour la réponse globale de l'API
+export interface ApiResponse {
+  status: string;
+  annee: number;
+  data: Student;
+}
+
+// 2. Interface principale de l'étudiant
 export interface Student {
   id: number;
   nom: string;
@@ -163,50 +172,50 @@ export interface Student {
     telephone?: string;
   };
   
-  // Formation (structure de l'API)
   formation?: {
+    id: number;
     nom: string;
     type?: {
+      id: number;
       nom: string;
     };
+    dateFormation?: string;
   };
-  
-  // Ancienne structure (compatibilité)
   typeFormation?: {
+
     nom: string;
+
   };
-  
-  // Niveau et mention
+
   niveau?: {
+    id: number;
     nom: string;
+    type?: number;
+    grade?: number;
   };
+
   mention?: {
+    id: number;
     nom: string;
   };
+
+  // Changement ici : correspond à la clé "payments" du JSON
+  payments?: Array<{
+    montant: number;
+    datePaiement: string;
+    typeDroit: string;
+    reference: string;
+  }>;
+
+  // Optionnel : Garder les anciennes propriétés si vous faites 
+  // une transformation de données après la réception
   parcours?: {
     nom: string;
   };
-  
-  // Inscription
   inscription?: {
     matricule?: string;
     anneeUniversitaire?: string;
   };
-  
-  // Paiements
-  droitsPayes?: Array<{
-    typeDroit: string;
-    montant: number;
-    reference: string;
-    datePaiement: string;
-  }>;
-  
-  ecolage?: Array<{
-    tranche: number;
-    montant: number;
-    reference: string;
-    datePaiement: string;
-  }>;
 }
 
 // In-memory storage (replace with database)

@@ -303,7 +303,20 @@ export function InscriptionForm() {
             </TabsContent>
 
             <TabsContent value="paiement" className="mt-6">
+
+             <PaiementForm
+                formData={paiementData}
+                updateData={updatePaiement}
+                formation={formation}
+                niveaux={niveaux}
+                formations={formations ?? []}
+                parcoursType={parcoursType}
+                onBack={() => setStep("academique")}
+                onNext={() => setStep("documents")}
+              />
+
               <PaiementForm formData={paiementData} updateData={updatePaiement} formation={formation} niveaux={niveaux} formations={formations} parcoursType={parcoursType} onBack={() => setStep("academique")} onNext={() => setStep("documents")} />
+
             </TabsContent>
 
             <TabsContent value="documents" className="space-y-6 mt-6">

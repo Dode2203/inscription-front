@@ -29,15 +29,21 @@ export function prepareReceiptData(student: Student) {
 
   // 2. FORMATION - Utilise l'interface Formation de db.ts
   const formation: Formation = {
-    idFormation: (student.formation?.id || 0).toString(),
+    // On s'assure que l'ID est bien traité selon le type string | number
+    idFormation: student.formation?.id ?? 0, 
     formation: student.formation?.nom || 'Non spécifié',
     formationType: student.formation?.type?.nom || 'Initial',
-    typeNiveau: (student.niveau?.type || 0).toString(),
-    gradeNiveau: (student.niveau?.grade || 0).toString(),
+    
+    // Attention ici : si l'interface attend des strings, ajoute .toString()
+    idNiveau: (student.niveau?.id ?? 0).toString(),
+    
+    // Vérifie si ces champs doivent être des strings dans l'interface :
+    typeNiveau: student.niveau?.type || 0, 
+    gradeNiveau: student.niveau?.grade || 0,
+    
     niveau: student.niveau?.nom || 'Non spécifié',
-    mention: student.mention?.nom || 'Non spécifiée',
+    mention: student.mention?.nom || 'Non spécifiée'
   };
-
   // 3. INSCRIPTION - Utilise l'interface Inscription de db.ts
   const inscription: Inscription | null = student.inscription 
     ? {
@@ -69,15 +75,16 @@ function extractPaiementData(student: Student): PaiementData {
   let dateEcolage = '';
   let montantEcolage = '0';
 
-  // Traiter les droits payés de l'API
-  if (student.droitsPayes && Array.isArray(student.droitsPayes)) {
-    student.droitsPayes.forEach(paiement => {
+  // On utilise student.payments (la nouvelle clé du JSON)
+  if (student.payments && Array.isArray(student.payments)) {
+    student.payments.forEach(paiement => {
       const montant = paiement.montant.toString();
       const date = paiement.datePaiement 
         ? new Date(paiement.datePaiement).toLocaleDateString('fr-FR') 
         : '';
       const ref = paiement.reference || '';
 
+      // On filtre par le nom du typeDroit
       if (paiement.typeDroit === 'Administratif') {
         refAdmin = ref;
         dateAdmin = date;
@@ -86,21 +93,16 @@ function extractPaiementData(student: Student): PaiementData {
         refPedag = ref;
         datePedag = date;
         montantPedag = montant;
+      } else if (paiement.typeDroit === 'Ecolage') { 
+        // Au cas où l'écolage est aussi dans ce tableau
+        refEcolage = ref;
+        dateEcolage = date;
+        montantEcolage = montant;
       }
     });
   }
 
-  // Traiter l'écolage (si présent)
-  if (student.ecolage && Array.isArray(student.ecolage) && student.ecolage.length > 0) {
-    const premiereTranche = student.ecolage[0];
-    refEcolage = premiereTranche.reference || '';
-    dateEcolage = premiereTranche.datePaiement 
-      ? new Date(premiereTranche.datePaiement).toLocaleDateString('fr-FR') 
-      : '';
-    montantEcolage = premiereTranche.montant.toString();
-  }
-
-  // Retourner selon l'interface PaiementData de db.ts
+  // Retourner selon l'interface PaiementData
   return {
     refAdmin,
     dateAdmin,
@@ -113,10 +115,9 @@ function extractPaiementData(student: Student): PaiementData {
     montantEcolage,
     idNiveau: (student.niveau?.id || 0).toString(),
     idFormation: (student.formation?.id || 0).toString(),
-    passant: false
+    passant: false // À adapter selon votre logique métier
   };
 }
-
 /**
  * Récupère les détails complets d'un étudiant depuis l'API
  */
