@@ -63,7 +63,9 @@ export interface Formation {
   niveau: string;
   mention: string;
   statusEtudiant?: string;
-
+  id?:string|number;
+  nom?:string;
+  typeFormation?:string;
 
 }
 

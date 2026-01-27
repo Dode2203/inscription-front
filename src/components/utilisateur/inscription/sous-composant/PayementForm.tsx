@@ -96,16 +96,12 @@ useEffect(() => {
             className="block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
           >
 
-        {formations.length > 0 ? (
-          formations.map((f: Formation) => (
-            <option key={f.id} value={f.id}>
-              {f.nom} ({f.typeFormation})
-            </option>
-          ))
-        ) : (
-          <option disabled>Aucune formation</option>
-        )}
-
+            {formations?.map((f: Formation) => (
+              // CORRECTION : value doit être f.id, pas formData.idFormation
+              <option key={f.id} value={f.id}>
+                {f.nom} ({f.typeFormation})
+              </option>
+            ))}
           </select>
         </div>
         <div className="flex flex-col gap-2">
