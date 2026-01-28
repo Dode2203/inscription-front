@@ -1,21 +1,27 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { User } from "@/lib/db";
+import { User, Formation, Mention } from "@/lib/db";
 import Header from "@/components/static/Header";
 import Menu from "@/components/static/Menu";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 export default function InscriptionPage() {
   const [user, setUser] = useState<User | null>(null);
-  const [activeTab, setActiveTab] = useState(""); // Sera géré par le pathname dans Menu
+  const [activeTab, setActiveTab] = useState("");
   const [loading, setLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  const [formations, setFormations] = useState<Formation[]>([]);
+  const [mentions, setMentions] = useState<Mention[]>([]);
+
   const loginUrl = process.env.NEXT_PUBLIC_LOGIN_URL || '/login';
 
-  // État du formulaire unique
   const [formData, setFormData] = useState({
     nom: '',
     prenom: '',
@@ -26,64 +32,74 @@ export default function InscriptionPage() {
     telephone: '',
     email: '',
     adresse: '',
-    formation: '',
-    formationType: '',
-    niveau: '',
-    mention: '',
+    idFormation: '',
+    idMention: '',
     statusEtudiant: 'Concours'
   });
 
-  // 1. Vérification de l'authentification
   useEffect(() => {
-    const checkAuth = async () => {
+    const checkAuthAndLoadData = async () => {
       try {
-        const response = await fetch(`/api/auth/me`);
-        if (!response.ok) {
+        const [authRes, formRes, mentRes] = await Promise.all([
+          fetch(`/api/auth/me`),
+          fetch(`/api/formations`),
+          fetch(`/api/mentions`)
+        ]);
+
+        if (!authRes.ok) {
           window.location.href = loginUrl;
           return;
         }
-        const data = await response.json();
+
+        const data = await authRes.json();
         setUser(data.user);
+
+        if (formRes.ok) setFormations((await formRes.json()).data || []);
+        if (mentRes.ok) setMentions((await mentRes.json()).data || []);
+
       } catch (err) {
         window.location.href = loginUrl;
       } finally {
         setLoading(false);
       }
     };
-    checkAuth();
+    checkAuthAndLoadData();
   }, [loginUrl]);
 
-  // 2. Gestion des changements d'input
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // 3. Soumission du formulaire (POST)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
     try {
-      const response = await fetch('/api/inscription', { // Ajuste ton endpoint ici
+      const response = await fetch('/api/inscription', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       });
 
       if (response.ok) {
-        alert("Candidat enregistré avec succès !");
-        // Optionnel: reset du formulaire
+        toast.success("Candidat enregistré avec succès !");
+        setFormData({
+          nom: '', prenom: '', dateNaissance: '', lieuNaissance: '',
+          sexe: '', nationalite: '', telephone: '', email: '',
+          adresse: '', idFormation: '', idMention: '', statusEtudiant: 'Concours'
+        });
       } else {
-        alert("Erreur lors de l'enregistrement.");
+        toast.error("Erreur lors de l'enregistrement.");
       }
-    } catch (error) {
-      console.error("Erreur:", error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   if (loading) {
     return (
       <main className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent"></div>
+        <Loader2 className="animate-spin h-12 w-12 border-b-2 border-accent" />
       </main>
     );
   }
@@ -93,7 +109,6 @@ export default function InscriptionPage() {
       <Header user={user} />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Ton composant Menu qui gère la navigation par onglets */}
         <Menu user={user} activeTab={activeTab} setActiveTab={setActiveTab} />
 
         <div className="mt-6">
@@ -112,7 +127,21 @@ export default function InscriptionPage() {
                     <FormField label="Prénoms" name="prenom" value={formData.prenom} onChange={handleChange} />
                     <FormField label="Date de Naissance" name="dateNaissance" type="date" value={formData.dateNaissance} onChange={handleChange} />
                     <FormField label="Lieu de Naissance" name="lieuNaissance" value={formData.lieuNaissance} onChange={handleChange} />
-                    <FormField label="Sexe" name="sexe" placeholder="M/F" value={formData.sexe} onChange={handleChange} />
+                    
+                    <div className="space-y-1.5">
+                      <Label className="text-sm font-semibold">Sexe</Label>
+                      <select 
+                        name="sexe" 
+                        value={formData.sexe} 
+                        onChange={handleChange}
+                        className="flex h-10 w-full rounded-md border border-input bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+                      >
+                        <option value="">Sélectionner M/F</option>
+                        <option value="M">Masculin</option>
+                        <option value="F">Féminin</option>
+                      </select>
+                    </div>
+
                     <FormField label="Nationalité" name="nationalite" value={formData.nationalite} onChange={handleChange} />
                   </div>
                 </section>
@@ -129,18 +158,47 @@ export default function InscriptionPage() {
                   </div>
                 </section>
 
-                {/* SECTION 3 : FORMATION */}
+                {/* SECTION 3 : FORMATION (SANS NIVEAU) */}
                 <section className="space-y-4">
                   <h3 className="text-lg font-semibold border-l-4 border-accent pl-2">Parcours Académique</h3>
                   <div className="grid md:grid-cols-2 gap-4">
-                    <FormField label="Formation" name="formation" value={formData.formation} onChange={handleChange} />
-                    <FormField label="Niveau" name="niveau" value={formData.niveau} onChange={handleChange} />
-                    <FormField label="Mention" name="mention" value={formData.mention} onChange={handleChange} />
+                    
+                    <div className="space-y-1.5">
+                      <Label className="text-sm font-semibold">Formation</Label>
+                      <select 
+                        name="idFormation" 
+                        value={formData.idFormation} 
+                        onChange={handleChange}
+                        className="flex h-10 w-full rounded-md border border-input bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+                      >
+                        <option value="">Sélectionner une formation</option>
+                        {formations.map((f) => (
+                          <option key={f.id} value={f.id}>{f.nom}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label className="text-sm font-semibold">Mention</Label>
+                      <select 
+                        name="idMention" 
+                        value={formData.idMention} 
+                        onChange={handleChange}
+                        className="flex h-10 w-full rounded-md border border-input bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+                      >
+                        <option value="">Sélectionner une mention</option>
+                        {mentions.map((m) => (
+                          <option key={m.id} value={m.id}>{m.nom}</option>
+                        ))}
+                      </select>
+                    </div>
+
                   </div>
                 </section>
 
                 <div className="flex justify-end pt-4">
-                  <Button type="submit" size="lg" className="px-10">
+                  <Button type="submit" size="lg" className="px-10" disabled={isSubmitting}>
+                    {isSubmitting ? <Loader2 className="animate-spin mr-2" /> : null}
                     Enregistrer l'inscription
                   </Button>
                 </div>
@@ -153,7 +211,6 @@ export default function InscriptionPage() {
   );
 }
 
-// Petit composant helper pour les champs du formulaire
 function FormField({ label, name, type = "text", value, onChange, placeholder, required = false }: any) {
   return (
     <div className="space-y-1.5">
@@ -162,7 +219,7 @@ function FormField({ label, name, type = "text", value, onChange, placeholder, r
         id={name}
         name={name}
         type={type}
-        value={value}
+        value={value || ""}
         onChange={onChange}
         placeholder={placeholder}
         required={required}

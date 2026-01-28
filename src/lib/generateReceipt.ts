@@ -131,6 +131,11 @@ export const generateReceiptPDF = (
 };
 
 function formatMontant(montant: string | number): string {
-  const num = typeof montant === 'string' ? parseFloat(montant) : montant;
-  return new Intl.NumberFormat('fr-FR').format(num);
+  const num =
+    typeof montant === 'string'
+      ? Number(montant.replace(/\s|\/|,/g, ''))
+      : montant;
+
+  return num.toLocaleString('fr-FR').replace(/\u202f|\u00a0/g, '.');
 }
+
