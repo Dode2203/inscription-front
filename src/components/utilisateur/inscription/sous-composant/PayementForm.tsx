@@ -48,7 +48,6 @@ const PaiementForm: React.FC<PaiementFormProps> = ({
 
   // Synchronisation des données initiales et calcul du niveau suivant
   useEffect(() => {
-    // Éviter l'assignation directe, utiliser updateData
     if (formData.idFormation !== formation.idFormation) {
         updateData({ idFormation: formation.idFormation });
     }
@@ -63,7 +62,7 @@ const PaiementForm: React.FC<PaiementFormProps> = ({
         updateData({ idNiveau: nextNiveau });
       }
     }
-  }, [formData.idFormation, typeFormation]);
+  }, [formData.idFormation, formation.idFormation, typeFormation, niveaux, niveauActuelGrade, updateData]);
 
   return (
     <div className="space-y-6 mt-6">
@@ -79,9 +78,11 @@ const PaiementForm: React.FC<PaiementFormProps> = ({
             id="idFormation"
             name="idFormation"
             onChange={handleChange}
-            value={formData.idFormation}
+            // Correction : Utilisation de || "" pour éviter l'erreur "value prop should not be null"
+            value={formData.idFormation || ""} 
             className="block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
           >
+            <option value="" disabled>Sélectionnez une formation</option>
             {formations.length > 0 ? (
               formations.map((f: Formation) => (
                 <option key={f.id} value={f.id}>
@@ -89,7 +90,7 @@ const PaiementForm: React.FC<PaiementFormProps> = ({
                 </option>
               ))
             ) : (
-              <option disabled>Aucune formation</option>
+              <option disabled>Aucune formation disponible</option>
             )}
           </select>
         </div>
@@ -102,10 +103,12 @@ const PaiementForm: React.FC<PaiementFormProps> = ({
           <select
             id="idNiveau"
             name="idNiveau"
-            value={formData.idNiveau} 
+            // Correction : Utilisation de || "" pour éviter l'erreur "value prop should not be null"
+            value={formData.idNiveau || ""} 
             onChange={handleChange}
             className="block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
           >
+            <option value="" disabled>Sélectionnez un niveau</option>
             {niveaux.map((f: Niveau) => (
               <option key={f.id} value={f.id}>
                 {f.nom} ({f.grade})
