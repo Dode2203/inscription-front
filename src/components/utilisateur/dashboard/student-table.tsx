@@ -139,7 +139,7 @@ export function StudentTable({ students }: StudentTableProps) {
         <StudentDetailsModal
           student={selectedStudent}
           onClose={() => setSelectedStudent(null)}
-          onDownload={handleDownloadPDF}
+          onDownloadPDF={handleDownloadPDF}
           isDownloading={isDownloading}
         />
       )}

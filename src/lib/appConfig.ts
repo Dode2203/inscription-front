@@ -4,7 +4,8 @@ import { Niveau, Mention, Formation } from './db';
 
 export interface InitialData {
   niveaux: Niveau[];
-  formations: Formation[]; // Changé de 'formations' à 'mentions'
+  mentions: Mention[]; // Changé de 'formations' à 'mentions'
+  formations : Formation[];
 }
 
 async function safeParse<T>(res: Response): Promise<T[]> {
@@ -23,20 +24,22 @@ async function safeParse<T>(res: Response): Promise<T[]> {
   }
 }
 
-export const getInitialData = cache(async (): Promise<InitialData> => {  const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+export const getInitialData = cache(async (): Promise<InitialData> => { 
 
   try {
-    const [resNiveaux, resFormations] = await Promise.all([
-      fetch(`/api/etudiants/niveaux`, { next: { revalidate: 3600 } }),
-      fetch(`/api/etudiants/formations`, { next: { revalidate: 3600 } })
+    const [resNiveaux, resMentions, resFormations] = await Promise.all([
+      fetch(`/api/etudiants/niveaux`, { next: { revalidate: 3600 } }), 
+      fetch(`/api/etudiants/mentions`, { next: { revalidate: 3600 } }),
+      fetch(`/api/etudiants/formations`, { next: { revalidate: 3600 } }),
     ]);
 
     const niveaux = await safeParse<Niveau>(resNiveaux);
+    const mentions = await safeParse<Mention>(resMentions);
     const formations = await safeParse<Formation>(resFormations);
 
-    return { niveaux, formations };
+    return { niveaux, mentions, formations };
   } catch (error) {
     console.error("❌ Erreur getInitialData:", error);
-    return { niveaux: [],formations: [] };
+    return { niveaux: [], mentions: [], formations: []};
   }
 });
