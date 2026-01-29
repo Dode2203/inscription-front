@@ -48,6 +48,14 @@ export default function ModificationPage() {
   const [nomSearch, setNomSearch] = useState("");
   const [prenomSearch, setPrenomSearch] = useState("");
   const [loadingRecherche, setLoadingRecherche] = useState(false);
+
+  // Fonction utilitaire pour formater les dates au format ISO 8601 attendu par Symfony
+  const toIsoString = (dateStr: string | null) => {
+    if (!dateStr || dateStr === "") return null;
+    // Ajoute l'heure minuit et le fuseau horaire local/Z pour satisfaire Symfony
+    return `${dateStr}T00:00:00+00:00`;
+  };
+
   const [etudiantsTrouves, setEtudiantsTrouves] = useState<EtudiantRecherche[]>([]);
   const [afficherListe, setAfficherListe] = useState(false);
 
@@ -158,8 +166,16 @@ export default function ModificationPage() {
       { field: 'nom', label: 'Nom' },
       { field: 'prenom', label: 'Prénom' },
       { field: 'dateNaissance', label: 'Date de naissance' },
+      { field: 'lieuNaissance', label: 'Lieu de naissance' },
+      { field: 'sexeId', label: 'Sexe' },
       { field: 'cinNumero', label: 'Numéro CIN' },
-      { field: 'dateCin', label: 'Date de délivrance CIN' }
+      { field: 'cinLieu', label: 'Lieu de délivrance CIN' },
+      { field: 'dateCin', label: 'Date de délivrance CIN' },
+      { field: 'baccNumero', label: 'Numéro de baccalauréat' },
+      { field: 'baccAnnee', label: 'Année du baccalauréat' },
+      { field: 'baccSerie', label: 'Série du baccalauréat' },
+      { field: 'proposEmail', label: 'Email' },
+      { field: 'proposAdresse', label: 'Adresse' }
     ];
 
     const missingFields = requiredFields
@@ -172,47 +188,59 @@ export default function ModificationPage() {
     }
 
     setLoadingSave(true);
+    
     try {
-      // Préparer le payload avec uniquement les champs nécessaires
-      const payload = {
-        id: formData.id,
-        nom: formData.nom.trim(),
-        prenom: formData.prenom.trim(),
-        dateNaissance: formData.dateNaissance,
-        lieuNaissance: formData.lieuNaissance.trim(),
-        sexeId: Number(formData.sexeId),
-        cinNumero: formData.cinNumero.trim(),
-        cinLieu: formData.cinLieu.trim(),
-        dateCin: formData.dateCin,
-        baccNumero: formData.baccNumero.trim(),
+      // Vérification de l'ID
+      if (!formData.id) {
+        throw new Error("ID de l'étudiant manquant");
+      }
+
+      // Nettoyage et formatage strict pour correspondre au DTO Symfony
+      const dataToSend = {
+        id: Number(formData.id),
+        nom: (formData.nom || "").toUpperCase().trim(),
+        prenom: (formData.prenom || "").trim(),
+        // Formatage des dates au format ISO 8601 attendu par Symfony
+        dateNaissance: toIsoString(formData.dateNaissance || ""),
+        lieuNaissance: formData.lieuNaissance || "",
+        sexeId: Number(formData.sexeId) || 1,
+        // Données CIN
+        cinNumero: formData.cinNumero || "",
+        cinLieu: formData.cinLieu || "",
+        dateCin: toIsoString(formData.dateCin),
+        // Données BACC
+        baccNumero: formData.baccNumero || "",
         baccAnnee: formData.baccAnnee ? Number(formData.baccAnnee) : 0,
-        baccSerie: formData.baccSerie.trim(),
-        proposEmail: formData.proposEmail.trim(),
-        proposAdresse: formData.proposAdresse.trim(),
-        telephone: formData.telephone.trim()
+        baccSerie: formData.baccSerie || "",
+        // Données de contact
+        proposEmail: formData.proposEmail || "",
+        proposAdresse: formData.proposAdresse || "",
+        // Champ optionnel
+        telephone: formData.telephone || ""
       };
 
-      const res = await fetch('/api/etudiants/modifier', {
+      console.log('Payload envoyé à l\'API:', dataToSend);
+
+      const response = await fetch('/api/etudiants/modifier', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(dataToSend),
       });
 
-      const response = await res.json();
+      const result = await response.json();
       
-      if (res.ok) {
-        toast.success("Dossier mis à jour avec succès !");
-        // Recharger les données mises à jour
-        if (formData.id) {
-          await selectEtudiant(formData.id);
-        }
+      if (response.ok && result.status === 'success') {
+        toast.success('Modifications enregistrées !');
+        setAfficherListe(true);
       } else {
-        const errorMessage = response.message || response.error || "Erreur lors de la modification";
-        toast.error(errorMessage);
+        // Affiche l'erreur détaillée si elle existe
+        const errorMsg = result.error || result.message || 'Erreur lors de la sauvegarde';
+        console.error('Erreur du serveur:', result);
+        throw new Error(errorMsg);
       }
-    } catch (err) {
-      console.error('Erreur lors de la mise à jour:', err);
-      toast.error("Une erreur technique est survenue lors de la mise à jour");
+    } catch (error: any) {
+      console.error('Détail erreur:', error);
+      toast.error(error.message || 'Erreur de connexion au serveur');
     } finally { 
       setLoadingSave(false); 
     }
