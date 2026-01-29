@@ -78,14 +78,28 @@ export default function InscriptionPage() {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      // Format the data to match the API requirements
+      // Formatage strict pour Symfony
       const payload = {
-        ...formData,
-        dateNaissance: formData.dateNaissance ? `${formData.dateNaissance}T00:00:00+03:00` : '',
-        dateCin: formData.dateCin ? `${formData.dateCin}T00:00:00+03:00` : '',
-        baccAnnee: formData.baccAnnee ? parseInt(formData.baccAnnee, 10) : 0,
-        sexeId: parseInt(formData.sexeId.toString(), 10)
+        nom: (formData.nom || "").toUpperCase().trim(),
+        prenom: (formData.prenom || "").trim(),
+        // Format Date impératif : YYYY-MM-DD -> YYYY-MM-DDT00:00:00+03:00
+        dateNaissance: formData.dateNaissance ? `${formData.dateNaissance}T00:00:00+03:00` : "",
+        lieuNaissance: formData.lieuNaissance || "",
+        sexeId: Number(formData.sexeId) || 0,
+        cinNumero: formData.cinNumero || "",
+        cinLieu: formData.cinLieu || "",
+        dateCin: formData.dateCin ? `${formData.dateCin}T00:00:00+03:00` : "",
+        baccNumero: formData.baccNumero || "",
+        baccAnnee: formData.baccAnnee ? parseInt(formData.baccAnnee.toString(), 10) : 0,
+        baccSerie: formData.baccSerie || "",
+        proposEmail: formData.proposEmail || "",
+        proposAdresse: formData.proposAdresse || "",
+        // Ajout des IDs de formation et mention
+        formationId: formData.formationId ? Number(formData.formationId) : null,
+        mentionId: formData.mentionId ? Number(formData.mentionId) : null
       };
+
+      console.log("Payload envoyé à l'API:", payload);
 
       const response = await fetch('/api/etudiants/save', {
         method: 'POST',
@@ -93,8 +107,11 @@ export default function InscriptionPage() {
         body: JSON.stringify(payload),
       });
 
-      if (response.ok) {
+      const result = await response.json();
+
+      if (response.ok && result.status === "success") {
         toast.success("Candidat enregistré avec succès !");
+        // Réinitialisation du formulaire après une inscription réussie
         setFormData({
           nom: '',
           prenom: '',
@@ -113,9 +130,11 @@ export default function InscriptionPage() {
           mentionId: ''
         });
       } else {
-        const errorData = await response.json();
-        toast.error(errorData.message || "Erreur lors de l'enregistrement");
+        throw new Error(result.message || result.error || "Erreur lors de l'enregistrement");
       }
+    } catch (error: any) {
+      console.error("Erreur lors de l'enregistrement:", error);
+      toast.error(error.message || "Une erreur est survenue lors de l'enregistrement");
     } finally {
       setIsSubmitting(false);
     }
