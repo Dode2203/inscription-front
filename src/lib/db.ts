@@ -216,6 +216,7 @@ export interface Student {
     matricule?: string;
     anneeUniversitaire?: string;
   };
+  dateInscription?: string;
 }
 
 // In-memory storage (replace with database)

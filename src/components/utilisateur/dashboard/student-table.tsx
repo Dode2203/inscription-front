@@ -6,7 +6,7 @@ import { Download, Loader2, Eye, X, FileText, Calendar, MapPin, User, Mail, Grad
 import { Student } from '@/lib/db';
 import { generateReceiptPDF } from '@/lib/generateReceipt';
 import { StudentDetailsModal } from './student-model';
-
+import {formatDateTime} from '@/lib/utils';
 interface StudentTableProps {
   students: Student[];
 }
@@ -87,6 +87,9 @@ export function StudentTable({ students }: StudentTableProps) {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Prénom
                 </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Date Inscription
+                </th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Actions
                 </th>
@@ -102,6 +105,10 @@ export function StudentTable({ students }: StudentTableProps) {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {student.prenom}
                     </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
+                      {formatDateTime(student.dateInscription) }
+                    </td>
+
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
                       <button
                         onClick={() => handleViewDetails(student)}
