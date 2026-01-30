@@ -117,7 +117,7 @@ const PaiementForm: React.FC<PaiementFormProps> = ({
               .filter((n: Niveau) => {
                 const formationId = Number(formData.idFormation);
                 if (formationId === 1) return n.type === 1; // Academique: L1, L2, L3, M1, M2 (Type 1)
-                if (formationId === 2) return n.type === 2 && n.grade <= 3; // Professionnelle: LP1, LP2, LP3 (Type 2, Grade 1-3)
+                if (formationId === 2) return n.type === 2; // Professionnelle: LP1, LP2, LP3, MP1, MP2 (Type 2)
                 if (formationId === 3) return n.type === 3; // Professionnelle Luban: LP1L, LP2L, LP3L (Type 3)
                 if (formationId === 4) return n.type === 4; // Master Recherche: MVR (Type 4)
                 return false;
