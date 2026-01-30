@@ -2,10 +2,11 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Download, Loader2, Eye, X, FileText, Calendar, MapPin, User, Mail, GraduationCap, CreditCard } from 'lucide-react';
+import { Loader2, Eye } from 'lucide-react';
 import { Student } from '@/lib/db';
 import { generateReceiptPDF } from '@/lib/generateReceipt';
 import { StudentDetailsModal } from './student-model';
+import { MissingStaticPage } from 'next/dist/shared/lib/utils';
 
 interface StudentTableProps {
   students: Student[];
@@ -44,7 +45,7 @@ export function StudentTable({ students }: StudentTableProps) {
         ecolage: result.data.ecolage || null
       };
       
-      setSelectedStudent(fullStudent);
+      setSelectedStudent(fullStudent);  
     } catch (error) {
       console.error('Erreur:', error);
       alert('Impossible de charger les détails de l\'étudiant');
@@ -139,8 +140,7 @@ export function StudentTable({ students }: StudentTableProps) {
         <StudentDetailsModal
           student={selectedStudent}
           onClose={() => setSelectedStudent(null)}
-          onDownloadPDF={handleDownloadPDF}
-          isDownloading={isDownloading}
+          
         />
       )}
     </div>
