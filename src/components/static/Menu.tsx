@@ -50,14 +50,19 @@ export default function Menu({ user }: MenuProps) {
   if (user?.role === "Admin") {
     tabs.push(
       {
-        key: "/admin/dashboard",
-        label: "Overview",
+        key: "/admin/inscription",
+        label: "Inscription",
         icon: <BarChart3 size={18} />,
       },
       {
         key: "/admin/users",
         label: "Users",
         icon: <Users size={18} />,
+      },
+      {
+        key: "/admin/modification",
+        label: "Modification",
+        icon: <Filter size={18} />,
       }
     );
   }

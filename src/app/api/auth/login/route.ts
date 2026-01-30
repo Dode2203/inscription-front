@@ -21,6 +21,8 @@ export async function POST(request: NextRequest) {
 
     const data = backendResponse.data.data; // token et infos utilisateur
 
+    
+
     // Création de la réponse côté Next.js
     const response = NextResponse.json(
       { message: "Connexion réussie", token: data.token, membre: data.membre },

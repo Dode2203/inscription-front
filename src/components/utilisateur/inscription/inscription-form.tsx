@@ -16,12 +16,11 @@ import PaiementForm from "./sous-composant/PayementForm"
 import { useRouter } from "next/navigation"
 import { generateReceiptPDF } from "@/lib/generateReceipt" 
 import { getInitialData } from '@/lib/appConfig';
-import useSound from 'use-sound';
 
 export function InscriptionForm() {
   const [step, setStep] = useState("identite");
   const router = useRouter();
-  const login= process.env.NEXT_PUBLIC_LOGIN_URL || '/login';
+  const login = process.env.NEXT_PUBLIC_LOGIN_URL || '/login';
   const [loadingInscription, setLoadingInscription] = useState(false);
   const [errorInscription, setErrorInscription] = useState("");
   const [successMessageInscription, setSuccessMessageInscription] = useState("");
@@ -49,7 +48,6 @@ export function InscriptionForm() {
     photo: false, acte: false, diplome: false, cni: false, medical: false,
   });
 
-  // Vérification des documents
   const allDocsValidated = validatedDocs.photo && validatedDocs.acte && validatedDocs.diplome && validatedDocs.cni && validatedDocs.medical;
 
   const updatePaiement = (fields: Partial<PaiementData>) => {
@@ -70,7 +68,6 @@ export function InscriptionForm() {
       refPedag: "", datePedag: "", montantPedag: "",
       montantEcolage: "", refEcolage: "", dateEcolage: "",
       idNiveau: "", idFormation: "",
-
     });
     setValidatedDocs({
       photo: false, acte: false, diplome: false, cni: false, medical: false,
@@ -103,7 +100,25 @@ export function InscriptionForm() {
       }
 
       const response = await res.json();
-      setEtudiantsTrouves(response.data);
+      
+      // LOGIQUE DE TRI : On trie par Nom, puis par Prénom
+      const sortedStudents = response.data.sort(
+        (a: EtudiantRecherche, b: EtudiantRecherche) => {
+          const nomA = a.nom ?? "";
+          const nomB = b.nom ?? "";
+
+          const compareNom = nomA.localeCompare(nomB);
+          if (compareNom !== 0) return compareNom;
+
+          const prenomA = a.prenom ?? "";
+          const prenomB = b.prenom ?? "";
+
+          return prenomA.localeCompare(prenomB);
+        }
+      );
+
+
+      setEtudiantsTrouves(sortedStudents);
       setAfficherListeEtudiants(true);
       
       if (response.data.length > 0) {
@@ -187,14 +202,13 @@ export function InscriptionForm() {
       };
       
       setSuccessMessageInscription("Inscription réussie !");
-      
       generateReceiptPDF(identite, formation, paiementData, newInscription);
       const successAudio = new Audio("/sounds/success-221935.mp3");
       successAudio.play();
       toast.success("Inscription réussie pour l'étudiant " + identite.nom + " " + identite.prenom);
 
       setTimeout(() => {
-        router.push('/utilisateur/dashboard');
+        router.push('/utilisateur/dashboard'); 
       }, 2000);
 
     } catch (err: any) {
@@ -236,7 +250,7 @@ export function InscriptionForm() {
           <div className="md:col-span-2 space-y-2">
             <Label htmlFor="prenom">Prénom</Label>
             <Input 
-              id="prenom" 
+              id="prenom"   
               placeholder="Prénom de l'étudiant" 
               value={prenomSearch} 
               onChange={(e) => setPrenomSearch(e.target.value)}
@@ -296,7 +310,8 @@ export function InscriptionForm() {
             </TabsContent>
 
             <TabsContent value="paiement" className="mt-6">
-             <PaiementForm
+              {/* APPEL UNIQUE DU FORMULAIRE */}
+              <PaiementForm
                 formData={paiementData}
                 updateData={updatePaiement}
                 formation={formation}
@@ -306,7 +321,6 @@ export function InscriptionForm() {
                 onBack={() => setStep("academique")}
                 onNext={() => setStep("documents")}
               />
-
             </TabsContent>
 
             <TabsContent value="documents" className="space-y-6 mt-6">
@@ -327,7 +341,6 @@ export function InscriptionForm() {
                 type="submit" 
                 disabled={loadingInscription || !!successMessageInscription} 
                 className="flex-1 h-12 text-lg bg-green-700 hover:bg-green-800"
-                variant={successMessageInscription ? "secondary" : "default"}
               >
                 {loadingInscription ? <Loader2 className="animate-spin mr-2" /> : null}
                 {successMessageInscription ? (
@@ -344,7 +357,6 @@ export function InscriptionForm() {
             )}
           </div>
         </form>
-        
       ) : (
         <div className="py-20 text-center border-2 border-dashed rounded-xl bg-slate-50/50">
           <p className="text-slate-500">
@@ -352,7 +364,6 @@ export function InscriptionForm() {
           </p>
         </div>
       )}
-
     </Card>
   )
 }

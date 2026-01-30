@@ -20,17 +20,38 @@ export function cn(...inputs: ClassValue[]) {
  * @param dateString - La chaîne de caractères représentant la date.
  * @returns La date formatée (ex: "11 décembre 2025").
  */
-export function formatDate(dateString: string): string {
-  // 1. Création de l'objet Date à partir de la chaîne fournie en paramètre.
-  const date = new Date(dateString); 
+export function formatDate(dateString?: string): string {
+  let date = new Date(dateString ?? '');
 
-  // 2. Formatage de la date en "fr-FR".
+  // Si date invalide ou absente → date du jour
+  if (!dateString || isNaN(date.getTime())) {
+    date = new Date();
+  }
+
   return date.toLocaleDateString("fr-FR", {
     day: "2-digit",
     month: "long",
     year: "numeric",
   });
 }
+export function formatDateTime(dateString?: string): string {
+  let date = new Date(dateString ?? '');
+
+  // Si undefined, null ou date invalide → date du jour
+  if (!dateString || isNaN(date.getTime())) {
+    date = new Date();
+  }
+
+  return date.toLocaleString("fr-FR", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+
 
 // Assurez-vous d'utiliser `export` devant les deux fonctions.
 // De cette façon, vous pourrez les importer nommément dans n'importe quel composant :
