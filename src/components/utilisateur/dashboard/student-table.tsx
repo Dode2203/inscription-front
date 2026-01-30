@@ -6,7 +6,6 @@ import { Loader2, Eye } from 'lucide-react';
 import { Student } from '@/lib/db';
 import { generateReceiptPDF } from '@/lib/generateReceipt';
 import { StudentDetailsModal } from './student-model';
-import { MissingStaticPage } from 'next/dist/shared/lib/utils';
 
 interface StudentTableProps {
   students: Student[];
@@ -16,6 +15,18 @@ export function StudentTable({ students }: StudentTableProps) {
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [loadingStudentId, setLoadingStudentId] = useState<number | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
+
+  const formatDateTime = (date: string | Date | undefined) => {
+  if (!date) return 'N/A';
+  return new Date(date).toLocaleDateString('fr-FR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    // Ajoutez ces lignes si vous voulez aussi l'heure :
+    // hour: '2-digit',
+    // minute: '2-digit'
+  });
+};
 
   const handleViewDetails = async (student: Student) => {
     try {
@@ -88,6 +99,9 @@ export function StudentTable({ students }: StudentTableProps) {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Prénom
                 </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Date Inscription
+                </th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Actions
                 </th>
@@ -103,6 +117,10 @@ export function StudentTable({ students }: StudentTableProps) {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {student.prenom}
                     </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
+                      {formatDateTime(student.dateInscription) }
+                    </td>
+
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
                       <button
                         onClick={() => handleViewDetails(student)}

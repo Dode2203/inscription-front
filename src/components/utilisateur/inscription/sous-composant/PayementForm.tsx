@@ -79,7 +79,7 @@ const PaiementForm: React.FC<PaiementFormProps> = ({
             name="idFormation"
             onChange={handleChange}
             // Correction : Utilisation de || "" pour éviter l'erreur "value prop should not be null"
-            value={formData.idFormation || ""} 
+           // value={formData.idFormation || ""} 
             className="block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
           >
             <option value="" disabled>Sélectionnez une formation</option>
@@ -184,7 +184,9 @@ const PaiementForm: React.FC<PaiementFormProps> = ({
         </div>
 
         {/* Section Écolage Conditionnelle */}
-        {parcoursType === "PROFESSIONNELLE" && (
+
+
+        {parcoursType === "Professionelle" && (
           <div className="mt-6 p-6 border-2 border-amber-200 rounded-xl bg-amber-50/30">
             <h4 className="text-lg font-bold text-amber-900 mb-4 flex items-center">
               <span className="bg-amber-100 p-2 rounded-full mr-2">💰</span>

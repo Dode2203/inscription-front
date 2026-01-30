@@ -13,7 +13,7 @@ import { toast } from "sonner";
 
 export default function InscriptionPage() {
   const [user, setUser] = useState<User | null>(null);
-  const [activeTab, setActiveTab] = useState("");
+  const [activeTab, setActiveTab] = useState("/admin/inscription");
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
@@ -27,14 +27,17 @@ export default function InscriptionPage() {
     prenom: '',
     dateNaissance: '',
     lieuNaissance: '',
-    sexe: '',
-    nationalite: '',
-    telephone: '',
-    email: '',
-    adresse: '',
-    idFormation: '',
-    idMention: '',
-    statusEtudiant: 'Concours'
+    sexeId: 0,
+    cinNumero: '',
+    cinLieu: '',
+    dateCin: '',
+    baccNumero: '',
+    baccAnnee: '',
+    baccSerie: '',
+    proposEmail: '',
+    proposAdresse: '',
+    formationId: '',
+    mentionId: ''
   });
 
   useEffect(() => {
@@ -42,8 +45,8 @@ export default function InscriptionPage() {
       try {
         const [authRes, formRes, mentRes] = await Promise.all([
           fetch(`/api/auth/me`),
-          fetch(`/api/formations`),
-          fetch(`/api/mentions`)
+          fetch(`/api/etudiants/formations`),
+          fetch(`/api/etudiants/mentions`)
         ]);
 
         if (!authRes.ok) {
@@ -75,22 +78,63 @@ export default function InscriptionPage() {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const response = await fetch('/api/inscription', {
+      // Formatage strict pour Symfony
+      const payload = {
+        nom: (formData.nom || "").toUpperCase().trim(),
+        prenom: (formData.prenom || "").trim(),
+        // Format Date impératif : YYYY-MM-DD -> YYYY-MM-DDT00:00:00+03:00
+        dateNaissance: formData.dateNaissance ? `${formData.dateNaissance}T00:00:00+03:00` : "",
+        lieuNaissance: formData.lieuNaissance || "",
+        sexeId: Number(formData.sexeId) || 0,
+        cinNumero: formData.cinNumero || "",
+        cinLieu: formData.cinLieu || "",
+        dateCin: formData.dateCin ? `${formData.dateCin}T00:00:00+03:00` : "",
+        baccNumero: formData.baccNumero || "",
+        baccAnnee: formData.baccAnnee ? parseInt(formData.baccAnnee.toString(), 10) : 0,
+        baccSerie: formData.baccSerie || "",
+        proposEmail: formData.proposEmail || "",
+        proposAdresse: formData.proposAdresse || "",
+        // Ajout des IDs de formation et mention
+        formationId: formData.formationId ? Number(formData.formationId) : null,
+        mentionId: formData.mentionId ? Number(formData.mentionId) : null
+      };
+
+      console.log("Payload envoyé à l'API:", payload);
+
+      const response = await fetch('/api/etudiants/save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
-      if (response.ok) {
+      const result = await response.json();
+
+      if (response.ok && result.status === "success") {
         toast.success("Candidat enregistré avec succès !");
+        // Réinitialisation du formulaire après une inscription réussie
         setFormData({
-          nom: '', prenom: '', dateNaissance: '', lieuNaissance: '',
-          sexe: '', nationalite: '', telephone: '', email: '',
-          adresse: '', idFormation: '', idMention: '', statusEtudiant: 'Concours'
+          nom: '',
+          prenom: '',
+          dateNaissance: '',
+          lieuNaissance: '',
+          sexeId: 0,
+          cinNumero: '',
+          cinLieu: '',
+          dateCin: '',
+          baccNumero: '',
+          baccAnnee: '',
+          baccSerie: '',
+          proposEmail: '',
+          proposAdresse: '',
+          formationId: '',
+          mentionId: ''
         });
       } else {
-        toast.error("Erreur lors de l'enregistrement.");
+        throw new Error(result.message || result.error || "Erreur lors de l'enregistrement");
       }
+    } catch (error: any) {
+      console.error("Erreur lors de l'enregistrement:", error);
+      toast.error(error.message || "Une erreur est survenue lors de l'enregistrement");
     } finally {
       setIsSubmitting(false);
     }
@@ -131,18 +175,24 @@ export default function InscriptionPage() {
                     <div className="space-y-1.5">
                       <Label className="text-sm font-semibold">Sexe</Label>
                       <select 
-                        name="sexe" 
-                        value={formData.sexe} 
+                        name="sexeId" 
+                        value={formData.sexeId} 
                         onChange={handleChange}
                         className="flex h-10 w-full rounded-md border border-input bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+                        required
                       >
-                        <option value="">Sélectionner M/F</option>
-                        <option value="M">Masculin</option>
-                        <option value="F">Féminin</option>
+                        <option value="0">Sélectionner M/F</option>
+                        <option value="1">Masculin</option>
+                        <option value="2">Féminin</option>
                       </select>
                     </div>
 
-                    <FormField label="Nationalité" name="nationalite" value={formData.nationalite} onChange={handleChange} />
+                    <FormField label="Numéro CIN" name="cinNumero" value={formData.cinNumero} onChange={handleChange} required />
+                    <FormField label="Lieu de délivrance CIN" name="cinLieu" value={formData.cinLieu} onChange={handleChange} required />
+                    <FormField label="Date de délivrance CIN" name="dateCin" type="date" value={formData.dateCin} onChange={handleChange} required />
+                    <FormField label="Numéro BACC" name="baccNumero" value={formData.baccNumero} onChange={handleChange} required />
+                    <FormField label="Année BACC" name="baccAnnee" type="number" value={formData.baccAnnee} onChange={handleChange} required />
+                    <FormField label="Série BACC" name="baccSerie" value={formData.baccSerie} onChange={handleChange} required />
                   </div>
                 </section>
 
@@ -150,10 +200,9 @@ export default function InscriptionPage() {
                 <section className="space-y-4">
                   <h3 className="text-lg font-semibold border-l-4 border-accent pl-2">Contact</h3>
                   <div className="grid md:grid-cols-2 gap-4">
-                    <FormField label="Téléphone" name="telephone" value={formData.telephone} onChange={handleChange} />
-                    <FormField label="Email" name="email" type="email" value={formData.email} onChange={handleChange} />
+                    <FormField label="Email" name="proposEmail" type="email" value={formData.proposEmail} onChange={handleChange} required />
                     <div className="md:col-span-2">
-                      <FormField label="Adresse" name="adresse" value={formData.adresse} onChange={handleChange} />
+                      <FormField label="Adresse" name="proposAdresse" value={formData.proposAdresse} onChange={handleChange} required />
                     </div>
                   </div>
                 </section>
@@ -162,14 +211,14 @@ export default function InscriptionPage() {
                 <section className="space-y-4">
                   <h3 className="text-lg font-semibold border-l-4 border-accent pl-2">Parcours Académique</h3>
                   <div className="grid md:grid-cols-2 gap-4">
-                    
-                    <div className="space-y-1.5">
+                                        <div className="space-y-1.5">
                       <Label className="text-sm font-semibold">Formation</Label>
                       <select 
-                        name="idFormation" 
-                        value={formData.idFormation} 
+                        name="formationId" 
+                        value={formData.formationId} 
                         onChange={handleChange}
                         className="flex h-10 w-full rounded-md border border-input bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+                        required
                       >
                         <option value="">Sélectionner une formation</option>
                         {formations.map((f) => (
@@ -181,10 +230,11 @@ export default function InscriptionPage() {
                     <div className="space-y-1.5">
                       <Label className="text-sm font-semibold">Mention</Label>
                       <select 
-                        name="idMention" 
-                        value={formData.idMention} 
+                        name="mentionId" 
+                        value={formData.mentionId} 
                         onChange={handleChange}
                         className="flex h-10 w-full rounded-md border border-input bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+                        required
                       >
                         <option value="">Sélectionner une mention</option>
                         {mentions.map((m) => (

@@ -14,6 +14,7 @@ import { toast } from "sonner";
 
 // --- INTERFACES POUR TYPESCRIPT ---
 interface FormDataState {
+  id: number | string | null;
   nom: string;
   prenom: string;
   dateNaissance: string;
@@ -28,9 +29,6 @@ interface FormDataState {
   proposEmail: string;
   proposAdresse: string;
   telephone: string;
-  formation: string;
-  niveau: string;
-  mention: string;
 }
 
 interface CompactFieldProps {
@@ -50,6 +48,14 @@ export default function ModificationPage() {
   const [nomSearch, setNomSearch] = useState("");
   const [prenomSearch, setPrenomSearch] = useState("");
   const [loadingRecherche, setLoadingRecherche] = useState(false);
+
+  // Fonction utilitaire pour formater les dates au format ISO 8601 attendu par Symfony
+  const toIsoString = (dateStr: string | null) => {
+    if (!dateStr || dateStr === "") return null;
+    // Ajoute l'heure minuit et le fuseau horaire local/Z pour satisfaire Symfony
+    return `${dateStr}T00:00:00+00:00`;
+  };
+
   const [etudiantsTrouves, setEtudiantsTrouves] = useState<EtudiantRecherche[]>([]);
   const [afficherListe, setAfficherListe] = useState(false);
 
@@ -57,12 +63,21 @@ export default function ModificationPage() {
   
   // État du formulaire initialisé
   const [formData, setFormData] = useState<FormDataState>({
-    nom: '', prenom: '', dateNaissance: '', lieuNaissance: '',
+    id: null,
+    nom: '', 
+    prenom: '', 
+    dateNaissance: '', 
+    lieuNaissance: '',
     sexeId: 1, 
-    cinNumero: '', cinLieu: '', dateCin: '',
-    baccNumero: '', baccAnnee: '', baccSerie: '',
-    proposEmail: '', proposAdresse: '', telephone: '',
-    formation: '', niveau: '', mention: ''
+    cinNumero: '', 
+    cinLieu: '', 
+    dateCin: '',
+    baccNumero: '', 
+    baccAnnee: '', 
+    baccSerie: '',
+    proposEmail: '', 
+    proposAdresse: '', 
+    telephone: ''
   });
 
   const login = process.env.NEXT_PUBLIC_LOGIN_URL || '/login';
@@ -99,62 +114,136 @@ export default function ModificationPage() {
     } finally { setLoadingRecherche(false); }
   };
 
-  // 3. Sélection et remplissage (Mappage du JSON)
+
+  // 3. Récupération et pré-remplissage des données de l'étudiant
   const selectEtudiant = async (id: number | string) => {
     setLoadingRecherche(true);
     try {
-      const res = await fetch(`/api/etudiants?idEtudiant=${encodeURIComponent(id)}`);
-      const response = await res.json();
-      if (res.ok) {
-        const d = response.data;
-        setCurrentEtudiantId(id);
-        
+      const response = await fetch(`/api/etudiants/modifier/formulaire?id=${id}`);
+      const result = await response.json();
+      
+      if (result.status === "success") {
+        const d = result.data;
+        // On peuple l'état du formulaire champ par champ
         setFormData({
-          nom: d.identite.nom || '',
-          prenom: d.identite.prenom || '',
-          dateNaissance: d.identite.dateNaissance ? d.identite.dateNaissance.split('T')[0] : '',
-          lieuNaissance: d.identite.lieuNaissance || '',
-          sexeId: d.identite.sexeId || 1,
-          cinNumero: d.identite.cinNumero || '',
-          cinLieu: d.identite.cinLieu || '',
-          dateCin: d.identite.dateCin ? d.identite.dateCin.split('T')[0] : '',
-          baccNumero: d.identite.baccNumero || '',
-          baccAnnee: d.identite.baccAnnee || '',
-          baccSerie: d.identite.baccSerie || '',
-          proposEmail: d.identite.proposEmail || d.identite.contact?.email || '',
-          proposAdresse: d.identite.proposAdresse || d.identite.contact?.adresse || '',
-          telephone: d.identite.contact?.telephone || '',
-          formation: d.formation?.formation || '',
-          niveau: d.formation?.niveau || '',
-          mention: d.formation?.mention || ''
+          id: d.id,
+          nom: d.nom || "",
+          prenom: d.prenom || "",
+          dateNaissance: d.dateNaissance ? d.dateNaissance.split('T')[0] : "",
+          lieuNaissance: d.lieuNaissance || "",
+          sexeId: d.sexeId || 1,
+          cinNumero: d.cinNumero || "",
+          cinLieu: d.cinLieu || "",
+          dateCin: d.dateCin ? d.dateCin.split('T')[0] : "",
+          baccNumero: d.baccNumero || "",
+          baccAnnee: d.baccAnnee || "",
+          baccSerie: d.baccSerie || "",
+          proposEmail: d.proposEmail || "",
+          proposAdresse: d.proposAdresse || "",
+          telephone: d.telephone || ""
         });
+        // On définit l'ID de l'étudiant courant pour afficher le formulaire
+        setCurrentEtudiantId(id);
         setAfficherListe(false);
+        toast.success("Dossier étudiant chargé");
+      } else {
+        toast.error(result.message || "Erreur de récupération");
       }
-    } finally { setLoadingRecherche(false); }
+    } catch (e) {
+      console.error("Erreur technique:", e);
+      toast.error("Erreur technique lors du chargement");
+    } finally {
+      setLoadingRecherche(false);
+    }
   };
 
-  // 4. Update (PUT)
+  // 4. Mise à jour des données de l'étudiant
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validation des champs obligatoires
+    const requiredFields = [
+      { field: 'nom', label: 'Nom' },
+      { field: 'prenom', label: 'Prénom' },
+      { field: 'dateNaissance', label: 'Date de naissance' },
+      { field: 'lieuNaissance', label: 'Lieu de naissance' },
+      { field: 'sexeId', label: 'Sexe' },
+      { field: 'cinNumero', label: 'Numéro CIN' },
+      { field: 'cinLieu', label: 'Lieu de délivrance CIN' },
+      { field: 'dateCin', label: 'Date de délivrance CIN' },
+      { field: 'baccNumero', label: 'Numéro de baccalauréat' },
+      { field: 'baccAnnee', label: 'Année du baccalauréat' },
+      { field: 'baccSerie', label: 'Série du baccalauréat' },
+      { field: 'proposEmail', label: 'Email' },
+      { field: 'proposAdresse', label: 'Adresse' }
+    ];
+
+    const missingFields = requiredFields
+      .filter(({ field }) => !formData[field as keyof typeof formData])
+      .map(({ label }) => label);
+
+    if (missingFields.length > 0) {
+      toast.error(`Champs obligatoires manquants : ${missingFields.join(', ')}`);
+      return;
+    }
+
     setLoadingSave(true);
+    
     try {
-      const res = await fetch(`/api/etudiants/inscription`, {
-        method: 'PUT',
+      // Vérification de l'ID
+      if (!formData.id) {
+        throw new Error("ID de l'étudiant manquant");
+      }
+
+      // Nettoyage et formatage strict pour correspondre au DTO Symfony
+      const dataToSend = {
+        id: Number(formData.id),
+        nom: (formData.nom || "").toUpperCase().trim(),
+        prenom: (formData.prenom || "").trim(),
+        // Formatage des dates au format ISO 8601 attendu par Symfony
+        dateNaissance: toIsoString(formData.dateNaissance || ""),
+        lieuNaissance: formData.lieuNaissance || "",
+        sexeId: Number(formData.sexeId) || 1,
+        // Données CIN
+        cinNumero: formData.cinNumero || "",
+        cinLieu: formData.cinLieu || "",
+        dateCin: toIsoString(formData.dateCin),
+        // Données BACC
+        baccNumero: formData.baccNumero || "",
+        baccAnnee: formData.baccAnnee ? Number(formData.baccAnnee) : 0,
+        baccSerie: formData.baccSerie || "",
+        // Données de contact
+        proposEmail: formData.proposEmail || "",
+        proposAdresse: formData.proposAdresse || "",
+        // Champ optionnel
+        telephone: formData.telephone || ""
+      };
+
+      // console.log('Payload envoyé à l\'API:', dataToSend); 
+
+      const response = await fetch('/api/etudiants/modifier', {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          id: currentEtudiantId,
-          ...formData
-        }),
+        body: JSON.stringify(dataToSend),
       });
 
-      if (res.ok) {
-        toast.success("Dossier mis à jour avec succès !");
+      const result = await response.json();
+      
+      if (response.ok && result.status === 'success') {
+        toast.success('Modifications enregistrées !');
+        setAfficherListe(true);
       } else {
-        toast.error("Erreur lors de la modification");
+        // Affiche l'erreur détaillée si elle existe
+        const errorMsg = result.error || result.message || 'Erreur lors de la sauvegarde';
+        console.error('Erreur du serveur:', result);
+        throw new Error(errorMsg);
       }
-    } catch (err) {
-      toast.error("Erreur technique");
-    } finally { setLoadingSave(false); }
+    } catch (error: any) {
+      console.error('Détail erreur:', error);
+      toast.error(error.message || 'Erreur de connexion au serveur');
+    } finally { 
+      setLoadingSave(false); 
+    }
   };
 
   if (loading) return <div className="h-screen flex items-center justify-center"><Loader2 className="animate-spin text-blue-900" /></div>;
@@ -200,39 +289,134 @@ export default function ModificationPage() {
             <CardContent className="p-6 bg-white">
               <form onSubmit={handleUpdate} className="space-y-8">
                 
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   {/* COL 1: IDENTITÉ */}
                   <div className="space-y-4">
                     <h4 className="text-[10px] font-black text-blue-900 uppercase tracking-widest border-b pb-1">Etat Civil</h4>
-                    <CompactField label="Nom" value={formData.nom} onChange={(v: string) => setFormData({...formData, nom: v})} />
-                    <CompactField label="Prénom" value={formData.prenom} onChange={(v: string) => setFormData({...formData, prenom: v})} />
-                    <CompactField label="Né(e) le" type="date" value={formData.dateNaissance} onChange={(v: string) => setFormData({...formData, dateNaissance: v})} />
-                    <CompactField label="Lieu" value={formData.lieuNaissance} onChange={(v: string) => setFormData({...formData, lieuNaissance: v})} />
+                    <div className="bg-slate-50 p-2 rounded border">
+                      <p className="text-xs text-slate-500">ID Étudiant</p>
+                      <p className="font-medium">{formData.id}</p>
+                    </div>
+                    <CompactField 
+                      label="Nom" 
+                      value={formData.nom} 
+                      onChange={(v: string) => setFormData({...formData, nom: v})} 
+                      required
+                    />
+                    <CompactField 
+                      label="Prénom" 
+                      value={formData.prenom} 
+                      onChange={(v: string) => setFormData({...formData, prenom: v})} 
+                      // required
+                    />
+                    <CompactField 
+                      label="Date de naissance" 
+                      type="date" 
+                      value={formData.dateNaissance} 
+                      onChange={(v: string) => setFormData({...formData, dateNaissance: v})} 
+                      required
+                    />
+                    <CompactField 
+                      label="Lieu de naissance" 
+                      value={formData.lieuNaissance} 
+                      onChange={(v: string) => setFormData({...formData, lieuNaissance: v})} 
+                      required
+                    />
+                    <div className="space-y-1">
+                      <Label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Sexe</Label>
+                      <select 
+                        value={formData.sexeId} 
+                        onChange={(e) => setFormData({...formData, sexeId: Number(e.target.value)})}
+                        className="h-9 w-full text-sm border-slate-200 focus:border-blue-400 bg-slate-50/50 rounded-md px-3"
+                        required
+                      >
+                        <option value="1">Masculin</option>
+                        <option value="2">Féminin</option>
+                      </select>
+                    </div>
                   </div>
 
-                  {/* COL 2: CIN */}
-                  <div className="space-y-4">
-                    <h4 className="text-[10px] font-black text-blue-900 uppercase tracking-widest border-b pb-1 flex items-center gap-1"><Fingerprint size={12}/> CIN</h4>
-                    <CompactField label="Numéro CIN" value={formData.cinNumero} onChange={(v: string) => setFormData({...formData, cinNumero: v})} />
-                    <CompactField label="Fait à" value={formData.cinLieu} onChange={(v: string) => setFormData({...formData, cinLieu: v})} />
-                    <CompactField label="Date CIN" type="date" value={formData.dateCin} onChange={(v: string) => setFormData({...formData, dateCin: v})} />
+                  {/* COL 2: CIN & BACC */}
+                  <div className="space-y-6">
+                    <div className="space-y-4">
+                      <h4 className="text-[10px] font-black text-blue-900 uppercase tracking-widest border-b pb-1 flex items-center gap-1">
+                        <Fingerprint size={12}/> CIN
+                      </h4>
+                      <CompactField 
+                        label="Numéro CIN" 
+                        value={formData.cinNumero} 
+                        onChange={(v: string) => setFormData({...formData, cinNumero: v})} 
+                        required
+                      />
+                      <CompactField 
+                        label="Lieu de délivrance" 
+                        value={formData.cinLieu} 
+                        onChange={(v: string) => setFormData({...formData, cinLieu: v})} 
+                        required
+                      />
+                      <CompactField 
+                        label="Date de délivrance" 
+                        type="date" 
+                        value={formData.dateCin} 
+                        onChange={(v: string) => setFormData({...formData, dateCin: v})} 
+                        required
+                      />
+                    </div>
+
+                    <div className="space-y-4">
+                      <h4 className="text-[10px] font-black text-blue-900 uppercase tracking-widest border-b pb-1 flex items-center gap-1">
+                        <GraduationCap size={12}/> Baccalauréat
+                      </h4>
+                      <CompactField 
+                        label="Numéro BACC" 
+                        value={formData.baccNumero} 
+                        onChange={(v: string) => setFormData({...formData, baccNumero: v})} 
+                        required
+                      />
+                      <CompactField 
+                        label="Année d'obtention" 
+                        type="number" 
+                        value={formData.baccAnnee} 
+                        onChange={(v: string) => setFormData({...formData, baccAnnee: v})} 
+                        required
+                      />
+                      <CompactField 
+                        label="Série BACC" 
+                        value={formData.baccSerie} 
+                        onChange={(v: string) => setFormData({...formData, baccSerie: v})} 
+                        required
+                      />
+                    </div>
                   </div>
 
-                  {/* COL 3: BACC & CURSUS */}
+                  {/* COL 3: CONTACT */}
                   <div className="space-y-4">
-                    <h4 className="text-[10px] font-black text-blue-900 uppercase tracking-widest border-b pb-1 flex items-center gap-1"><GraduationCap size={12}/> Scolarité</h4>
-                    <CompactField label="Numéro BACC" value={formData.baccNumero} onChange={(v: string) => setFormData({...formData, baccNumero: v})} />
-                    <CompactField label="Année BACC" value={formData.baccAnnee} onChange={(v: string) => setFormData({...formData, baccAnnee: v})} />
-                    <CompactField label="Série" value={formData.baccSerie} onChange={(v: string) => setFormData({...formData, baccSerie: v})} />
-                    <CompactField label="Niveau actuel" value={formData.niveau} onChange={(v: string) => setFormData({...formData, niveau: v})} />
-                  </div>
-
-                  {/* COL 4: CONTACT */}
-                  <div className="space-y-4">
-                    <h4 className="text-[10px] font-black text-blue-900 uppercase tracking-widest border-b pb-1">Contact</h4>
-                    <CompactField label="Email" value={formData.proposEmail} onChange={(v: string) => setFormData({...formData, proposEmail: v})} />
-                    <CompactField label="Téléphone" value={formData.telephone} onChange={(v: string) => setFormData({...formData, telephone: v})} />
-                    <CompactField label="Adresse" value={formData.proposAdresse} onChange={(v: string) => setFormData({...formData, proposAdresse: v})} />
+                    <h4 className="text-[10px] font-black text-blue-900 uppercase tracking-widest border-b pb-1">
+                      Coordonnées
+                    </h4>
+                    <CompactField 
+                      label="Email" 
+                      type="email" 
+                      value={formData.proposEmail} 
+                      onChange={(v: string) => setFormData({...formData, proposEmail: v})} 
+                      required
+                    />
+                    {/* <CompactField 
+                      label="Téléphone" 
+                      type="tel" 
+                      value={formData.telephone} 
+                      onChange={(v: string) => setFormData({...formData, telephone: v})} 
+                      required
+                    /> */}
+                    <div className="space-y-1">
+                      <Label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Adresse</Label>
+                      <textarea 
+                        value={formData.proposAdresse} 
+                        onChange={(e) => setFormData({...formData, proposAdresse: e.target.value})}
+                        className="min-h-[100px] w-full text-sm border-slate-200 focus:border-blue-400 bg-slate-50/50 rounded-md p-2"
+                        required
+                      />
+                    </div>
                   </div>
                 </div>
 
@@ -252,15 +436,21 @@ export default function ModificationPage() {
 }
 
 // --- SOUS-COMPOSANT TYPÉ ---
-function CompactField({ label, value, onChange, type = "text" }: CompactFieldProps) {
+function CompactField({ label, value, onChange, type = "text", required = false }: CompactFieldProps & { required?: boolean }) {
   return (
     <div className="space-y-1">
-      <Label className="text-[10px] font-bold text-slate-400 uppercase ml-1">{label}</Label>
+      <div className="flex items-center justify-between">
+        <Label className="text-[10px] font-bold text-slate-400 uppercase ml-1">
+          {label}
+        </Label>
+        {required && <span className="text-red-500 text-xs">*</span>}
+      </div>
       <Input 
         type={type} 
         value={value ?? ""} 
         onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange(e.target.value)} 
-        className="h-9 text-sm border-slate-200 focus:border-blue-400 bg-slate-50/50" 
+        className="h-9 text-sm border-slate-200 focus:border-blue-400 bg-slate-50/50"
+        required={required}
       />
     </div>
   );

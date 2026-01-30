@@ -100,11 +100,23 @@ export function InscriptionForm() {
       }
 
       const response = await res.json();
-      const sortedStudents = response.data.sort((a: EtudiantRecherche, b: EtudiantRecherche) => {
-        const compareNom = a.nom.localeCompare(b.nom);
-        if (compareNom !== 0) return compareNom;
-        return a.prenom.localeCompare(b.prenom);
-      });
+      
+      // LOGIQUE DE TRI : On trie par Nom, puis par Prénom
+      const sortedStudents = response.data.sort(
+        (a: EtudiantRecherche, b: EtudiantRecherche) => {
+          const nomA = a.nom ?? "";
+          const nomB = b.nom ?? "";
+
+          const compareNom = nomA.localeCompare(nomB);
+          if (compareNom !== 0) return compareNom;
+
+          const prenomA = a.prenom ?? "";
+          const prenomB = b.prenom ?? "";
+
+          return prenomA.localeCompare(prenomB);
+        }
+      );
+
 
       setEtudiantsTrouves(sortedStudents);
       setAfficherListeEtudiants(true);
