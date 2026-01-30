@@ -34,7 +34,7 @@ export default function WelcomePage() {
             <div className="space-y-8">
               <div className="space-y-4">
                 <h2 className="text-5xl font-extrabold text-foreground leading-tight">
-                  Système de Gestion <br />
+                  Système de Gestion <br/>
                   <span className="text-primary">des Étudiants</span>
                 </h2>
                 <p className="text-xl text-muted-foreground max-w-lg">
