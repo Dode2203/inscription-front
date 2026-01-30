@@ -32,7 +32,7 @@ interface Student {
 
 export default function AdminDashboard() {
   const [user, setUser] = useState<User | null>(null);
-  const [activeTab, setActiveTab] = useState("dashboard");
+  const [activeTab, setActiveTab] = useState("admin/dashboard");
   const [loading, setLoading] = useState(true);
   const [students, setStudents] = useState<Student[]>([]);
   const [statsLoading, setStatsLoading] = useState(true);

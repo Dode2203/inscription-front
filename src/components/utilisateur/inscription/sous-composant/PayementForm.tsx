@@ -185,6 +185,7 @@ const PaiementForm: React.FC<PaiementFormProps> = ({
 
         {/* Section Écolage Conditionnelle */}
 
+
         {parcoursType === "PROFESSIONNELLE" && (
           <div className="mt-6 p-6 border-2 border-amber-200 rounded-xl bg-amber-50/30">
             <h4 className="text-lg font-bold text-amber-900 mb-4 flex items-center">

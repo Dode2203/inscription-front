@@ -219,7 +219,7 @@ export default function ModificationPage() {
         telephone: formData.telephone || ""
       };
 
-      console.log('Payload envoyé à l\'API:', dataToSend);
+      // console.log('Payload envoyé à l\'API:', dataToSend); 
 
       const response = await fetch('/api/etudiants/modifier', {
         method: 'POST',
@@ -307,7 +307,7 @@ export default function ModificationPage() {
                       label="Prénom" 
                       value={formData.prenom} 
                       onChange={(v: string) => setFormData({...formData, prenom: v})} 
-                      required
+                      // required
                     />
                     <CompactField 
                       label="Date de naissance" 

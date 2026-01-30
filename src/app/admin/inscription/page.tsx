@@ -13,7 +13,7 @@ import { toast } from "sonner";
 
 export default function InscriptionPage() {
   const [user, setUser] = useState<User | null>(null);
-  const [activeTab, setActiveTab] = useState("");
+  const [activeTab, setActiveTab] = useState("/admin/inscription");
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
