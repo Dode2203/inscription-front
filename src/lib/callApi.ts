@@ -45,7 +45,7 @@ export async function callApiGet(
       );
     }
 
-    console.error("Erreur inconnue :", err);
+    // console.error("Erreur inconnue :", err);
     return NextResponse.json(
       { error: "Erreur interne inconnue du serveur" },
       { status: 500 }
@@ -109,7 +109,7 @@ export async function callApiPost(
       );
     }
 
-    console.error("Erreur inconnue sur l'api post:", err);
+    // console.error("Erreur inconnue sur l'api post:", err);
     return NextResponse.json(
       { error: "Erreur interne inconnue du serveur" },
       { status: 500 }
@@ -173,7 +173,7 @@ export async function callApiPut(
       );
     }
 
-    console.error("Erreur inconnue sur l'api put:", err);
+    // console.error("Erreur inconnue sur l'api put:", err);
     return NextResponse.json(
       { error: "Erreur interne inconnue du serveur" },
       { status: 500 }

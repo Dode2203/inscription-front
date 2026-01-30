@@ -34,6 +34,7 @@ export default function UtilisateurDashboard() {
         setUser(userData.user);
 
         const currentYear = new Date().getFullYear();
+        
         const studentsResponse = await fetch(`/api/etudiants/inscrits-par-annee?annee=${currentYear}`);
         
         if (!studentsResponse.ok) {
