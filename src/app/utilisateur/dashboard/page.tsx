@@ -35,7 +35,7 @@ export default function UtilisateurDashboard() {
         setUser(userData.user);
 
         const currentYear = new Date().getFullYear();
-        const limit = 5;
+        const limit = 10;
         
         const studentsResponse = await fetch(`/api/etudiants/inscrits-par-annee?annee=${currentYear}&limit=${limit}`);
         
