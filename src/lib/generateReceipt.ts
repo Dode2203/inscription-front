@@ -110,7 +110,7 @@ export const generateReceiptPDF = (
   doc.setFontSize(10);
   doc.setFont("helvetica", "bold");
   doc.text("L'Etudiant(e),", 30, finalY);
-  doc.text("Le Responsable SDE,", 140, finalY);
+  doc.text("Le Responsable,", 140, finalY);
   
   doc.setFont("helvetica", "italic");
   doc.setFontSize(8);

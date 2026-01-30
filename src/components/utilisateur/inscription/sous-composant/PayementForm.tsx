@@ -79,7 +79,7 @@ const PaiementForm: React.FC<PaiementFormProps> = ({
             name="idFormation"
             onChange={handleChange}
             // Correction : Utilisation de || "" pour éviter l'erreur "value prop should not be null"
-            // value={formData.idFormation || ""} 
+           // value={formData.idFormation || ""} 
             className="block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
           >
             <option value="" disabled>Sélectionnez une formation</option>

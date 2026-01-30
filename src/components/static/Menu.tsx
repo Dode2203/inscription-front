@@ -35,7 +35,7 @@ export default function Menu({ user }: MenuProps) {
       },
       {
         key: "/utilisateur/inscription",
-        label: "Inscription",
+        label: "Réinscription",
         icon: <Users size={18} />,
       },
       {
