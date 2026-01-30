@@ -99,7 +99,7 @@ export default function InscriptionPage() {
         mentionId: formData.mentionId ? Number(formData.mentionId) : null
       };
 
-      console.log("Payload envoyé à l'API:", payload);
+      // console.log("Payload envoyé à l'API:", payload);
 
       const response = await fetch('/api/etudiants/save', {
         method: 'POST',
@@ -133,7 +133,7 @@ export default function InscriptionPage() {
         throw new Error(result.message || result.error || "Erreur lors de l'enregistrement");
       }
     } catch (error: any) {
-      console.error("Erreur lors de l'enregistrement:", error);
+      // console.error("Erreur lors de l'enregistrement:", error);
       toast.error(error.message || "Une erreur est survenue lors de l'enregistrement");
     } finally {
       setIsSubmitting(false);

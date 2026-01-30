@@ -150,7 +150,7 @@ export default function ModificationPage() {
         toast.error(result.message || "Erreur de récupération");
       }
     } catch (e) {
-      console.error("Erreur technique:", e);
+      // console.error("Erreur technique:", e);
       toast.error("Erreur technique lors du chargement");
     } finally {
       setLoadingRecherche(false);
@@ -235,11 +235,11 @@ export default function ModificationPage() {
       } else {
         // Affiche l'erreur détaillée si elle existe
         const errorMsg = result.error || result.message || 'Erreur lors de la sauvegarde';
-        console.error('Erreur du serveur:', result);
+        // console.error('Erreur du serveur:', result);
         throw new Error(errorMsg);
       }
     } catch (error: any) {
-      console.error('Détail erreur:', error);
+      // console.error('Détail erreur:', error);
       toast.error(error.message || 'Erreur de connexion au serveur');
     } finally { 
       setLoadingSave(false); 

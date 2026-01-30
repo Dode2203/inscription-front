@@ -45,30 +45,33 @@ const PaiementForm: React.FC<PaiementFormProps> = ({
       [id]: val,
     });
   };
-  
-  // Synchronisation des données initiales et calcul du niveau suivant
+
+  // Synchronisation des données initiales
   useEffect(() => {
-    if (formData.idFormation !== formation.idFormation) {
-        updateData({ idFormation: formation.idFormation });
+    // Initialise idFormation seulement si non défini
+    if (!formData.idFormation && formation.idFormation) {
+      updateData({ idFormation: formation.idFormation });
     }
 
     if (formation.idFormation != 1) {
       setTypeFormation(2);
     }
+  }, [formation.idFormation, updateData, formData.idFormation]);
 
-    if (formation.statusEtudiant === "Passant") {
-      const nextNiveau = getNextGradeId(niveaux, typeFormation, niveauActuelGrade);
-      if (nextNiveau && formData.idNiveau !== nextNiveau) {
-        updateData({ idNiveau: nextNiveau });
-      }
-    }
-  }, [formData.idFormation, formation.idFormation, typeFormation, niveaux, niveauActuelGrade, updateData]);
+  // Gestion du changement de formation
+  const handleFormationChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newIdFormation = Number(e.target.value);
+    updateData({
+      idFormation: newIdFormation,
+      idNiveau: undefined // Réinitialiser le niveau lors du changement de formation
+    });
+  };
 
   return (
     <div className="space-y-6 mt-6">
       <div className="space-y-6">
         <h3 className="text-lg font-semibold text-foreground border-b pb-2">Bordereaux de versement</h3>
-        
+
         {/* Sélecteur de Formation */}
         <div className="flex flex-col gap-2">
           <label htmlFor="idFormation" className="text-sm font-medium text-gray-700">
@@ -77,18 +80,19 @@ const PaiementForm: React.FC<PaiementFormProps> = ({
           <select
             id="idFormation"
             name="idFormation"
-            onChange={handleChange}
-            // Correction : Utilisation de || "" pour éviter l'erreur "value prop should not be null"
-            // value={formData.idFormation || ""} 
+            onChange={handleFormationChange}
+            value={formData.idFormation || ""}
             className="block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
           >
             <option value="" disabled>Sélectionnez une formation</option>
-            {formations.length > 0 ? (
-              formations.map((f: Formation) => (
-                <option key={f.id} value={f.id}>
-                  {f.nom} ({f.typeFormation})
-                </option>
-              ))
+            {formations.filter(f => [1, 2, 3, 4].includes(f.id)).length > 0 ? (
+              formations
+                .filter(f => [1, 2, 3, 4].includes(f.id))
+                .map((f: Formation) => (
+                  <option key={f.id} value={f.id}>
+                    {f.nom} ({f.typeFormation})
+                  </option>
+                ))
             ) : (
               <option disabled>Aucune formation disponible</option>
             )}
@@ -98,22 +102,31 @@ const PaiementForm: React.FC<PaiementFormProps> = ({
         {/* Sélecteur de Niveau */}
         <div className="flex flex-col gap-2">
           <label htmlFor="idNiveau" className="text-sm font-medium text-gray-700">
-            Niveau actuel 
+            Niveau actuel
           </label>
           <select
             id="idNiveau"
             name="idNiveau"
             // Correction : Utilisation de || "" pour éviter l'erreur "value prop should not be null"
-            value={formData.idNiveau || ""} 
+            value={formData.idNiveau || ""}
             onChange={handleChange}
             className="block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
           >
             <option value="" disabled>Sélectionnez un niveau</option>
-            {niveaux.map((f: Niveau) => (
-              <option key={f.id} value={f.id}>
-                {f.nom} ({f.grade})
-              </option>
-            ))}
+            {niveaux
+              .filter((n: Niveau) => {
+                const formationId = Number(formData.idFormation);
+                if (formationId === 1) return n.type === 1; // Academique: L1, L2, L3, M1, M2 (Type 1)
+                if (formationId === 2) return n.type === 2 && n.grade <= 3; // Professionnelle: LP1, LP2, LP3 (Type 2, Grade 1-3)
+                if (formationId === 3) return n.type === 3; // Professionnelle Luban: LP1L, LP2L, LP3L (Type 3)
+                if (formationId === 4) return n.type === 4; // Master Recherche: MVR (Type 4)
+                return false;
+              })
+              .map((f: Niveau) => (
+                <option key={f.id} value={f.id}>
+                  {f.nom} ({f.grade})
+                </option>
+              ))}
           </select>
         </div>
 
@@ -123,29 +136,29 @@ const PaiementForm: React.FC<PaiementFormProps> = ({
             <h4 className="font-medium text-blue-900">Droits Administratifs</h4>
             <div className="space-y-2">
               <Label htmlFor="refAdmin">Référence du Paiement *</Label>
-              <Input 
-                id="refAdmin" 
-                value={formData.refAdmin || ""} 
-                onChange={handleChange} 
-                placeholder="Ex: PAY-ADMIN-XXXX" 
+              <Input
+                id="refAdmin"
+                value={formData.refAdmin || ""}
+                onChange={handleChange}
+                placeholder="Ex: PAY-ADMIN-XXXX"
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="dateAdmin">Date du Paiement *</Label>
-              <Input 
-                id="dateAdmin" 
-                type="date" 
-                value={formData.dateAdmin || ""} 
-                onChange={handleChange} 
+              <Input
+                id="dateAdmin"
+                type="date"
+                value={formData.dateAdmin || ""}
+                onChange={handleChange}
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="montantAdmin">Montant administratifs *</Label>
-              <Input 
-                id="montantAdmin" 
-                type="number" 
-                value={formData.montantAdmin || ""} 
-                onChange={handleChange} 
+              <Input
+                id="montantAdmin"
+                type="number"
+                value={formData.montantAdmin || ""}
+                onChange={handleChange}
               />
             </div>
           </div>
@@ -155,20 +168,20 @@ const PaiementForm: React.FC<PaiementFormProps> = ({
             <h4 className="font-medium text-blue-900">Droits Pédagogiques</h4>
             <div className="space-y-2">
               <Label htmlFor="refPedag">Référence du Paiement *</Label>
-              <Input 
-                id="refPedag" 
-                value={formData.refPedag || ""} 
-                onChange={handleChange} 
-                placeholder="Ex: PAY-PEDAG-XXXX" 
+              <Input
+                id="refPedag"
+                value={formData.refPedag || ""}
+                onChange={handleChange}
+                placeholder="Ex: PAY-PEDAG-XXXX"
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="datePedag">Date du Paiement *</Label>
               <Input
                 id="datePedag"
-                type="date" 
-                value={formData.datePedag || ""} 
-                onChange={handleChange} 
+                type="date"
+                value={formData.datePedag || ""}
+                onChange={handleChange}
               />
             </div>
             <div className="space-y-2">
@@ -176,7 +189,7 @@ const PaiementForm: React.FC<PaiementFormProps> = ({
               <Input
                 id="montantPedag"
                 type="number"
-                value={formData.montantPedag || ""} 
+                value={formData.montantPedag || ""}
                 onChange={handleChange}
               />
             </div>
@@ -186,7 +199,7 @@ const PaiementForm: React.FC<PaiementFormProps> = ({
         {/* Section Écolage Conditionnelle */}
 
 
-        {parcoursType === "Professionnelle" && (
+        {(formData.idFormation === 2 || formData.idFormation === 3) && (
           <div className="mt-6 p-6 border-2 border-amber-200 rounded-xl bg-amber-50/30">
             <h4 className="text-lg font-bold text-amber-900 mb-4 flex items-center">
               <span className="bg-amber-100 p-2 rounded-full mr-2">💰</span>
@@ -195,30 +208,30 @@ const PaiementForm: React.FC<PaiementFormProps> = ({
             <div className="grid md:grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="montantEcolage">Montant Total *</Label>
-                <Input 
-                  id="montantEcolage" 
-                  type="number" 
-                  value={formData.montantEcolage || ""} 
-                  onChange={handleChange} 
-                  placeholder="Ar" 
+                <Input
+                  id="montantEcolage"
+                  type="number"
+                  value={formData.montantEcolage || ""}
+                  onChange={handleChange}
+                  placeholder="Ar"
                 />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="refEcolage">Référence Acompte *</Label>
-                <Input 
-                  id="refEcolage" 
-                  value={formData.refEcolage || ""} 
-                  onChange={handleChange} 
-                  placeholder="REF-ECO-XXXX" 
+                <Input
+                  id="refEcolage"
+                  value={formData.refEcolage || ""}
+                  onChange={handleChange}
+                  placeholder="REF-ECO-XXXX"
                 />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="dateEcolage">Date Paiement *</Label>
-                <Input 
-                  id="dateEcolage" 
-                  type="date" 
-                  value={formData.dateEcolage || ""} 
-                  onChange={handleChange} 
+                <Input
+                  id="dateEcolage"
+                  type="date"
+                  value={formData.dateEcolage || ""}
+                  onChange={handleChange}
                 />
               </div>
             </div>
