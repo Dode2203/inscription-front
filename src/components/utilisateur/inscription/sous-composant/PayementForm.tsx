@@ -45,7 +45,7 @@ const PaiementForm: React.FC<PaiementFormProps> = ({
       [id]: val,
     });
   };
-
+  
   // Synchronisation des données initiales et calcul du niveau suivant
   useEffect(() => {
     if (formData.idFormation !== formation.idFormation) {
