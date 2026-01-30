@@ -7,6 +7,7 @@ import Menu from "@/components/static/Menu";
 import { DashboardStats } from "@/components/utilisateur/dashboard/dashboard-stats";
 import { QuickActions } from "@/components/utilisateur/dashboard/quick-actions";
 import { StudentTable } from "@/components/utilisateur/dashboard/student-table";
+import { toast } from "sonner";
 
 export default function UtilisateurDashboard() {
   const [user, setUser] = useState<User | null>(null);
@@ -34,11 +35,13 @@ export default function UtilisateurDashboard() {
         setUser(userData.user);
 
         const currentYear = new Date().getFullYear();
+        const limit = 5;
         
-        const studentsResponse = await fetch(`/api/etudiants/inscrits-par-annee?annee=${currentYear}`);
+        const studentsResponse = await fetch(`/api/etudiants/inscrits-par-annee?annee=${currentYear}&limit=${limit}`);
         
         if (!studentsResponse.ok) {
-          throw new Error('Erreur lors de la récupération des étudiants');
+          toast.error('Erreur lors de la récupération des étudiants');
+          return;
         }
         
         const data = await studentsResponse.json();
