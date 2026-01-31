@@ -4,18 +4,20 @@ import React, { useState } from 'react';
 import { Loader2, Eye, ChevronLeft, ChevronRight } from 'lucide-react'; // Ajout d'icônes
 import { Student } from '@/lib/db';
 import { StudentDetailsModal } from './student-model';
+import { formatDateTime } from '@/lib/utils';
 
 interface StudentTableProps {
   students: Student[];
+  nbPagination?: number;
 }
 
-export function StudentTable({ students }: StudentTableProps) {
+export function StudentTable({ students, nbPagination = 5 }: StudentTableProps) {
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [loadingStudentId, setLoadingStudentId] = useState<number | null>(null);
   
   // --- Logique de Pagination ---
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  const itemsPerPage = nbPagination;
   
   const totalPages = Math.ceil(students.length / itemsPerPage);
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -25,14 +27,6 @@ export function StudentTable({ students }: StudentTableProps) {
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
   // ----------------------------
 
-  const formatDateTime = (date: string | Date | undefined) => {
-    if (!date) return 'N/A';
-    return new Date(date).toLocaleDateString('fr-FR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-    });
-  };
 
   const handleViewDetails = async (student: Student) => {
     try {

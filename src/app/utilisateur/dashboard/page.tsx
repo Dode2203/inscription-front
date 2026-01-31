@@ -21,6 +21,7 @@ export default function UtilisateurDashboard() {
   const [activeTab, setActiveTab] = useState("/utilisateur/dashboard");
   
   const login = process.env.NEXT_PUBLIC_LOGIN_URL || '/login';
+  const nbPagination = Number(process.env.NEXT_PUBLIC_NB_PAGINATION) || 5;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -117,7 +118,7 @@ export default function UtilisateurDashboard() {
 
         <div className="grid gap-4 md:grid-cols-3">
           <div className="md:col-span-2">
-            <StudentTable students={students} />
+            <StudentTable students={students} nbPagination={nbPagination} />
           </div>
           
           <div className="space-y-4">
