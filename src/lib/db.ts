@@ -41,16 +41,21 @@ export interface Contact {
   email: string;
   telephone?: string; // "?" signifie optionnel
 }
-
+export interface Nationalite {
+  id?: number|string;
+  nom: string;
+  type: number;
+  typeNationaliteNom?: string;
+}
 // Structure de l'objet identité (basée sur votre JSON)
 export interface Identite {
-  id: number;
+  id: number|string;
   nom: string;
   prenom: string;
   dateNaissance: string;
   lieuNaissance: string;
   sexe: string;
-  nationalite?: string;
+  nationalite?: Nationalite;
   contact: Contact;
 }
 export interface Formation {

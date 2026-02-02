@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button } from "@/components/ui/button"; // Ajustez selon votre bibliothèque
 import { Identite } from '@/lib/db';
-
+import { formatDate } from '@/lib/utils';
 // Définition des props du composant
 interface IdentiteDisplayProps {
   identite: Identite;
@@ -24,10 +24,10 @@ const IdentiteDisplay = ({ identite,  onNext }: IdentiteDisplayProps) => {
         <div className="grid md:grid-cols-2 gap-4">
           <DetailItem label="Nom" value={identite.nom} />
           <DetailItem label="Prénoms" value={identite.prenom} />
-          <DetailItem label="Date de Naissance" value={identite.dateNaissance} />
+          <DetailItem label="Date de Naissance" value={formatDate(identite.dateNaissance)} />
           <DetailItem label="Lieu de Naissance" value={identite.lieuNaissance} />
           <DetailItem label="Sexe" value={identite.sexe} />
-          <DetailItem label="Nationalité" value={identite.nationalite || "Non précisée"} />
+          <DetailItem label="Nationalité" value={identite.nationalite?.nom || "Non précisée"} />
         </div>
       </div>
 
