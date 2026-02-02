@@ -51,7 +51,27 @@ export function formatDateTime(dateString?: string): string {
   });
 }
 
+/**
+ * Convertit une Date JavaScript au format SQL 'Y-m-d H:i:s'
+ * @param date L'objet Date à convertir
+ * @returns string formatée ou chaîne vide si date invalide
+ */
+export const formatToSql = (date: Date | null | undefined): string => {
+  if (!date || isNaN(date.getTime())) {
+    return '';
+  }
 
+  const pad = (n: number) => n.toString().padStart(2, '0');
+
+  const year = date.getFullYear();
+  const month = pad(date.getMonth() + 1);
+  const day = pad(date.getDate());
+  const hours = pad(date.getHours());
+  const minutes = pad(date.getMinutes());
+  const seconds = pad(date.getSeconds());
+
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+};
 
 // Assurez-vous d'utiliser `export` devant les deux fonctions.
 // De cette façon, vous pourrez les importer nommément dans n'importe quel composant :

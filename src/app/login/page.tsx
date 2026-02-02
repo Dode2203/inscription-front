@@ -44,7 +44,7 @@ export default function AdminLoginPage() {
 
         // ✅ redirection selon le rôle
           if (membre?.role === "Admin") {
-            window.location.href = "/admin/dashboard";
+            window.location.href = "/admin/inscription";
           } else if (membre?.role === "Utilisateur") {
             window.location.href = "utilisateur/dashboard";
           } else {

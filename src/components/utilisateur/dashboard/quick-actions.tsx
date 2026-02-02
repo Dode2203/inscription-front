@@ -6,24 +6,17 @@ import Link from "next/link"
 export function QuickActions() {
   const actions = [
     {
-      title: "Nouvelle Inscription",
-      description: "Inscrire un nouvel étudiant",
-      icon: UserPlus,
-      href: "/utilisateur/inscription",
-      color: "text-primary",
-    },
-    {
       title: "Réinscription",
       description: "Réinscrire un étudiant existant",
       icon: RefreshCw,
-      href: "/reinscription",
+      href: "/utilisateur/inscription",
       color: "text-secondary",
     },
     {
-      title: "Certificats",
+      title: "Certificat de scolarité", 
       description: "Gérer les certificats",
       icon: FileCheck,
-      href: "/certificats",
+      href: "/utilisateur/certificat",
       color: "text-primary",
     },
     {
