@@ -19,45 +19,47 @@ export default function AdminLoginPage() {
     e.preventDefault()
     setError("")
     setLoading(true)
-      try {
+    try {
 
-        const response = await fetch("/api/auth/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password, rememberMe }),
-        });
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password, rememberMe }),
+      });
 
-        // ✅ convertir la réponse en JSON
-        const data = await response.json();
+      // ✅ convertir la réponse en JSON
+      const data = await response.json();
 
-        if (!response.ok) {
-          setError(data.message || "Login failed");
-          return;
-        }
-
-        // ✅ récupération du token et du membre
-        const { token, membre } = data;
-
-        // ✅ stockage côté client
-        if (token) localStorage.setItem("token", token);
-        if (membre) localStorage.setItem("membre", JSON.stringify(membre));
-
-        // ✅ redirection selon le rôle
-          if (membre?.role === "Admin") {
-            window.location.href = "/admin/dashboard";
-          } else if (membre?.role === "Utilisateur") {
-            window.location.href = "utilisateur/dashboard";
-          } else {
-            window.location.href = "/login";
-          }
-        
-
-      } catch (err) {
-        console.error(err);
-        setError("An error occurred. Please try again.");
-      } finally {
-        setLoading(false);
+      if (!response.ok) {
+        setError(data.message || "Login failed");
+        return;
       }
+
+      // ✅ récupération du token et du membre
+      const { token, membre } = data;
+
+      // ✅ stockage côté client
+      if (token) localStorage.setItem("token", token);
+      if (membre) localStorage.setItem("membre", JSON.stringify(membre));
+
+      // ✅ redirection selon le rôle
+      if (membre?.role === "Admin") {
+        window.location.href = "/admin/dashboard";
+      } else if (membre?.role === "Utilisateur") {
+        window.location.href = "/utilisateur/dashboard";
+      } else if (membre?.role === "Ecolage") {
+        window.location.href = "/ecolage";
+      } else {
+        window.location.href = "/login";
+      }
+
+
+    } catch (err) {
+      console.error(err);
+      setError("An error occurred. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -67,7 +69,7 @@ export default function AdminLoginPage() {
           {/* Header */}
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center">
-                <Image src="/espa-logo.png" alt="ESPA Logo" width={48} height={48} className="w-12 h-12" />
+              <Image src="/espa-logo.png" alt="ESPA Logo" width={48} height={48} className="w-12 h-12" />
             </div>
             <h1 className="text-2xl font-bold text-foreground">ESPA</h1>
             {/* <p className="text-muted-foreground text-sm mt-2">Université Polytechnique</p> */}
@@ -134,7 +136,7 @@ export default function AdminLoginPage() {
                 />
                 <span className="text-foreground">Remember me</span>
               </label>
-              
+
             </div>
 
             {/* Submit Button */}
