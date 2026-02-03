@@ -42,6 +42,11 @@ export default function Menu({ user }: MenuProps) {
         key: "/utilisateur/filtrage", // Corrigé : minuscule
         label: "Filtrage",
         icon: <Filter size={18} />, // Corrigé : minuscule
+      },
+      {
+        key: "/admin/modification",
+        label: "Modification",
+        icon: <Filter size={18} />,
       }
     );
   }
@@ -64,6 +69,7 @@ export default function Menu({ user }: MenuProps) {
         label: "Modification",
         icon: <Filter size={18} />,
       }
+      
     );
   }
 

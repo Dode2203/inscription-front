@@ -37,6 +37,7 @@ export interface News {
   updatedAt: Date
 }
 export interface Contact {
+  id?: number|string;
   adresse: string;
   email: string;
   telephone?: string; // "?" signifie optionnel

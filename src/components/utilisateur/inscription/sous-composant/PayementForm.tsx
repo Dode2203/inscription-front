@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Info } from "lucide-react"; 
 import { Formation, Niveau, PaiementData } from '@/lib/db';
-import { getNextGradeId, getByIdNiveau } from '@/lib/utils/grade-utils';
+import { getByIdNiveau } from '@/lib/utils/grade-utils';
 
 interface PaiementFormProps {
   formData: PaiementData;
@@ -12,271 +12,120 @@ interface PaiementFormProps {
   formation: Formation;
   niveaux: Niveau[];
   formations: Formation[];
+  isExonere: boolean;
   onBack: () => void;
   onNext: () => void;
 }
 
 const PaiementForm: React.FC<PaiementFormProps> = ({
-  formData,
-  updateData,
-  parcoursType,
-  formation,
-  niveaux,
-  formations,
-  onBack,
-  onNext
+  formData, updateData, formation, niveaux, formations, isExonere
 }) => {
 
-  // const [typeFormation, setTypeFormation] = useState(1);
   const niveauActuel = getByIdNiveau(niveaux, formation.idNiveau);
   const niveauActuelGrade = niveauActuel?.grade ?? 0;
 
-  // Gestionnaire de changement générique
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const target = e.target;
     const id = target.id;
     const value = target.value;
-
-    const val = (target instanceof HTMLInputElement && target.type === "checkbox")
-      ? target.checked
-      : value;
-
-    updateData({
-      [id]: val,
-    });
+    updateData({ [id]: value });
   };
 
-  // Synchronisation des données initiales
   useEffect(() => {
-    // Initialise idFormation seulement si non défini
     if (!formData.idFormation && formation.idFormation) {
       updateData({ idFormation: formation.idFormation });
     }
-
-    // if (formation.idFormation != 1) {
-    //   setTypeFormation(2);
-    // }
   }, [formation.idFormation, updateData, formData.idFormation]);
-
-  // Gestion du changement de formation
-  const handleFormationChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newIdFormation = Number(e.target.value);
-    updateData({
-      idFormation: newIdFormation,
-      idNiveau: undefined // Réinitialiser le niveau lors du changement de formation
-    });
-  };
 
   return (
     <div className="space-y-6 mt-6">
-      <div className="space-y-6">
-        <h3 className="text-lg font-semibold text-foreground border-b pb-2">Bordereaux de versement</h3>
+      <h3 className="text-lg font-semibold text-foreground border-b pb-2">Bordereaux de versement</h3>
 
-        {/* Sélecteur de Formation */}
+      {isExonere && (
+        <div className="flex items-center gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg text-amber-800 text-sm italic">
+          <Info className="w-4 h-4" /> Mode Exonération : Saisissez les montants réduits.
+        </div>
+      )}
+
+      <div className="grid md:grid-cols-2 gap-4">
         <div className="flex flex-col gap-2">
-          <label htmlFor="idFormation" className="text-sm font-medium text-gray-700">
-            Type de formation
-          </label>
-          <select
-            id="idFormation"
-            name="idFormation"
-            onChange={handleChange}
-            value={formData.idFormation || ""}
-            // Correction : Utilisation de || "" pour éviter l'erreur "value prop should not be null"
-           // value={formData.idFormation || ""} 
-            className="block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-          >
+          <Label htmlFor="idFormation">Type de formation</Label>
+          <select id="idFormation" onChange={handleChange} value={formData.idFormation || ""} className="block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm sm:text-sm">
             <option value="" disabled>Sélectionnez une formation</option>
-            {formations
-              .filter(f => {
-                const currentId = Number(formation.idFormation);
-                const formationId = Number(f.id ?? 0);
-                // Academique (1) -> Academique (1) ou MVR (4)
-                if (currentId === 1) return [1, 4].includes(formationId);
-                // Professionnelle (2) -> Prof (2), Acad (1), ou MVR (4)
-                if (currentId === 2) return [1, 2, 4].includes(formationId);
-                // Professionnelle Luban (3) -> Luban (3), Prof (2), ou MVR (4)
-                if (currentId === 3) return [2, 3, 4].includes(formationId);
-                // Par défaut, on garde les filtres de base (1-4)
-                return [1, 2, 3, 4].includes(formationId);
-              })
-              .map((f: Formation) => (
-                <option key={f.id} value={f.id}>
-                  {f.nom} ({f.typeFormation})
-                </option>
-              ))
-            }
+            {formations.filter(f => [1, 2, 3, 4].includes(Number(f.id))).map((f: Formation) => (
+              <option key={f.id} value={f.id}>{f.nom}</option>
+            ))}
           </select>
         </div>
 
-        {/* Sélecteur de Niveau */}
         <div className="flex flex-col gap-2">
-          <label htmlFor="idNiveau" className="text-sm font-medium text-gray-700">
-            Niveau actuel
-          </label>
-          <select
-            id="idNiveau"
-            name="idNiveau"
-            // Correction : Utilisation de || "" pour éviter l'erreur "value prop should not be null"
-            value={formData.idNiveau || ""}
-            onChange={handleChange}
-            className="block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-          >
+          <Label htmlFor="idNiveau">Niveau actuel</Label>
+          <select id="idNiveau" value={formData.idNiveau || ""} onChange={handleChange} className="block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm sm:text-sm">
             <option value="" disabled>Sélectionnez un niveau</option>
-            {niveaux
-              .filter((n: Niveau) => {
-                const selectedFormationId = Number(formData.idFormation);
-                const currentFormationId = Number(formation.idFormation);
-
-                // 1. Vérification du type de niveau correspondant à la formation sélectionnée
-                const isCorrectType =
-                  (selectedFormationId === 1 && n.type === 1) || // Academique
-                  (selectedFormationId === 2 && n.type === 2) || // Professionnelle
-                  (selectedFormationId === 3 && n.type === 3) || // Professionnelle Luban
-                  (selectedFormationId === 4 && n.type === 4);   // Master Recherche
-
-                if (!isCorrectType) return false;
-
-                // 2. Règles spécifiques de transition
-
-                // MVR (4) est toujours accessible si sélectionné (meme si deja M2)
-                if (selectedFormationId === 4) return true;
-
-                // Professionnelle (2) -> Academique (1) : Poursuite en Master uniquement (M1, M2 => Grade 4, 5)
-                // if (currentFormationId === 2 && selectedFormationId === 1) {
-                //   return n.grade >= 4;
-                // }
-
-                // Restriction par défaut : Nouveau grade >= Grade actuel
-                return n.grade >= niveauActuelGrade;
-              })
-              .slice(0, 2)
-              .map((f: Niveau) => (
-                <option key={f.id} value={f.id}>
-                  {f.nom} ({f.grade})
-                </option>
-              ))}
+            {niveaux.filter((n: Niveau) => Number(formData.idFormation) === n.type && n.grade >= niveauActuelGrade).slice(0, 2).map((f: Niveau) => (
+              <option key={f.id} value={f.id}>{f.nom} ({f.grade})</option>
+            ))}
           </select>
         </div>
+      </div>
 
-        <div className="grid md:grid-cols-2 gap-6">
-          {/* Droits Administratifs */}
-          <div className="space-y-4 p-4 border rounded-lg bg-card">
-            <h4 className="font-medium text-blue-900">Droits Administratifs</h4>
-            <div className="space-y-2">
-              <Label htmlFor="refAdmin">Référence du Paiement *</Label>
-              <Input
-                id="refAdmin"
-                value={formData.refAdmin || ""}
-                onChange={handleChange}
-                placeholder="Ex: PAY-ADMIN-XXXX"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="dateAdmin">Date du Paiement *</Label>
-              <Input
-                id="dateAdmin"
-                type="date"
-                value={formData.dateAdmin || ""}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="montantAdmin">Montant administratifs *</Label>
-              <Input
-                id="montantAdmin"
-                type="number"
-                value={formData.montantAdmin || ""}
-                onChange={handleChange}
-              />
-            </div>
+      <div className="grid md:grid-cols-2 gap-6">
+        <div className={`space-y-4 p-4 border rounded-lg ${isExonere ? 'border-amber-300 bg-amber-50/20' : 'bg-card'}`}>
+          <h4 className="font-medium text-blue-900">Droits Administratifs</h4>
+          <div className="space-y-2">
+            <Label htmlFor="refAdmin">Référence *</Label>
+            <Input id="refAdmin" value={formData.refAdmin || ""} onChange={handleChange} placeholder="PAY-ADMIN-XXXX" />
           </div>
-
-          {/* Droits Pédagogiques */}
-          <div className="space-y-4 p-4 border rounded-lg bg-card">
-            <h4 className="font-medium text-blue-900">Droits Pédagogiques</h4>
-            <div className="space-y-2">
-              <Label htmlFor="refPedag">Référence du Paiement *</Label>
-              <Input
-                id="refPedag"
-                value={formData.refPedag || ""}
-                onChange={handleChange}
-                placeholder="Ex: PAY-PEDAG-XXXX"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="datePedag">Date du Paiement *</Label>
-              <Input
-                id="datePedag"
-                type="date"
-                value={formData.datePedag || ""}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="montantPedag">Montant pédagogique *</Label>
-              <Input
-                id="montantPedag"
-                type="number"
-                value={formData.montantPedag || ""}
-                onChange={handleChange}
-              />
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="dateAdmin">Date *</Label>
+            <Input id="dateAdmin" type="date" value={formData.dateAdmin || ""} onChange={handleChange} />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="montantAdmin">Montant *</Label>
+            <Input id="montantAdmin" type="number" value={formData.montantAdmin || ""} onChange={handleChange} />
           </div>
         </div>
 
-        {/* Section Écolage Conditionnelle */}
+        <div className={`space-y-4 p-4 border rounded-lg ${isExonere ? 'border-amber-300 bg-amber-50/20' : 'bg-card'}`}>
+          <h4 className="font-medium text-blue-900">Droits Pédagogiques</h4>
+          <div className="space-y-2">
+            <Label htmlFor="refPedag">Référence *</Label>
+            <Input id="refPedag" value={formData.refPedag || ""} onChange={handleChange} placeholder="PAY-PEDAG-XXXX" />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="datePedag">Date *</Label>
+            <Input id="datePedag" type="date" value={formData.datePedag || ""} onChange={handleChange} />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="montantPedag">Montant *</Label>
+            <Input id="montantPedag" type="number" value={formData.montantPedag || ""} onChange={handleChange} />
+          </div>
+        </div>
+      </div>
 
-
-        {(formData.idFormation != 1 ) && (
-          <div className="mt-6 p-6 border-2 border-amber-200 rounded-xl bg-amber-50/30">
-            <h4 className="text-lg font-bold text-amber-900 mb-4 flex items-center">
-              <span className="bg-amber-100 p-2 rounded-full mr-2">💰</span>
-              Formulaire d'Écolage
-            </h4>
-            <div className="grid md:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="montantEcolage">Montant Total *</Label>
-                <Input
-                  id="montantEcolage"
-                  type="number"
-                  value={formData.montantEcolage || ""}
-                  onChange={handleChange}
-                  placeholder="Ar"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="refEcolage">Référence Acompte *</Label>
-                <Input
-                  id="refEcolage"
-                  value={formData.refEcolage || ""}
-                  onChange={handleChange}
-                  placeholder="REF-ECO-XXXX"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="dateEcolage">Date Paiement *</Label>
-                <Input
-                  id="dateEcolage"
-                  type="date"
-                  value={formData.dateEcolage || ""}
-                  onChange={handleChange}
-                />
-              </div>
+      {(formData.idFormation != 1) && (
+        <div className={`mt-6 p-6 border-2 rounded-xl ${isExonere ? 'border-amber-300 bg-amber-50/40' : 'border-amber-200 bg-amber-50/30'}`}>
+          <h4 className="text-lg font-bold text-amber-900 mb-4 flex items-center">
+            <span className="bg-amber-100 p-2 rounded-full mr-2">💰</span> Formulaire d'Écolage
+          </h4>
+          <div className="grid md:grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="montantEcolage">Montant Total *</Label>
+              <Input id="montantEcolage" type="number" value={formData.montantEcolage || ""} onChange={handleChange} placeholder="Ar" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="refEcolage">Référence Acompte *</Label>
+              <Input id="refEcolage" value={formData.refEcolage || ""} onChange={handleChange} placeholder="REF-ECO-XXXX" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="dateEcolage">Date Paiement *</Label>
+              <Input id="dateEcolage" type="date" value={formData.dateEcolage || ""} onChange={handleChange} />
             </div>
           </div>
-        )}
-      </div>
-
-      {/* Navigation */}
-      <div className="flex justify-between mt-8">
-        <Button variant="outline" onClick={onBack}>
-          Précédent
-        </Button>
-        <Button onClick={onNext}>
-          Suivant
-        </Button>
-      </div>
+        </div>
+      )}
+      
+      {/* Les boutons Précédent/Suivant ont été supprimés ici car ils sont gérés par le parent InscriptionForm */}
     </div>
   );
 };
