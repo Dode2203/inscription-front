@@ -64,6 +64,11 @@ export default function Menu({ user }: MenuProps) {
         label: "Users",
         icon: <Users size={18} />,
       },
+      {
+        key: "/admin/modification",
+        label: "Modification",
+        icon: <Filter size={18} />,
+      }
       
     );
   }
