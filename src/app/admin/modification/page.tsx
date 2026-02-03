@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { User, EtudiantRecherche } from "@/lib/db";
+import { User, EtudiantRecherche, Nationalite } from "@/lib/db";
 import Header from "@/components/static/Header";
 import Menu from "@/components/static/Menu";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,8 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Search, Loader2, Save, User as UserIcon, X, Fingerprint, GraduationCap } from "lucide-react";
 import { toast } from "sonner";
+import { getInitialData } from "@/lib/appConfig";
+import { FormField } from "@/components/ui/form";
 
 // --- INTERFACES POUR TYPESCRIPT ---
 interface FormDataState {
@@ -28,7 +30,10 @@ interface FormDataState {
   baccSerie: string;
   proposEmail: string;
   proposAdresse: string;
-  telephone: string;
+  proposTelephone: string;
+  nationaliteId: number;
+  proposId: number | string | null;
+
 }
 
 interface CompactFieldProps {
@@ -77,19 +82,31 @@ export default function ModificationPage() {
     baccSerie: '',
     proposEmail: '', 
     proposAdresse: '', 
-    telephone: ''
+    proposTelephone: '',
+    nationaliteId: 1,
+    proposId: null
   });
 
   const login = process.env.NEXT_PUBLIC_LOGIN_URL || '/login';
+  const [nationalites, setNationalites] = useState<Nationalite[]>([]);
 
   // 1. Auth Check
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const response = await fetch(`/api/auth/me`);
-        if (!response.ok) { router.push(login); return; }
-        const data = await response.json();
+        const [authRes, initialData] = await Promise.all([
+            fetch(`/api/auth/me`),
+            getInitialData()
+        ]);
+        
+        if (!authRes.ok) {
+            window.location.href = login;
+            return;
+        }
+        if (!authRes.ok) { router.push(login); return; }
+        const data = await authRes.json();
         setUser(data.user);
+        if (initialData.nationalites) setNationalites(initialData.nationalites);
       } catch (err) { router.push(login); }
       finally { setLoading(false); }
     };
@@ -139,8 +156,10 @@ export default function ModificationPage() {
           baccAnnee: d.baccAnnee || "",
           baccSerie: d.baccSerie || "",
           proposEmail: d.proposEmail || "",
+          proposId: d.proposId || "",
           proposAdresse: d.proposAdresse || "",
-          telephone: d.telephone || ""
+          proposTelephone: d.proposTelephone || "",
+          nationaliteId:1
         });
         // On définit l'ID de l'étudiant courant pour afficher le formulaire
         setCurrentEtudiantId(id);
@@ -175,7 +194,8 @@ export default function ModificationPage() {
       { field: 'baccAnnee', label: 'Année du baccalauréat' },
       { field: 'baccSerie', label: 'Série du baccalauréat' },
       { field: 'proposEmail', label: 'Email' },
-      { field: 'proposAdresse', label: 'Adresse' }
+      { field: 'proposAdresse', label: 'Adresse' },
+      { field: 'nationaliteId', label: 'Nationalité' }
     ];
 
     const missingFields = requiredFields
@@ -216,7 +236,9 @@ export default function ModificationPage() {
         proposEmail: formData.proposEmail || "",
         proposAdresse: formData.proposAdresse || "",
         // Champ optionnel
-        telephone: formData.telephone || ""
+        proposTelephone: formData.proposTelephone || "",
+        nationaliteId: formData.nationaliteId ? Number(formData.nationaliteId) : null,
+        proposId: formData.proposId ? Number(formData.proposId) : null
       };
 
       // console.log('Payload envoyé à l\'API:', dataToSend); 
@@ -401,13 +423,13 @@ export default function ModificationPage() {
                       onChange={(v: string) => setFormData({...formData, proposEmail: v})} 
                       required
                     />
-                    {/* <CompactField 
+                    <CompactField 
                       label="Téléphone" 
                       type="tel" 
-                      value={formData.telephone} 
-                      onChange={(v: string) => setFormData({...formData, telephone: v})} 
+                      value={formData.proposTelephone} 
+                      onChange={(v: string) => setFormData({...formData, proposTelephone: v})} 
                       required
-                    /> */}
+                    />
                     <div className="space-y-1">
                       <Label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Adresse</Label>
                       <textarea 
@@ -416,6 +438,20 @@ export default function ModificationPage() {
                         className="min-h-[100px] w-full text-sm border-slate-200 focus:border-blue-400 bg-slate-50/50 rounded-md p-2"
                         required
                       />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-sm font-semibold">Nationalité</Label>
+                      <select 
+                        value={formData.sexeId} 
+                        onChange={(e) => setFormData({...formData, sexeId: Number(e.target.value)})}
+                        className="h-9 w-full text-sm border-slate-200 focus:border-blue-400 bg-slate-50/50 rounded-md px-3"
+                        required
+                      >
+                        <option value="">Sélectionner une nationalite</option>
+                        {nationalites.map((m) => (
+                          <option key={m.id} value={m.id}>{m.nom}</option>
+                        ))}
+                      </select>
                     </div>
                   </div>
                 </div>
