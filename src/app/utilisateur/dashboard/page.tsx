@@ -8,6 +8,7 @@ import { DashboardStats } from "@/components/utilisateur/dashboard/dashboard-sta
 import { QuickActions } from "@/components/utilisateur/dashboard/quick-actions";
 import { StudentTable } from "@/components/utilisateur/dashboard/student-table";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation"
 
 export default function UtilisateurDashboard() {
   const [user, setUser] = useState<User | null>(null);
@@ -16,6 +17,7 @@ export default function UtilisateurDashboard() {
   const [statsLoading, setStatsLoading] = useState(true);
   const [statsError, setStatsError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
   
   // Correction ici : On initialise activeTab avec useState pour pouvoir passer setActiveTab
   const [activeTab, setActiveTab] = useState("/utilisateur/dashboard");
@@ -39,7 +41,14 @@ export default function UtilisateurDashboard() {
         const limit = 10;
         
         const studentsResponse = await fetch(`/api/etudiants/inscrits-par-annee?annee=${currentYear}&limit=${limit}`);
-        
+        if (studentsResponse.status === 401 || studentsResponse.status === 403) {
+            setLoading(false); 
+            
+            // Redirection immédiate
+            await fetch("/api/auth/logout", { method: "POST" })
+            router.push(login); 
+            return; // ⬅️ Arrêter l'exécution de la fonction ici
+        }
         if (!studentsResponse.ok) {
           toast.error('Erreur lors de la récupération des étudiants');
           return;
@@ -64,7 +73,14 @@ export default function UtilisateurDashboard() {
         setStatsError(null);
 
         const response = await fetch('/api/etudiants/statistiques');
-        
+        if (response.status === 401 || response.status === 403) {
+            setLoading(false); 
+            
+            // Redirection immédiate
+            await fetch("/api/auth/logout", { method: "POST" })
+            router.push(login); 
+            return; // ⬅️ Arrêter l'exécution de la fonction ici
+        }
         if (!response.ok) {
           throw new Error(`Erreur HTTP: ${response.status}`);
         }

@@ -65,6 +65,11 @@ export default function Menu({ user }: MenuProps) {
         icon: <Users size={18} />,
       },
       {
+        key: "/utilisateur/inscription",
+        label: "Réinscription",
+        icon: <Users size={18} />,
+      },
+      {
         key: "/admin/modification",
         label: "Modification",
         icon: <Filter size={18} />,

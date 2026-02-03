@@ -248,7 +248,14 @@ export default function ModificationPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(dataToSend),
       });
-
+      if (response.status === 401 || response.status === 403) {
+            setLoading(false); 
+            
+            // Redirection immédiate
+            await fetch("/api/auth/logout", { method: "POST" })
+            router.push(login); 
+            return; // ⬅️ Arrêter l'exécution de la fonction ici
+        }
       const result = await response.json();
       
       if (response.ok && result.status === 'success') {

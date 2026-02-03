@@ -11,8 +11,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { getInitialData } from "@/lib/appConfig";
+import { useRouter } from "next/navigation"
 
 export default function InscriptionPage() {
+  const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [activeTab, setActiveTab] = useState("/admin/inscription");
   const [loading, setLoading] = useState(true);
@@ -22,7 +24,7 @@ export default function InscriptionPage() {
   const [mentions, setMentions] = useState<Mention[]>([]);
   const [nationalites, setNationalites] = useState<Nationalite[]>([]);
 
-  const loginUrl = process.env.NEXT_PUBLIC_LOGIN_URL || '/login';
+  const login = process.env.NEXT_PUBLIC_LOGIN_URL || '/login';
 
   const [formData, setFormData] = useState({
     nom: '',
@@ -53,25 +55,29 @@ export default function InscriptionPage() {
         ]);
 
         if (!authRes.ok) {
-          window.location.href = loginUrl;
+          window.location.href = login;
           return;
         }
 
         const data = await authRes.json();
         setUser(data.user);
+        if (data.user.role !== "Admin") {
+          await fetch("/api/auth/logout", { method: "POST" })
+          router.push(login); 
+        }
 
         if (initialData.formations) setFormations(initialData.formations);
         if (initialData.mentions) setMentions(initialData.mentions);
         if (initialData.nationalites) setNationalites(initialData.nationalites);
 
       } catch (err) {
-        window.location.href = loginUrl;
+        window.location.href = login;
       } finally {
         setLoading(false);
       }
     };
     checkAuthAndLoadData();
-  }, [loginUrl]);
+  }, [login]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -114,6 +120,14 @@ export default function InscriptionPage() {
       });
 
       const result = await response.json();
+      if (response.status === 401 || response.status === 403) {
+            setLoading(false); 
+            
+            // Redirection immédiate
+            await fetch("/api/auth/logout", { method: "POST" })
+            router.push(login); 
+            return; // ⬅️ Arrêter l'exécution de la fonction ici
+        }
 
       if (response.ok && result.status === "success") {
         toast.success("Candidat enregistré avec succès !");

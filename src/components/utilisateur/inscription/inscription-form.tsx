@@ -178,6 +178,12 @@ export function InscriptionForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...paiementData, idEtudiant: identite.id.toString(), typeFormation: parcoursType, isExonere }),
       });
+      if (res.status === 401 || res.status === 403) {
+        toast.error("Session expirée. Redirection...");
+        await fetch("/api/auth/logout", { method: "POST" });
+        router.push(login);
+        return;
+      }
       const response = await res.json();
       
       if (!res.ok) throw new Error(response.error || "Erreur lors de l'inscription");
