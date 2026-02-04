@@ -22,6 +22,7 @@ export function InsertionEcolageForm() {
     const [selectedStudent, setSelectedStudent] = useState<EtudiantEcolageDetail | null>(null)
     const [loadingDetails, setLoadingDetails] = useState(false)
     const [showHistory, setShowHistory] = useState(false)
+    const [lastUpdatedHistory, setLastUpdatedHistory] = useState(Date.now())
 
     // Search states (Twin logic from InscriptionForm)
     const [nomSearch, setNomSearch] = useState("")
@@ -166,6 +167,7 @@ export function InsertionEcolageForm() {
 
             // Refresh details (specifically to see updated balances)
             fetchEtudiant(selectedStudent.id)
+            setLastUpdatedHistory(Date.now())
         } catch (err: any) {
             toast.error(err.message || "Erreur lors de l'enregistrement")
         } finally {
@@ -354,7 +356,7 @@ export function InsertionEcolageForm() {
 
                     {showHistory && (
                         <div className="animate-in slide-in-from-bottom-6 duration-500">
-                            <EcolageHistoryTable idEtudiant={selectedStudent.id} />
+                            <EcolageHistoryTable idEtudiant={selectedStudent.id} lastUpdated={lastUpdatedHistory} />
                         </div>
                     )}
                 </div>

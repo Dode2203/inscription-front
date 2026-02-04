@@ -48,9 +48,13 @@ export interface EcolageFormInput {
 }
 export interface EcolageHistoryItem {
     id_paiement: number;
-    date: string;
+    date_paiement: string;
+    date?: string; // Keep for safety if backend uses both
     montant: number;
-    niveau: string;
+    ref_bordereau: string;
+    annee_universitaire: string;
+    niveau: string | { nom: string };
+    mention: string | { nom: string };
     reste_global: number;
 }
 

@@ -16,9 +16,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface EcolageHistoryTableProps {
     idEtudiant: string | number;
+    lastUpdated?: number;
 }
 
-export function EcolageHistoryTable({ idEtudiant }: EcolageHistoryTableProps) {
+export function EcolageHistoryTable({ idEtudiant, lastUpdated }: EcolageHistoryTableProps) {
     const [data, setData] = useState<EcolageHistoryResponse | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
@@ -41,7 +42,7 @@ export function EcolageHistoryTable({ idEtudiant }: EcolageHistoryTableProps) {
         };
 
         fetchHistory();
-    }, [idEtudiant]);
+    }, [idEtudiant, lastUpdated]);
 
     if (loading) {
         return (
@@ -89,26 +90,40 @@ export function EcolageHistoryTable({ idEtudiant }: EcolageHistoryTableProps) {
             <CardContent>
                 <Table>
                     <TableHeader>
-                        <TableRow>
-                            <TableHead>Date du paiement</TableHead>
-                            <TableHead>Montant</TableHead>
-                            <TableHead>Niveau</TableHead>
-                            <TableHead>Reste à payer global</TableHead>
+                        <TableRow className="bg-slate-50">
+                            <TableHead className="font-bold text-slate-700">Référence</TableHead>
+                            <TableHead className="font-bold text-slate-700">Date</TableHead>
+                            <TableHead className="font-bold text-slate-700">Année Univ.</TableHead>
+                            <TableHead className="font-bold text-slate-700">Niveau</TableHead>
+                            <TableHead className="font-bold text-slate-700">Mention</TableHead>
+                            <TableHead className="font-bold text-slate-700">Montant</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {history.map((item: EcolageHistoryItem) => (
-                            <TableRow key={item.id_paiement}>
-                                <TableCell>{new Date(item.date).toLocaleDateString('fr-FR')}</TableCell>
-                                <TableCell>{item.montant.toLocaleString('fr-FR')} Ar</TableCell>
-                                <TableCell>{item.niveau}</TableCell>
-                                <TableCell
-                                    className={item.reste_global > 0 ? "text-red-500 font-bold" : ""}
-                                >
-                                    {item.reste_global.toLocaleString('fr-FR')} Ar
-                                </TableCell>
-                            </TableRow>
-                        ))}
+                        {history.map((item: EcolageHistoryItem) => {
+                            const renderField = (field: any) => {
+                                if (!field) return 'N/A';
+                                if (typeof field === 'object' && field.nom) return field.nom;
+                                return field;
+                            };
+
+                            const displayDate = item.date_paiement || item.date || "";
+
+                            return (
+                                <TableRow key={item.id_paiement} className="hover:bg-slate-50/50">
+                                    <TableCell className="font-medium">{item.ref_bordereau || 'N/A'}</TableCell>
+                                    <TableCell>
+                                        {displayDate ? new Date(displayDate).toLocaleDateString('fr-FR') : 'N/A'}
+                                    </TableCell>
+                                    <TableCell>{item.annee_universitaire || 'N/A'}</TableCell>
+                                    <TableCell>{renderField(item.niveau)}</TableCell>
+                                    <TableCell>{renderField(item.mention)}</TableCell>
+                                    <TableCell className="font-bold text-blue-900">
+                                        {item.montant.toLocaleString('fr-FR')} Ar
+                                    </TableCell>
+                                </TableRow>
+                            );
+                        })}
                     </TableBody>
                 </Table>
             </CardContent>
