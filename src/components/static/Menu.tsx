@@ -1,15 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { BarChart3, Filter, Users } from "lucide-react";
+import { BarChart3, Filter, Users, PlusCircle, Search, ShieldCheck } from "lucide-react";
 import { User } from "@/lib/db";
 import { usePathname } from "next/navigation";
 import React from "react";
 
 interface MenuProps {
   user: User | null;
-  activeTab: string;
-  setActiveTab: (tab: string) => void;
+  activeTab?: string;
+  setActiveTab?: (tab: string) => void;
 }
 
 // Définition d'une interface pour les onglets pour sécuriser le typage
@@ -19,7 +19,7 @@ interface TabItem {
   icon: React.ReactNode;
 }
 
-export default function Menu({ user }: MenuProps) {
+export default function Menu({ user, activeTab, setActiveTab }: MenuProps) {
   const pathname = usePathname();
 
   // On initialise le tableau avec le type TabItem[]
@@ -78,6 +78,22 @@ export default function Menu({ user }: MenuProps) {
     );
   }
 
+  // Onglets pour le rôle Ecolage
+  if (user?.role === "Ecolage") {
+    tabs.push(
+      {
+        key: "/ecolage/insertion",
+        label: "Insertion Paiement",
+        icon: <PlusCircle size={18} />,
+      },
+      {
+        key: "/ecolage/verification",
+        label: "Vérification",
+        icon: <ShieldCheck size={18} />,
+      }
+    );
+  }
+
   return (
     <div className="flex flex-wrap gap-2 mb-8 border-b border-border">
       {tabs.map((tab) => {
@@ -87,11 +103,10 @@ export default function Menu({ user }: MenuProps) {
           <Link
             key={tab.key}
             href={tab.key}
-            className={`flex items-center gap-2 px-4 py-3 font-medium border-b-2 transition-colors ${
-              isActive
-                ? "border-accent text-accent"
-                : "border-transparent text-muted-foreground hover:text-foreground"
-            }`}
+            className={`flex items-center gap-2 px-4 py-3 font-medium border-b-2 transition-colors ${isActive
+              ? "border-accent text-accent"
+              : "border-transparent text-muted-foreground hover:text-foreground"
+              }`}
           >
             {tab.icon}
             {tab.label}
