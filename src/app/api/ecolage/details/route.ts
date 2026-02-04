@@ -5,6 +5,6 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
 
-    // Backend path: /ecolage/etudiant/${id}/details
-    return callApiGet(request, `/ecolage/etudiant/${id}/details`, []);
+    // On utilise NextRequest pour que getServerAxios puisse extraire les cookies (auth_token)
+    return callApiGet(request, `/ecolage/etudiant/${id}/details`);
 }

@@ -13,19 +13,23 @@ import { EcolageHistoryTable } from "@/components/ecolage/EcolageHistoryTable"
 import { EtudiantEcolageDetail } from "@/types/ecolage"
 import { EtudiantRecherche } from "@/lib/db"
 import { cn } from "@/lib/utils"
+import { useRouter } from "next/navigation"
 
 export function InsertionEcolageForm() {
-    // Search states
-    const [nomSearch, setNomSearch] = useState("")
-    const [prenomSearch, setPrenomSearch] = useState("")
-    const [loadingRecherche, setLoadingRecherche] = useState(false)
-    const [etudiantsTrouves, setEtudiantsTrouves] = useState<EtudiantRecherche[]>([])
-    const [afficherListeEtudiants, setAfficherListeEtudiants] = useState(false)
-
+    const router = useRouter()
+    const login = process.env.NEXT_PUBLIC_LOGIN_URL || '/login'
     // Selection states
     const [selectedStudent, setSelectedStudent] = useState<EtudiantEcolageDetail | null>(null)
     const [loadingDetails, setLoadingDetails] = useState(false)
     const [showHistory, setShowHistory] = useState(false)
+
+    // Search states (Twin logic from InscriptionForm)
+    const [nomSearch, setNomSearch] = useState("")
+    const [prenomSearch, setPrenomSearch] = useState("")
+    const [etudiantsTrouves, setEtudiantsTrouves] = useState<EtudiantRecherche[]>([])
+    const [loadingRecherche, setLoadingRecherche] = useState(false)
+    const [afficherListeEtudiants, setAfficherListeEtudiants] = useState(false)
+    const [loadingEtudiant, setLoadingEtudiant] = useState(false)
 
     // Form states
     const [registrationId, setRegistrationId] = useState("")
@@ -35,54 +39,74 @@ export function InsertionEcolageForm() {
     const [loadingSubmit, setLoadingSubmit] = useState(false)
 
     const rechercheEtudiants = async () => {
-        if (!nomSearch && !prenomSearch) return
-        setLoadingRecherche(true)
-        setSelectedStudent(null)
-        setAfficherListeEtudiants(false)
+        setLoadingRecherche(true);
+        setSelectedStudent(null);
+        setRegistrationId("");
         try {
-            // Updated service uses POST /api/etudiants/recherche
-            const data = await ecolageService.searchEtudiant({ nom: nomSearch, prenom: prenomSearch })
-
-            // Sorting like in InscriptionForm
-            const sortedStudents = (data || []).sort((a, b) => {
-                const nomA = a.nom ?? "";
-                const nomB = b.nom ?? "";
-                const compareNom = nomA.localeCompare(nomB);
-                if (compareNom !== 0) return compareNom;
-                return (a.prenom ?? "").localeCompare(b.prenom ?? "");
+            const res = await fetch("/api/etudiants/recherche", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ nom: nomSearch, prenom: prenomSearch })
             });
 
-            setEtudiantsTrouves(sortedStudents)
-            setAfficherListeEtudiants(true)
-            if (sortedStudents.length > 0) {
-                toast.success(`${sortedStudents.length} étudiant(s) trouvé(s)`)
-            } else {
-                toast.error("Aucun étudiant trouvé")
+            if (res.status === 401 || res.status === 403) {
+                toast.error("Session expirée. Redirection...");
+                await fetch("/api/auth/logout", { method: "POST" });
+                router.push(login);
+                return;
             }
-        } catch (err: any) {
-            toast.error("Erreur lors de la recherche")
+
+            const response = await res.json();
+
+            const sortedStudents = (response.data || []).sort((a: EtudiantRecherche, b: EtudiantRecherche) => {
+                const nomA = a.nom ?? "";
+                const nomB = b.nom ?? "";
+                return nomA.localeCompare(nomB);
+            });
+
+            setEtudiantsTrouves(sortedStudents);
+            setAfficherListeEtudiants(true);
+
+            if (response.data?.length > 0) {
+                toast.success(`${response.data.length} étudiant(s) trouvé(s)`);
+            } else {
+                toast.error("Aucun étudiant trouvé");
+            }
+        } catch (err) {
+            toast.error("Une erreur technique est survenue");
         } finally {
-            setLoadingRecherche(false)
+            setLoadingRecherche(false);
         }
-    }
+    };
 
-    const selectEtudiant = async (etudiant: EtudiantRecherche) => {
-        setLoadingDetails(true)
-        setAfficherListeEtudiants(false)
-        setRegistrationId("")
+    const fetchEtudiant = async (idEtudiant: number | string) => {
+        setLoadingEtudiant(true);
+        setLoadingDetails(true);
         try {
-            // First get technical details from ecolage service
-            const response = await ecolageService.fetchStudentEcolageDetails(etudiant.id)
-            const registrations = response.data || []
+            // Twin call to get basic identity/info
+            const res = await fetch(`/api/etudiants?idEtudiant=${encodeURIComponent(idEtudiant)}`);
+            if (res.status === 401 || res.status === 403) {
+                await fetch("/api/auth/logout", { method: "POST" });
+                router.push(login);
+                return;
+            }
 
-            // We use the basic info from the search result and the registrations from the ecolage detail API
+            const response = await res.json();
+            if (!res.ok) throw new Error(response.error || "Erreur");
+
+            const identite = response.data.identite;
+
+            // Follow up with Ecolage details call (propagating token via NextRequest route)
+            const ecolageRes = await ecolageService.fetchStudentEcolageDetails(idEtudiant);
+            const registrations = ecolageRes.data || [];
+
             setSelectedStudent({
-                id: Number(etudiant.id),
-                nom: etudiant.nom,
-                prenom: etudiant.prenom,
-                dateNaissance: (etudiant as any).dateNaissance || "",
-                sexe: (etudiant as any).sexe || "",
-                contact: (etudiant as any).contact || {},
+                id: Number(idEtudiant),
+                nom: identite.nom,
+                prenom: identite.prenom,
+                dateNaissance: identite.dateNaissance || "",
+                sexe: identite.sexe || "",
+                contact: identite.contact || {},
                 registrations: registrations.map((reg: any) => ({
                     ...reg,
                     id_niveau_etudiant: reg.id_niveau_etudiant,
@@ -90,14 +114,18 @@ export function InsertionEcolageForm() {
                     annee_scolaire: reg.annee_scolaire,
                     reste_a_payer: reg.reste_a_payer
                 }))
-            })
-            toast.info(`Étudiant sélectionné : ${etudiant.nom} ${etudiant.prenom}`)
+            });
+
+            setAfficherListeEtudiants(false);
+            toast.info(`Détails chargés pour : ${identite.nom}`);
         } catch (err: any) {
-            toast.error(err.message || "Erreur lors de la récupération des détails")
+            toast.error(err.message || "Erreur lors du chargement des détails");
         } finally {
-            setLoadingDetails(false)
+            setLoadingEtudiant(false);
+            setLoadingDetails(false);
+            setAfficherListeEtudiants(false);
         }
-    }
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -106,25 +134,38 @@ export function InsertionEcolageForm() {
             return
         }
 
+        const selectedReg = selectedStudent.registrations.find(
+            r => r.id_niveau_etudiant.toString() === registrationId
+        );
+
+        if (!selectedReg) {
+            toast.error("Inscription non trouvée");
+            return;
+        }
+
         setLoadingSubmit(true)
+
+        // Payload format for /api/ecolage/payment/save (PHP Backend expected)
         const payload = {
-            idEtudiant: selectedStudent.id,
-            registrationId: registrationId,
-            ref: refBordereau,
+            etudiant_id: Number(selectedStudent.id),
+            nom_niveau: selectedReg.niveau, // We need the Level Name (e.g., LP2)
             montant: Number(montant),
-            datePaiement: datePaiement
+            date_paiement: datePaiement, // Already YYYY-MM-DD from 'date' input
+            ref_bordereau: refBordereau
         }
 
         try {
             await ecolageService.savePaiement(payload)
-            toast.success("Paiement enregistré avec succès")
-            // Reset form partly
+            toast.success("Paiement enregistré avec succès pour " + selectedReg.niveau)
+
+            // Reset form
             setRegistrationId("")
             setRefBordereau("")
             setMontant("")
             setShowHistory(false)
-            // Optional: load updated details to refresh balance
-            selectEtudiant({ id: selectedStudent.id, nom: selectedStudent.nom, prenom: selectedStudent.prenom })
+
+            // Refresh details (specifically to see updated balances)
+            fetchEtudiant(selectedStudent.id)
         } catch (err: any) {
             toast.error(err.message || "Erreur lors de l'enregistrement")
         } finally {
@@ -134,7 +175,6 @@ export function InsertionEcolageForm() {
 
     return (
         <div className="space-y-6">
-            {/* Template Search Box */}
             <div className="p-4 bg-slate-50 border rounded-xl shadow-sm">
                 <Label className="text-slate-600 font-bold mb-4 block italic">
                     Rechercher un étudiant
@@ -144,16 +184,16 @@ export function InsertionEcolageForm() {
                         <Label htmlFor="nom">Nom</Label>
                         <Input
                             id="nom"
-                            placeholder="Nom de l'étudiant"
+                            placeholder="Nom"
                             value={nomSearch}
-                            onChange={(e) => setNomSearch(e.target.value.toUpperCase())}
+                            onChange={(e) => setNomSearch(e.target.value)}
                         />
                     </div>
                     <div className="md:col-span-2 space-y-2">
                         <Label htmlFor="prenom">Prénom</Label>
                         <Input
                             id="prenom"
-                            placeholder="Prénom de l'étudiant"
+                            placeholder="Prénom"
                             value={prenomSearch}
                             onChange={(e) => setPrenomSearch(e.target.value)}
                         />
@@ -161,28 +201,24 @@ export function InsertionEcolageForm() {
                     <Button
                         onClick={rechercheEtudiants}
                         disabled={loadingRecherche}
-                        className="bg-blue-900 text-amber-400 hover:bg-blue-800 w-full"
+                        className="bg-blue-900 text-white"
                     >
-                        {loadingRecherche ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4 mr-2" />}
+                        {loadingRecherche ? <Loader2 className="animate-spin" /> : <Search className="w-4 h-4 mr-2" />}
                         Rechercher
                     </Button>
                 </div>
             </div>
 
-            {/* Results Mapping - Match Template */}
             {etudiantsTrouves.length > 0 && afficherListeEtudiants && (
-                <div className="mt-4 border rounded-lg divide-y bg-white shadow-sm overflow-hidden mb-6 animate-in slide-in-from-top-2 duration-300">
+                <div className="mt-4 border rounded-lg divide-y bg-white shadow-sm overflow-hidden mb-6">
                     {etudiantsTrouves.map((etudiant) => (
                         <button
                             key={etudiant.id}
                             type="button"
-                            onClick={() => selectEtudiant(etudiant)}
-                            className="w-full text-left px-4 py-4 hover:bg-slate-50 transition flex items-center gap-3 border-l-4 border-transparent hover:border-blue-900"
+                            onClick={() => fetchEtudiant(etudiant.id)}
+                            className="w-full text-left px-4 py-3 hover:bg-slate-100 transition"
                         >
-                            <UserCircle className="w-5 h-5 text-slate-400" />
-                            <p className="font-bold text-slate-800">
-                                {etudiant.nom} <span className="font-medium">{etudiant.prenom}</span>
-                            </p>
+                            <p className="font-semibold">{etudiant.nom} {etudiant.prenom}</p>
                         </button>
                     ))}
                 </div>
@@ -245,11 +281,8 @@ export function InsertionEcolageForm() {
                                                                     disabled={isSolded}
                                                                     className={cn(isSolded && "opacity-60 grayscale")}
                                                                 >
-                                                                    <div className="flex justify-between w-full gap-4">
-                                                                        <span>{reg.niveau} ({reg.annee_scolaire})</span>
-                                                                        <span className={cn("font-bold", isSolded ? "text-green-600" : "text-blue-900")}>
-                                                                            — Reste : {isSolded ? "0 (Soldé)" : `${reg.reste_a_payer.toLocaleString()} Ar`}
-                                                                        </span>
+                                                                    <div className="flex justify-between w-full font-medium">
+                                                                        <span>{reg.niveau} ({reg.annee_scolaire}) — Reste : {isSolded ? "0 (Soldé)" : `${reg.reste_a_payer.toLocaleString()} Ar`}</span>
                                                                     </div>
                                                                 </SelectItem>
                                                             );
@@ -270,7 +303,7 @@ export function InsertionEcolageForm() {
                                                 className="h-11"
                                                 placeholder="Ex: BORD-12345"
                                                 value={refBordereau}
-                                                onChange={(e) => setRefBordereau(e.target.value.toUpperCase())}
+                                                onChange={(e: any) => setRefBordereau(e.target.value.toUpperCase())}
                                             />
                                         </div>
                                     </div>
@@ -286,7 +319,7 @@ export function InsertionEcolageForm() {
                                                     className="h-11 pr-12 text-lg font-bold text-blue-900"
                                                     placeholder="Montant en Ar"
                                                     value={montant}
-                                                    onChange={(e) => setMontant(e.target.value)}
+                                                    onChange={(e: any) => setMontant(e.target.value)}
                                                 />
                                                 <div className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 font-medium">
                                                     Ar
@@ -301,7 +334,7 @@ export function InsertionEcolageForm() {
                                                 type="date"
                                                 className="h-11"
                                                 value={datePaiement}
-                                                onChange={(e) => setDatePaiement(e.target.value)}
+                                                onChange={(e: any) => setDatePaiement(e.target.value)}
                                             />
                                         </div>
                                     </div>
