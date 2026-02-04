@@ -21,6 +21,7 @@ export function InscriptionForm() {
   const [step, setStep] = useState("identite");
   const router = useRouter();
   const login = process.env.NEXT_PUBLIC_LOGIN_URL || '/login';
+  
   const [loadingInscription, setLoadingInscription] = useState(false);
   const [errorInscription, setErrorInscription] = useState("");
   const [successMessageInscription, setSuccessMessageInscription] = useState("");
@@ -37,6 +38,10 @@ export function InscriptionForm() {
   const [identite, setIdentite] = useState<Identite | null>(null)
   const [formation, setFormation] = useState<Formation | null>(null);
   const [parcoursType, setParcoursType] = useState<string>("");
+
+  // ÉTAT EXONÉRATION
+  const [isExonere, setIsExonere] = useState(false);
+
   const [paiementData, setPaiementData] = useState<PaiementData>({
     refAdmin: "", dateAdmin: "", montantAdmin: "",
     refPedag: "", datePedag: "", montantPedag: "",
@@ -44,11 +49,19 @@ export function InscriptionForm() {
     idNiveau: "", idFormation: ""
   });
 
+  // INITIALISATION DES DOCUMENTS (Sans médical)
   const [validatedDocs, setValidatedDocs] = useState<Record<string, boolean>>({
-    photo: false, acte: false, diplome: false, cni: false, medical: false,
+    photo: false, 
+    acte: false, 
+    diplome: false,
+    cni: false,
+    exonere: false
   });
 
-  const allDocsValidated = validatedDocs.photo && validatedDocs.acte && validatedDocs.diplome && validatedDocs.cni && validatedDocs.medical;
+  // LOGIQUE DE VALIDATION CORRIGÉE : Photo + Diplome + (Acte OU CNI)
+  const allDocsValidated = 
+    !!validatedDocs.photo &&  
+    (!!validatedDocs.acte || !!validatedDocs.cni);
 
   const updatePaiement = (fields: Partial<PaiementData>) => {
     setPaiementData(prev => ({ ...prev, ...fields }));
@@ -63,6 +76,7 @@ export function InscriptionForm() {
     setIdentite(null);
     setFormation(null);
     setStep("identite");
+    setIsExonere(false);
     setPaiementData({
       refAdmin: "", dateAdmin: "", montantAdmin: "",
       refPedag: "", datePedag: "", montantPedag: "",
@@ -70,7 +84,11 @@ export function InscriptionForm() {
       idNiveau: "", idFormation: "",
     });
     setValidatedDocs({
-      photo: false, acte: false, diplome: false, cni: false, medical: false,
+      photo: false, 
+      acte: false, 
+      diplome: false, 
+      cni: false, 
+      exonere: false
     });
     setErrorInscription("");
     setSuccessMessageInscription("");
@@ -93,30 +111,15 @@ export function InscriptionForm() {
         return;
       }
 
-      if (!res.ok) {
-        const errorData = await res.json().catch(() => ({}));
-        toast.error(errorData.error || "Erreur lors de la recherche");
-        return;
-      }
-
       const response = await res.json();
       
-      // LOGIQUE DE TRI : On trie par Nom, puis par Prénom
-      const sortedStudents = response.data.sort(
-        (a: EtudiantRecherche, b: EtudiantRecherche) => {
-          const nomA = a.nom ?? "";
-          const nomB = b.nom ?? "";
-
-          const compareNom = nomA.localeCompare(nomB);
-          if (compareNom !== 0) return compareNom;
-
-          const prenomA = a.prenom ?? "";
-          const prenomB = b.prenom ?? "";
-
-          return prenomA.localeCompare(prenomB);
-        }
-      );
-
+      const sortedStudents = response.data.sort((a: EtudiantRecherche, b: EtudiantRecherche) => {
+        const nomA = a.nom ?? "";
+        const nomB = b.nom ?? "";
+        const compareNom = nomA.localeCompare(nomB);
+        if (compareNom !== 0) return compareNom;
+        return (a.prenom ?? "").localeCompare(b.prenom ?? "");
+      });
 
       setEtudiantsTrouves(sortedStudents);
       setAfficherListeEtudiants(true);
@@ -129,7 +132,6 @@ export function InscriptionForm() {
         toast.error("Aucun étudiant trouvé");
       }
     } catch (err) {
-      console.error(err);
       toast.error("Une erreur technique est survenue");
     } finally {
       setLoadingRecherche(false);
@@ -141,23 +143,20 @@ export function InscriptionForm() {
     try {
       const res = await fetch(`/api/etudiants?idEtudiant=${encodeURIComponent(idEtudiant)}`);
       if (res.status === 401 || res.status === 403) {
-        setLoadingEtudiant(false);
         await fetch("/api/auth/logout", { method: "POST" });
         router.push(login);
         return;
       }
       
       const response = await res.json();
-      if (!res.ok) {
-        throw new Error(response.error || "Erreur lors de l'inscription");
-      }
-      const data = response.data;
-      setIdentite(data.identite);
-      setFormation(data.formation);
-      setParcoursType(data.formation.formationType);
+      if (!res.ok) throw new Error(response.error || "Erreur");
+      
+      setIdentite(response.data.identite);
+      setFormation(response.data.formation);
+      setParcoursType(response.data.formation.formationType);
       setAfficherListeEtudiants(false);
     } catch (err : any) {
-      toast.error(err.message || "Erreur lors de l'application etudiant");
+      toast.error(err.message);
       const errorAudio = new Audio("/sounds/error-011-352286.mp3");
       errorAudio.play();
     } finally {
@@ -173,39 +172,28 @@ export function InscriptionForm() {
     setLoadingInscription(true);
     setErrorInscription("");
 
-    const inscriptionData = {
-      ...paiementData,
-      idEtudiant: identite.id.toString(),
-      typeFormation: parcoursType,
-    };
-
     try {
       const res = await fetch("/api/etudiants/inscription", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(inscriptionData),
+        body: JSON.stringify({ ...paiementData, idEtudiant: identite.id.toString(), typeFormation: parcoursType, isExonere }),
       });
-      const response = await res.json();
       if (res.status === 401 || res.status === 403) {
+        toast.error("Session expirée. Redirection...");
+        await fetch("/api/auth/logout", { method: "POST" });
         router.push(login);
         return;
       }
-      if (!res.ok) {
-        throw new Error(response.error || "Erreur lors de l'inscription");
-      }
-
-      const newInscription: Inscription = {
-        id: response.data.id,
-        matricule: response.data.matricule.toUpperCase(),
-        dateInscription: new Date(response.data.dateInscription).toLocaleDateString(),
-        description: response.data.description || "Aucune description"
-      };
+      const response = await res.json();
       
+      if (!res.ok) throw new Error(response.error || "Erreur lors de l'inscription");
+
       setSuccessMessageInscription("Inscription réussie !");
-      generateReceiptPDF(identite, formation, paiementData, newInscription);
+      generateReceiptPDF(identite, formation, paiementData, response.data);
+      
       const successAudio = new Audio("/sounds/success-221935.mp3");
       successAudio.play();
-      toast.success("Inscription réussie pour l'étudiant " + identite.nom + " " + identite.prenom);
+      toast.success("Inscription réussie pour " + identite.nom);
 
       setTimeout(() => {
         router.push('/utilisateur/dashboard'); 
@@ -213,7 +201,7 @@ export function InscriptionForm() {
 
     } catch (err: any) {
       setErrorInscription(err.message);
-      toast.error(err.message || "Erreur lors de l'inscription");
+      toast.error(err.message);
       const errorAudio = new Audio("/sounds/error-011-352286.mp3");
       errorAudio.play();
       setLoadingInscription(false);
@@ -221,12 +209,10 @@ export function InscriptionForm() {
   };
 
   useEffect(() => {
-    getInitialData()
-      .then((data) => {
-        setNiveaux(data.niveaux);
-        setFormations(data.formations);
-      })
-      .finally(() => setLoading(false));
+    getInitialData().then((data) => {
+      setNiveaux(data.niveaux);
+      setFormations(data.formations);
+    }).finally(() => setLoading(false));
   }, []);
 
   if (loading) return <p className="text-center py-10">Chargement...</p>;
@@ -234,34 +220,18 @@ export function InscriptionForm() {
   return (
     <Card className="max-w-4xl mx-auto p-6 shadow-lg border-t-4 border-blue-900">
       <div className="mb-8 p-4 bg-slate-50 border rounded-xl">
-        <Label className="text-slate-600 font-bold mb-4 block italic">
-          Rechercher un étudiant 
-        </Label>
+        <Label className="text-slate-600 font-bold mb-4 block italic">Rechercher un étudiant</Label>
         <div className="grid md:grid-cols-5 gap-3 items-end">
           <div className="md:col-span-2 space-y-2">
             <Label htmlFor="nom">Nom</Label>
-            <Input 
-              id="nom" 
-              placeholder="Nom de l'étudiant" 
-              value={nomSearch} 
-              onChange={(e) => setNomSearch(e.target.value)}
-            />
+            <Input id="nom" placeholder="Nom" value={nomSearch} onChange={(e) => setNomSearch(e.target.value)} />
           </div>
           <div className="md:col-span-2 space-y-2">
             <Label htmlFor="prenom">Prénom</Label>
-            <Input 
-              id="prenom"   
-              placeholder="Prénom de l'étudiant" 
-              value={prenomSearch} 
-              onChange={(e) => setPrenomSearch(e.target.value)}
-            />
+            <Input id="prenom" placeholder="Prénom" value={prenomSearch} onChange={(e) => setPrenomSearch(e.target.value)} />
           </div>
-          <Button 
-            onClick={rechercheEtudiants} 
-            disabled={loadingEtudiant}
-            className="bg-blue-900 text-amber-400 hover:bg-blue-800 w-full"
-          >
-            {loadingRecherche ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4 mr-2" />}
+          <Button onClick={rechercheEtudiants} disabled={loadingRecherche} className="bg-blue-900 text-white">
+            {loadingRecherche ? <Loader2 className="animate-spin" /> : <Search className="w-4 h-4 mr-2" />}
             Rechercher
           </Button>
         </div>
@@ -270,15 +240,8 @@ export function InscriptionForm() {
       {etudiantsTrouves.length > 0 && afficherListeEtudiants && (
         <div className="mt-4 border rounded-lg divide-y bg-white shadow-sm overflow-hidden mb-6">
           {etudiantsTrouves.map((etudiant) => (
-            <button
-              key={etudiant.id}
-              type="button"
-              onClick={() => fetchEtudiant(etudiant.id)}
-              className="w-full text-left px-4 py-3 hover:bg-slate-100 transition"
-            >
-              <p className="font-semibold">
-                {etudiant.nom} {etudiant.prenom}
-              </p>
+            <button key={etudiant.id} type="button" onClick={() => fetchEtudiant(etudiant.id)} className="w-full text-left px-4 py-3 hover:bg-slate-100 transition">
+              <p className="font-semibold">{etudiant.nom} {etudiant.prenom}</p>
             </button>
           ))}
         </div>
@@ -290,27 +253,30 @@ export function InscriptionForm() {
             <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="identite">1. Identité</TabsTrigger>
               <TabsTrigger value="academique">2. Académique</TabsTrigger>
-              <TabsTrigger value="paiement">3. Bordereaux</TabsTrigger>
-              <TabsTrigger value="documents">4. Documents</TabsTrigger>
+              <TabsTrigger value="documents">3. Documents</TabsTrigger>
+              <TabsTrigger value="paiement">4. Bordereaux</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="identite" className="space-y-6 mt-6">
-              <IdentiteDisplay 
-                identite={identite} 
-                onNext={() => setStep("academique")} 
-              />
+            <TabsContent value="identite" className="mt-6">
+              <IdentiteDisplay identite={identite} onNext={() => setStep("academique")} />
             </TabsContent>
 
-            <TabsContent value="academique" className="space-y-6 mt-6">
-              <FormationDisplay 
-                data={formation} 
-                onBack={() => setStep("identite")}
+            <TabsContent value="academique" className="mt-6">
+              <FormationDisplay data={formation} onBack={() => setStep("identite")} onNext={() => setStep("documents")} />
+            </TabsContent>
+
+            <TabsContent value="documents" className="mt-6">
+              <DocumentsForm 
+                validatedDocs={validatedDocs}
+                onToggleDoc={toggleDoc}
+                isExonere={isExonere}
+                setIsExonere={setIsExonere}
+                onBack={() => setStep("academique")}
                 onNext={() => setStep("paiement")}
               />
             </TabsContent>
 
             <TabsContent value="paiement" className="mt-6">
-              {/* APPEL UNIQUE DU FORMULAIRE */}
               <PaiementForm
                 formData={paiementData}
                 updateData={updatePaiement}
@@ -318,52 +284,53 @@ export function InscriptionForm() {
                 niveaux={niveaux}
                 formations={formations ?? []}
                 parcoursType={parcoursType}
-                onBack={() => setStep("academique")}
-                onNext={() => setStep("documents")}
-              />
-            </TabsContent>
-
-            <TabsContent value="documents" className="space-y-6 mt-6">
-              <DocumentsForm 
-                validatedDocs={validatedDocs}
-                onToggleDoc={toggleDoc}
-                onBack={() => setStep("paiement")}
-                onNext={() => setStep("documents")}
+                isExonere={isExonere}
+                onBack={() => setStep("documents")}
+                onNext={() => {}}
               />
             </TabsContent>
           </Tabs>
 
-          {errorInscription && <p className="text-red-500 text-sm font-medium">{errorInscription}</p>}
-
           <div className="flex gap-4 pt-6 border-t">
-            {step === "documents" && allDocsValidated ? (
-              <Button 
-                type="submit" 
-                disabled={loadingInscription || !!successMessageInscription} 
-                className="flex-1 h-12 text-lg bg-green-700 hover:bg-green-800"
-              >
-                {loadingInscription ? <Loader2 className="animate-spin mr-2" /> : null}
-                {successMessageInscription ? (
-                  <><CheckCircle className="mr-2 text-green-600" /> Inscription Terminée</>
-                ) : "Valider l'inscription & Générer Reçu"}
-              </Button>
+            {step === "paiement" ? (
+              <>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => setStep("documents")}
+                >
+                  Précédent
+                </Button>
+
+                {allDocsValidated ? (
+                  <Button 
+                    type="submit" 
+                    disabled={loadingInscription || !!successMessageInscription} 
+                    className="flex-1 h-12 text-lg bg-green-700 hover:bg-green-800"
+                  >
+                    {loadingInscription ? <Loader2 className="animate-spin mr-2" /> : null}
+                    {successMessageInscription ? (
+                      <><CheckCircle className="mr-2" /> Inscription Terminée</>
+                    ) : (
+                      "Valider l'inscription & Générer Reçu"
+                    )}
+                  </Button>
+                ) : (
+                  <div className="flex-1 flex items-center justify-center p-3 bg-blue-50 text-blue-700 rounded-lg border border-blue-100 italic text-sm">
+                    <Info className="w-4 h-4 mr-2" />
+                    Documents manquants : Photo, Diplôme et (CNI ou Acte).
+                  </div>
+                )}
+              </>
             ) : (
               <div className="flex items-center justify-center w-full p-3 bg-blue-50 text-blue-700 rounded-lg border border-blue-100 italic text-sm">
                 <Info className="w-4 h-4 mr-2" />
-                {step !== "documents" 
-                  ? "Veuillez terminer les étapes précédentes." 
-                  : "Veuillez cocher tous les documents pour valider."}
+                Terminez les étapes précédentes dans l'ordre.
               </div>
             )}
           </div>
         </form>
-      ) : (
-        <div className="py-20 text-center border-2 border-dashed rounded-xl bg-slate-50/50">
-          <p className="text-slate-500">
-            Veuillez utiliser la barre de recherche ci-dessus pour charger un dossier étudiant.
-          </p>
-        </div>
-      )}
+      ) : null}
     </Card>
   )
 }

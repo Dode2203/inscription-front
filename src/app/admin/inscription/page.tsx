@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { User, Formation, Mention } from "@/lib/db";
+import { User, Formation, Mention, Nationalite } from "@/lib/db";
 import Header from "@/components/static/Header";
 import Menu from "@/components/static/Menu";
 import { Button } from "@/components/ui/button";
@@ -10,8 +10,11 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { getInitialData } from "@/lib/appConfig";
+import { useRouter } from "next/navigation"
 
 export default function InscriptionPage() {
+  const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [activeTab, setActiveTab] = useState("/admin/inscription");
   const [loading, setLoading] = useState(true);
@@ -19,8 +22,9 @@ export default function InscriptionPage() {
   
   const [formations, setFormations] = useState<Formation[]>([]);
   const [mentions, setMentions] = useState<Mention[]>([]);
+  const [nationalites, setNationalites] = useState<Nationalite[]>([]);
 
-  const loginUrl = process.env.NEXT_PUBLIC_LOGIN_URL || '/login';
+  const login = process.env.NEXT_PUBLIC_LOGIN_URL || '/login';
 
   const [formData, setFormData] = useState({
     nom: '',
@@ -37,37 +41,43 @@ export default function InscriptionPage() {
     proposEmail: '',
     proposAdresse: '',
     formationId: '',
-    mentionId: ''
+    mentionId: '',
+    nationaliteId: 0,
+    proposTelephone:''
   });
 
   useEffect(() => {
     const checkAuthAndLoadData = async () => {
       try {
-        const [authRes, formRes, mentRes] = await Promise.all([
+        const [authRes, initialData] = await Promise.all([
           fetch(`/api/auth/me`),
-          fetch(`/api/etudiants/formations`),
-          fetch(`/api/etudiants/mentions`)
+          getInitialData()
         ]);
 
         if (!authRes.ok) {
-          window.location.href = loginUrl;
+          window.location.href = login;
           return;
         }
 
         const data = await authRes.json();
         setUser(data.user);
+        if (data.user.role !== "Admin") {
+          await fetch("/api/auth/logout", { method: "POST" })
+          router.push(login); 
+        }
 
-        if (formRes.ok) setFormations((await formRes.json()).data || []);
-        if (mentRes.ok) setMentions((await mentRes.json()).data || []);
+        if (initialData.formations) setFormations(initialData.formations);
+        if (initialData.mentions) setMentions(initialData.mentions);
+        if (initialData.nationalites) setNationalites(initialData.nationalites);
 
       } catch (err) {
-        window.location.href = loginUrl;
+        window.location.href = login;
       } finally {
         setLoading(false);
       }
     };
     checkAuthAndLoadData();
-  }, [loginUrl]);
+  }, [login]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -96,7 +106,9 @@ export default function InscriptionPage() {
         proposAdresse: formData.proposAdresse || "",
         // Ajout des IDs de formation et mention
         formationId: formData.formationId ? Number(formData.formationId) : null,
-        mentionId: formData.mentionId ? Number(formData.mentionId) : null
+        mentionId: formData.mentionId ? Number(formData.mentionId) : null,
+        nationaliteId: formData.nationaliteId ? Number(formData.nationaliteId) : null,
+        proposTelephone: formData.proposTelephone || "",
       };
 
       // console.log("Payload envoyé à l'API:", payload);
@@ -108,6 +120,14 @@ export default function InscriptionPage() {
       });
 
       const result = await response.json();
+      if (response.status === 401 || response.status === 403) {
+            setLoading(false); 
+            
+            // Redirection immédiate
+            await fetch("/api/auth/logout", { method: "POST" })
+            router.push(login); 
+            return; // ⬅️ Arrêter l'exécution de la fonction ici
+        }
 
       if (response.ok && result.status === "success") {
         toast.success("Candidat enregistré avec succès !");
@@ -127,14 +147,16 @@ export default function InscriptionPage() {
           proposEmail: '',
           proposAdresse: '',
           formationId: '',
-          mentionId: ''
+          mentionId: '',
+          nationaliteId: 0,
+          proposTelephone: ''
         });
       } else {
         throw new Error(result.message || result.error || "Erreur lors de l'enregistrement");
       }
     } catch (error: any) {
-      // console.error("Erreur lors de l'enregistrement:", error);
-      toast.error(error.message || "Une erreur est survenue lors de l'enregistrement");
+      // console.log("Erreur lors de l'enregistrement:", error);
+      toast.error(error.message || error.error|| "Une erreur est survenue lors de l'enregistrement");
     } finally {
       setIsSubmitting(false);
     }
@@ -181,7 +203,7 @@ export default function InscriptionPage() {
                         className="flex h-10 w-full rounded-md border border-input bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
                         required
                       >
-                        <option value="0">Sélectionner M/F</option>
+                        <option value="">Sélectionner M/F</option>
                         <option value="1">Masculin</option>
                         <option value="2">Féminin</option>
                       </select>
@@ -203,6 +225,24 @@ export default function InscriptionPage() {
                     <FormField label="Email" name="proposEmail" type="email" value={formData.proposEmail} onChange={handleChange} required />
                     <div className="md:col-span-2">
                       <FormField label="Adresse" name="proposAdresse" value={formData.proposAdresse} onChange={handleChange} required />
+                    </div>
+                    <div className="md:col-span-2">
+                      <FormField label="Téléphone" name="proposTelephone" value={formData.proposTelephone} onChange={handleChange} required />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-sm font-semibold">Nationalité</Label>
+                      <select 
+                        name="nationaliteId" 
+                        value={formData.nationaliteId} 
+                        onChange={handleChange}
+                        className="flex h-10 w-full rounded-md border border-input bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+                        required
+                      >
+                        <option value="">Sélectionner une nationalite</option>
+                        {nationalites.map((m) => (
+                          <option key={m.id} value={m.id}>{m.nom}</option>
+                        ))}
+                      </select>
                     </div>
                   </div>
                 </section>

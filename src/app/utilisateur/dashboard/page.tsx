@@ -7,6 +7,8 @@ import Menu from "@/components/static/Menu";
 import { DashboardStats } from "@/components/utilisateur/dashboard/dashboard-stats";
 import { QuickActions } from "@/components/utilisateur/dashboard/quick-actions";
 import { StudentTable } from "@/components/utilisateur/dashboard/student-table";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation"
 
 export default function UtilisateurDashboard() {
   const [user, setUser] = useState<User | null>(null);
@@ -15,11 +17,13 @@ export default function UtilisateurDashboard() {
   const [statsLoading, setStatsLoading] = useState(true);
   const [statsError, setStatsError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
   
   // Correction ici : On initialise activeTab avec useState pour pouvoir passer setActiveTab
   const [activeTab, setActiveTab] = useState("/utilisateur/dashboard");
   
   const login = process.env.NEXT_PUBLIC_LOGIN_URL || '/login';
+  const nbPagination = Number(process.env.NEXT_PUBLIC_NB_PAGINATION) || 5;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -34,10 +38,20 @@ export default function UtilisateurDashboard() {
         setUser(userData.user);
 
         const currentYear = new Date().getFullYear();
-        const studentsResponse = await fetch(`/api/etudiants/inscrits-par-annee?annee=${currentYear}`);
+        const limit = 10;
         
+        const studentsResponse = await fetch(`/api/etudiants/inscrits-par-annee?annee=${currentYear}&limit=${limit}`);
+        if (studentsResponse.status === 401 || studentsResponse.status === 403) {
+            setLoading(false); 
+            
+            // Redirection immédiate
+            await fetch("/api/auth/logout", { method: "POST" })
+            router.push(login); 
+            return; // ⬅️ Arrêter l'exécution de la fonction ici
+        }
         if (!studentsResponse.ok) {
-          throw new Error('Erreur lors de la récupération des étudiants');
+          toast.error('Erreur lors de la récupération des étudiants');
+          return;
         }
         
         const data = await studentsResponse.json();
@@ -59,7 +73,14 @@ export default function UtilisateurDashboard() {
         setStatsError(null);
 
         const response = await fetch('/api/etudiants/statistiques');
-        
+        if (response.status === 401 || response.status === 403) {
+            setLoading(false); 
+            
+            // Redirection immédiate
+            await fetch("/api/auth/logout", { method: "POST" })
+            router.push(login); 
+            return; // ⬅️ Arrêter l'exécution de la fonction ici
+        }
         if (!response.ok) {
           throw new Error(`Erreur HTTP: ${response.status}`);
         }
@@ -113,7 +134,7 @@ export default function UtilisateurDashboard() {
 
         <div className="grid gap-4 md:grid-cols-3">
           <div className="md:col-span-2">
-            <StudentTable students={students} />
+            <StudentTable students={students} nbPagination={nbPagination} />
           </div>
           
           <div className="space-y-4">

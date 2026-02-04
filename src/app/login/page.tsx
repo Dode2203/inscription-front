@@ -42,17 +42,16 @@ export default function AdminLoginPage() {
       if (token) localStorage.setItem("token", token);
       if (membre) localStorage.setItem("membre", JSON.stringify(membre));
 
-      // ✅ redirection selon le rôle
-      if (membre?.role === "Admin") {
-        window.location.href = "/admin/dashboard";
-      } else if (membre?.role === "Utilisateur") {
-        window.location.href = "/utilisateur/dashboard";
-      } else if (membre?.role === "Ecolage") {
-        window.location.href = "/ecolage";
-      } else {
-        window.location.href = "/login";
-      }
-
+        // ✅ redirection selon le rôle
+          if (membre?.role === "Admin") {
+            window.location.href = "/admin/inscription";
+          } else if (membre?.role === "Utilisateur") {
+            window.location.href = "utilisateur/dashboard";
+          }  else if (membre?.role === "Ecolage") {
+          window.location.href = "/ecolage";
+          } else {
+            window.location.href = "/login";
+          }
 
     } catch (err) {
       console.error(err);

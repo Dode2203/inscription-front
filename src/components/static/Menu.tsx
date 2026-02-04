@@ -35,13 +35,18 @@ export default function Menu({ user, activeTab, setActiveTab }: MenuProps) {
       },
       {
         key: "/utilisateur/inscription",
-        label: "Inscription",
+        label: "Réinscription",
         icon: <Users size={18} />,
       },
       {
         key: "/utilisateur/filtrage", // Corrigé : minuscule
         label: "Filtrage",
         icon: <Filter size={18} />, // Corrigé : minuscule
+      },
+      {
+        key: "/admin/modification",
+        label: "Modification",
+        icon: <Filter size={18} />,
       }
     );
   }
@@ -60,10 +65,16 @@ export default function Menu({ user, activeTab, setActiveTab }: MenuProps) {
         icon: <Users size={18} />,
       },
       {
+        key: "/utilisateur/inscription",
+        label: "Réinscription",
+        icon: <Users size={18} />,
+      },
+      {
         key: "/admin/modification",
         label: "Modification",
         icon: <Filter size={18} />,
       }
+      
     );
   }
 

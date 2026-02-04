@@ -16,7 +16,9 @@ export async function POST(request: NextRequest) {
     "baccAnnee",
     "baccSerie",
     "proposEmail",
-    "proposAdresse"
+    "proposAdresse",
+    "proposTelephone",
+    "nationaliteId"
   ];
 
   // Pointage vers l'endpoint de sauvegarde Symfony

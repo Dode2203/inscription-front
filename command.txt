@@ -1,0 +1,13 @@
+npm install next react react-dom
+#Pour lancer 
+npm run dev
+
+npm install jsonwebtoken
+npm install --save-dev @types/jsonwebtoken
+
+npm install @radix-ui/react-dialog
+
+
+npm install @emailjs/browser
+
+#Commit samedi 31 janvier 2026
