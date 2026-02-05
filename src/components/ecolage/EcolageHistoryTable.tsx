@@ -17,9 +17,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 interface EcolageHistoryTableProps {
     idEtudiant: string | number;
     lastUpdated?: number;
+    mention?: string;
 }
 
-export function EcolageHistoryTable({ idEtudiant, lastUpdated }: EcolageHistoryTableProps) {
+export function EcolageHistoryTable({ idEtudiant, lastUpdated, mention }: EcolageHistoryTableProps) {
     const [data, setData] = useState<EcolageHistoryResponse | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
@@ -65,8 +66,9 @@ export function EcolageHistoryTable({ idEtudiant, lastUpdated }: EcolageHistoryT
         return (
             <Card>
                 <CardHeader>
-                    <CardTitle>
-                        Historique de : {data?.data.etudiant.nom} {data?.data.etudiant.prenom}
+                    <CardTitle className="flex justify-between items-center">
+                        <span>Historique de : {data?.data.etudiant.nom} {data?.data.etudiant.prenom}</span>
+                        {mention && <span className="text-sm font-medium bg-slate-100 text-slate-700 px-3 py-1 rounded-full uppercase">{mention}</span>}
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -83,8 +85,13 @@ export function EcolageHistoryTable({ idEtudiant, lastUpdated }: EcolageHistoryT
     return (
         <Card>
             <CardHeader>
-                <CardTitle>
-                    Historique de : {etudiant.nom} {etudiant.prenom}
+                <CardTitle className="flex justify-between items-center">
+                    <span>Historique de : {etudiant.nom} {etudiant.prenom}</span>
+                    {(mention || etudiant.mention) && (
+                        <span className="text-sm font-medium bg-slate-100 text-slate-700 px-3 py-1 rounded-full uppercase tracking-wide">
+                            {mention || etudiant.mention}
+                        </span>
+                    )}
                 </CardTitle>
             </CardHeader>
             <CardContent>
@@ -93,9 +100,8 @@ export function EcolageHistoryTable({ idEtudiant, lastUpdated }: EcolageHistoryT
                         <TableRow className="bg-slate-50">
                             <TableHead className="font-bold text-slate-700">Référence</TableHead>
                             <TableHead className="font-bold text-slate-700">Date</TableHead>
-                            <TableHead className="font-bold text-slate-700">Année Univ.</TableHead>
+                            <TableHead className="font-bold text-slate-700">Année</TableHead>
                             <TableHead className="font-bold text-slate-700">Niveau</TableHead>
-                            <TableHead className="font-bold text-slate-700">Mention</TableHead>
                             <TableHead className="font-bold text-slate-700">Montant</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -111,13 +117,12 @@ export function EcolageHistoryTable({ idEtudiant, lastUpdated }: EcolageHistoryT
 
                             return (
                                 <TableRow key={item.id_paiement} className="hover:bg-slate-50/50">
-                                    <TableCell className="font-medium">{item.ref_bordereau || 'N/A'}</TableCell>
+                                    <TableCell className="font-medium">{item.reference || item.ref_bordereau || 'N/A'}</TableCell>
                                     <TableCell>
                                         {displayDate ? new Date(displayDate).toLocaleDateString('fr-FR') : 'N/A'}
                                     </TableCell>
-                                    <TableCell>{item.annee_universitaire || 'N/A'}</TableCell>
+                                    <TableCell>{item.annee || item.annee_universitaire || 'N/A'}</TableCell>
                                     <TableCell>{renderField(item.niveau)}</TableCell>
-                                    <TableCell>{renderField(item.mention)}</TableCell>
                                     <TableCell className="font-bold text-blue-900">
                                         {item.montant.toLocaleString('fr-FR')} Ar
                                     </TableCell>
