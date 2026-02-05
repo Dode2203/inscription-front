@@ -10,6 +10,7 @@ export const generateReceiptPDF = async (
 ) => {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight(); // Récupère la hauteur totale
   const margin = 15;
   const centerX = pageWidth / 2;
   const numDossier = inscription?.matricule || `D-${identite.id}`;
@@ -22,7 +23,6 @@ export const generateReceiptPDF = async (
       img.src = url;
       img.onload = () => {
         doc.addImage(img, 'PNG', margin, 10, 25, 25);
-        // Slogan sous le logo
         doc.setFontSize(7);
         doc.setFont("helvetica", "bold");
         doc.text("Premier Partenaire des Professionnels", margin - 2, 40);
@@ -37,13 +37,10 @@ export const generateReceiptPDF = async (
   // ==========================================
   // EN-TÊTE (STYLE IMAGE)
   // ==========================================
-
-  // 1. Date automatique en haut à droite
   doc.setFontSize(9);
   doc.setFont("helvetica", "italic");
   doc.text(`(DATE: ${today})`, pageWidth - margin, 10, { align: "right" });
 
-  // 2. Bloc de texte central
   doc.setFontSize(11);
   doc.setFont("helvetica", "normal");
   doc.text("Université d’Antananarivo", centerX, 18, { align: "center" });
@@ -61,7 +58,6 @@ export const generateReceiptPDF = async (
   doc.setFontSize(14);
   doc.text("Année Universitaire 2025-2026", centerX, 53, { align: "center" });
 
-  // 3. Cadre Photo à droite
   doc.setLineWidth(0.5);
   doc.rect(155, 15, 40, 45); 
   doc.setFontSize(16);
@@ -70,14 +66,11 @@ export const generateReceiptPDF = async (
   // ==========================================
   // RENSEIGNEMENTS PÉDAGOGIQUES
   // ==========================================
-  
   let currentY = 75;
-  
-  // Titre souligné
   doc.setFontSize(12);
   doc.setFont("helvetica", "bold");
   doc.text("RENSEIGNEMENTS PEDAGOGIQUES", margin, currentY);
-  doc.line(margin, currentY + 1, margin + 70, currentY + 1); // Soulignement
+  doc.line(margin, currentY + 1, margin + 70, currentY + 1);
 
   doc.text(`Dossier N° :`, 140, currentY);
   doc.setFont("helvetica", "italic");
@@ -113,7 +106,7 @@ export const generateReceiptPDF = async (
   currentY += 7;
   doc.text(`Contact : ${identite.contact.telephone} / ${identite.contact.email}`, margin, currentY);
 
-  // --- SÉPARATEUR POUR LE RÉCÉPISSÉ ---
+  // --- SÉPARATEUR ---
   currentY += 15;
   doc.setLineDashPattern([2, 2], 0);
   doc.line(margin, currentY, pageWidth - margin, currentY);
@@ -128,27 +121,20 @@ export const generateReceiptPDF = async (
   doc.text("RECEPISSE D’INSCRIPTION 2025-2026", centerX, currentY, { align: "center" });
 
   currentY += 10;
-  doc.setFontSize(10);
-  doc.setFont("helvetica", "normal");
-  const recapData = [
-    ['Nom & Prénoms', `${identite.nom.toUpperCase()} ${identite.prenom}`],
-    ['Mention / Niveau', `${formation.mention} / ${formation.niveau}`],
-    ['N° Dossier', numDossier]
-  ];
-
   autoTable(doc, {
     startY: currentY,
-    body: recapData,
+    body: [
+      ['Nom & Prénoms', `${identite.nom.toUpperCase()} ${identite.prenom}`],
+      ['Mention / Niveau', `${formation.mention} / ${formation.niveau}`],
+      ['N° Dossier', numDossier]
+    ],
     theme: 'plain',
     styles: { cellPadding: 1, fontSize: 10 },
     columnStyles: { 0: { fontStyle: 'bold', cellWidth: 40 } }
   });
 
-  const finalY = (doc as any).lastAutoTable.finalY + 10;
-  
-  // Tableau des paiements simplifié
   autoTable(doc, {
-    startY: finalY,
+    startY: (doc as any).lastAutoTable.finalY + 5,
     head: [['DESIGNATION', 'REFERENCE', 'MONTANT']],
     body: [
       ['Droit Administratif', paiement.refAdmin || '-', `${formatMontant(paiement.montantAdmin || 0)} Ar`],
@@ -157,7 +143,13 @@ export const generateReceiptPDF = async (
     theme: 'grid',
     headStyles: { fillColor: [230, 230, 230], textColor: 0 }
   });
-  doc.text("Le Responsable,", pageWidth - margin - 40, finalY);
+
+  // --- POSITIONNEMENT DU RESPONSABLE TOUT EN BAS ---
+  // On utilise pageHeight - 30 pour laisser une marge de sécurité au fond
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(11);
+  doc.text("Le Responsable,", pageWidth - margin - 40, pageHeight - 35);
+
   doc.save(`Fiche_ESPA_${identite.nom.replace(/\s+/g, '_')}.pdf`);
 };
 
