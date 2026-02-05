@@ -86,11 +86,6 @@ export default function Menu({ user, activeTab, setActiveTab }: MenuProps) {
         label: "Insertion Paiement",
         icon: <PlusCircle size={18} />,
       },
-      {
-        key: "/ecolage/verification",
-        label: "Vérification",
-        icon: <ShieldCheck size={18} />,
-      }
     );
   }
 
