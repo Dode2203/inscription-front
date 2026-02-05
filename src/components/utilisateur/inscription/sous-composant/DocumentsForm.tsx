@@ -6,7 +6,6 @@ const LISTE_DOCUMENTS = [
   { id: "photo", label: "Photo d'identité (x3)" },
   { id: "acte", label: "Extrait d'acte de naissance" },
   // AJOUT COMMENTAIRE : Ce document est maintenant considéré comme facultatif dans la validation
-  { id: "diplome", label: "Copie certifiée du diplôme (M2/MVR uniquement)" },
   { id: "cni", label: "Photocopie de la CNI / Passeport" },
   { id: "exonere", label: "Exonération Personnel / Professeur" },
 ];

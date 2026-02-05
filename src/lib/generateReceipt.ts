@@ -2,140 +2,165 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { Identite, Formation, PaiementData, Inscription } from '@/lib/db';
 
-export const generateReceiptPDF = (
+export const generateReceiptPDF = async (
   identite: Identite,
   formation: Formation,
   paiement: PaiementData,
   inscription?: Inscription | null,
 ) => {
   const doc = new jsPDF();
-  const logoUrl = "/espa-logo.png"; 
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const margin = 15;
+  const centerX = pageWidth / 2;
+  const numDossier = inscription?.matricule || `D-${identite.id}`;
+  const today = new Date().toLocaleDateString('fr-FR');
 
-  // Génération du numéro de quittance
-  const numQuittance = inscription?.matricule 
-    || `Q-${identite.id}-${new Date().getTime().toString().slice(-6)}`;
+  // --- FONCTION LOGO ---
+  const addLogo = (url: string): Promise<void> => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.src = url;
+      img.onload = () => {
+        doc.addImage(img, 'PNG', margin, 10, 25, 25);
+        // Slogan sous le logo
+        doc.setFontSize(7);
+        doc.setFont("helvetica", "bold");
+        doc.text("Premier Partenaire des Professionnels", margin - 2, 40);
+        resolve();
+      };
+      img.onerror = () => resolve();
+    });
+  };
 
-  // --- 1. EN-TÊTE INSTITUTIONNEL (Style Liste) ---
-  try {
-    doc.addImage(logoUrl, 'PNG', 15, 10, 25, 25);
-  } catch (e) {
-    console.error("Logo non trouvé", e);
-  }
+  await addLogo("/espa-logo.png");
 
+  // ==========================================
+  // EN-TÊTE (STYLE IMAGE)
+  // ==========================================
+
+  // 1. Date automatique en haut à droite
   doc.setFontSize(9);
-  doc.setFont("helvetica", "normal");
-  doc.setTextColor(0, 0, 0);
-  
-  const textX = 45; 
-  doc.text("UNIVERSITE D'ANTANANARIVO", textX, 15);
-  doc.text("ECOLE SUPERIEURE POLYTECHNIQUE", textX, 20);
-  doc.text("D'ANTANANARIVO", textX, 25);
-  doc.text("--------------ooOoo--------------", textX, 30);
-  
-  doc.setFontSize(10);
-  doc.text("Année Universitaire 2025/2026", 140, 15);
-
-  // --- 2. TITRE DU DOCUMENT ---
-  doc.setFontSize(14);
-  doc.setFont("helvetica", "bold");
-  doc.text("RECEPISSE D'INSCRIPTION", 105, 48, { align: "center" });
-  
-  doc.setFontSize(10);
-  doc.text(`QUITTANCE N° : ${numQuittance}`, 105, 55, { align: "center" });
-
-  // --- 3. IDENTIFICATION (Style Grille Epurée) ---
-  autoTable(doc, {
-    startY: 65,
-    head: [[{ 
-      content: 'IDENTIFICATION DE L\'ETUDIANT', 
-      colSpan: 2, 
-      styles: { halign: 'center', fillColor: [255, 255, 255], textColor: [0, 0, 0], fontStyle: 'bold' } 
-    }]],
-    body: [
-      ['Nom & Prénoms', `${identite.nom.toUpperCase()} ${identite.prenom}`],
-      ['Date & Lieu de Naissance', `${identite.dateNaissance} à ${identite.lieuNaissance}`],
-      ['Sexe', identite.sexe],
-      ['Contact / Email', `${identite.contact.adresse || '-'} / ${identite.contact.email}`],
-    ],
-    theme: 'grid',
-    styles: { lineColor: [0, 0, 0], lineWidth: 0.1, textColor: [0, 0, 0] },
-    columnStyles: { 
-      0: { fontStyle: 'bold', cellWidth: 60, fillColor: [250, 250, 250] } 
-    }
-  });
-
-  // --- 4. PARCOURS ACADÉMIQUE ---
-  autoTable(doc, {
-    startY: (doc as any).lastAutoTable.finalY + 5,
-    head: [[{ 
-      content: 'PARCOURS ACADÉMIQUE', 
-      colSpan: 2, 
-      styles: { halign: 'center', fillColor: [255, 255, 255], textColor: [0, 0, 0], fontStyle: 'bold' } 
-    }]],
-    body: [
-      ['Formation', formation.formation],
-      ['Mention / Niveau', `${formation.mention} - ${formation.niveau}`],
-      ['Type de Parcours', formation.formationType],
-    ],
-    theme: 'grid',
-    styles: { lineColor: [0, 0, 0], lineWidth: 0.1, textColor: [0, 0, 0] },
-    columnStyles: { 
-      0: { fontStyle: 'bold', cellWidth: 60, fillColor: [250, 250, 250] } 
-    }
-  });
-
-  // --- 5. SECTION FINANCIÈRE ---
-  const tableBody: any[] = [];
-  if (paiement.montantAdmin && paiement.montantAdmin !== '0') {
-    tableBody.push(['Droits Administratifs', paiement.refAdmin || '-', paiement.dateAdmin || '-', `${formatMontant(paiement.montantAdmin)} Ar`]);
-  }
-  if (paiement.montantPedag && paiement.montantPedag !== '0') {
-    tableBody.push(['Frais Pédagogiques', paiement.refPedag || '-', paiement.datePedag || '-', `${formatMontant(paiement.montantPedag)} Ar`]);
-  }
-  if (paiement.montantEcolage && paiement.montantEcolage !== '0') {
-    tableBody.push(['Écolage', paiement.refEcolage || '-', paiement.dateEcolage || '-', `${formatMontant(paiement.montantEcolage)} Ar`]);
-  }
-
-  autoTable(doc, {
-    startY: (doc as any).lastAutoTable.finalY + 5,
-    head: [['DÉSIGNATION', 'RÉFÉRENCE', 'DATE', 'MONTANT']],
-    body: tableBody.length > 0 ? tableBody : [['-', '-', '-', '0 Ar']],
-    theme: 'grid',
-    headStyles: { fillColor: [255, 255, 255], textColor: [0, 0, 0], fontStyle: 'bold', lineColor: [0, 0, 0], lineWidth: 0.1 },
-    styles: { lineColor: [0, 0, 0], lineWidth: 0.1, textColor: [0, 0, 0] },
-  });
-
-  // --- 6. SIGNATURES ---
-  const finalY = (doc as any).lastAutoTable.finalY + 15;
-  doc.setFontSize(10);
-  doc.setFont("helvetica", "bold");
-  doc.text("L'Etudiant(e),", 30, finalY);
-  doc.text("Le Responsable,", 140, finalY);
-  
   doc.setFont("helvetica", "italic");
-  doc.setFontSize(8);
-  doc.text("(Signature précédée de la mention 'Lu et approuvé')", 15, finalY + 20);
+  doc.text(`(DATE: ${today})`, pageWidth - margin, 10, { align: "right" });
 
-  // Bas de page (Fait à...)
+  // 2. Bloc de texte central
+  doc.setFontSize(11);
   doc.setFont("helvetica", "normal");
-  doc.text(`Fait à Antananarivo, le ${new Date().toLocaleDateString('fr-FR')}`, 130, finalY + 30);
+  doc.text("Université d’Antananarivo", centerX, 18, { align: "center" });
+  
+  doc.setFont("helvetica", "bold");
+  doc.text("Ecole Supérieure Polytechnique d’Antananarivo", centerX, 24, { align: "center" });
+  
+  doc.setFont("helvetica", "normal");
+  doc.text("Service des Etudiants", centerX, 30, { align: "center" });
 
-  // Bordure simple
-  doc.setDrawColor(0, 0, 0);
-  doc.setLineWidth(0.1);
-  doc.rect(5, 5, 200, 287);
+  doc.setFontSize(18);
+  doc.setFont("helvetica", "bold");
+  doc.text("FICHE D’INSCRIPTION", centerX, 45, { align: "center" });
+  
+  doc.setFontSize(14);
+  doc.text("Année Universitaire 2025-2026", centerX, 53, { align: "center" });
 
-  // Sauvegarde
-  const fileName = `Recepisse_${identite.nom.replace(/\s+/g, '_')}.pdf`;
-  doc.save(fileName);
+  // 3. Cadre Photo à droite
+  doc.setLineWidth(0.5);
+  doc.rect(155, 15, 40, 45); 
+  doc.setFontSize(16);
+  doc.text("PHOTO", 175, 42, { align: "center" });
+
+  // ==========================================
+  // RENSEIGNEMENTS PÉDAGOGIQUES
+  // ==========================================
+  
+  let currentY = 75;
+  
+  // Titre souligné
+  doc.setFontSize(12);
+  doc.setFont("helvetica", "bold");
+  doc.text("RENSEIGNEMENTS PEDAGOGIQUES", margin, currentY);
+  doc.line(margin, currentY + 1, margin + 70, currentY + 1); // Soulignement
+
+  doc.text(`Dossier N° :`, 140, currentY);
+  doc.setFont("helvetica", "italic");
+  doc.text(`${numDossier}`, 170, currentY);
+  
+  currentY += 12;
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "normal");
+  doc.text(`Mention : ${formation.mention}`, margin, currentY);
+  currentY += 7;
+  doc.text(`Parcours : ${formation.formation}`, margin, currentY);
+  currentY += 7;
+  doc.text(`Niveau : ${formation.niveau}`, margin, currentY);
+  doc.text(`Type de formation : ${formation.formationType}`, 110, currentY);
+  currentY += 7;
+  doc.text(`IM : ${inscription?.matricule || "-"}`, margin, currentY);
+
+  // --- ETAT CIVIL ---
+  currentY += 12;
+  doc.setFont("helvetica", "bold");
+  doc.text("ETAT CIVIL", margin, currentY);
+  doc.line(margin, currentY + 1, margin + 22, currentY + 1);
+  
+  currentY += 8;
+  doc.setFont("helvetica", "normal");
+  doc.text(`Nom : ${identite.nom.toUpperCase()}`, margin, currentY);
+  currentY += 7;
+  doc.text(`Prénom(s) : ${identite.prenom}`, margin, currentY);
+  currentY += 7;
+  doc.text(`Date et Lieu de naissance : ${identite.dateNaissance} à ${identite.lieuNaissance}`, margin, currentY);
+  currentY += 7;
+  doc.text(`CIN : ${identite.cin?.numero || "-"} du ${identite.cin?.dateDelivrance || "-"} à ${identite.cin?.lieuDelivrance || "-"}`, margin, currentY);
+  currentY += 7;
+  doc.text(`Contact : ${identite.contact.telephone} / ${identite.contact.email}`, margin, currentY);
+
+  // --- SÉPARATEUR POUR LE RÉCÉPISSÉ ---
+  currentY += 15;
+  doc.setLineDashPattern([2, 2], 0);
+  doc.line(margin, currentY, pageWidth - margin, currentY);
+  doc.setLineDashPattern([], 0);
+
+  // ==========================================
+  // RÉCÉPISSÉ (BAS DE PAGE)
+  // ==========================================
+  currentY += 10;
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(12);
+  doc.text("RECEPISSE D’INSCRIPTION 2025-2026", centerX, currentY, { align: "center" });
+
+  currentY += 10;
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "normal");
+  const recapData = [
+    ['Nom & Prénoms', `${identite.nom.toUpperCase()} ${identite.prenom}`],
+    ['Mention / Niveau', `${formation.mention} / ${formation.niveau}`],
+    ['N° Dossier', numDossier]
+  ];
+
+  autoTable(doc, {
+    startY: currentY,
+    body: recapData,
+    theme: 'plain',
+    styles: { cellPadding: 1, fontSize: 10 },
+    columnStyles: { 0: { fontStyle: 'bold', cellWidth: 40 } }
+  });
+
+  const finalY = (doc as any).lastAutoTable.finalY + 10;
+  
+  // Tableau des paiements simplifié
+  autoTable(doc, {
+    startY: finalY,
+    head: [['DESIGNATION', 'REFERENCE', 'MONTANT']],
+    body: [
+      ['Droit Administratif', paiement.refAdmin || '-', `${formatMontant(paiement.montantAdmin || 0)} Ar`],
+      ['Droit Pédagogique', paiement.refPedag || '-', `${formatMontant(paiement.montantPedag || 0)} Ar`],
+    ],
+    theme: 'grid',
+    headStyles: { fillColor: [230, 230, 230], textColor: 0 }
+  });
+  doc.text("Le Responsable,", pageWidth - margin - 40, finalY);
+  doc.save(`Fiche_ESPA_${identite.nom.replace(/\s+/g, '_')}.pdf`);
 };
 
-function formatMontant(montant: string | number): string {
-  const num =
-    typeof montant === 'string'
-      ? Number(montant.replace(/\s|\/|,/g, ''))
-      : montant;
-
-  return num.toLocaleString('fr-FR').replace(/\u202f|\u00a0/g, '.');
+function formatMontant(m: any) {
+  return Number(m).toLocaleString('fr-FR');
 }
-

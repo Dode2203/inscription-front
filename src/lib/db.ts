@@ -48,6 +48,20 @@ export interface Nationalite {
   type: number;
   typeNationaliteNom?: string;
 }
+
+export interface Cin {
+  id?: number|string;
+  numero: string;
+  dateDelivrance: string;
+  lieuDelivrance: string; 
+}
+
+export interface Baccalaureat {
+  id?: number|string;
+  serie: string;
+  anneeObtention: string;
+  numero?: string;
+}
 // Structure de l'objet identité (basée sur votre JSON)
 export interface Identite {
   id: number|string;
@@ -58,6 +72,8 @@ export interface Identite {
   sexe: string;
   nationalite?: Nationalite;
   contact: Contact;
+  cin?: Cin;
+  bacc?: Baccalaureat;
 }
 export interface Formation {
   idFormation:string|number;
