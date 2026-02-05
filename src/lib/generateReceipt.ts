@@ -10,32 +10,36 @@ export const generateReceiptPDF = async (
 ) => {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
-  const pageHeight = doc.internal.pageSize.getHeight(); // Récupère la hauteur totale
+  const pageHeight = doc.internal.pageSize.getHeight();
   const margin = 15;
   const centerX = pageWidth / 2;
   const numDossier = inscription?.matricule || `D-${identite.id}`;
   const today = new Date().toLocaleDateString('fr-FR');
 
-  // --- FONCTION LOGO ---
-  const addLogo = (url: string): Promise<void> => {
+  // --- FONCTION CHARGEMENT IMAGES ---
+  const loadImage = (url: string): Promise<HTMLImageElement | null> => {
     return new Promise((resolve) => {
       const img = new Image();
       img.src = url;
-      img.onload = () => {
-        doc.addImage(img, 'PNG', margin, 10, 25, 25);
-        doc.setFontSize(7);
-        doc.setFont("helvetica", "bold");
-        doc.text("Premier Partenaire des Professionnels", margin - 2, 40);
-        resolve();
-      };
-      img.onerror = () => resolve();
+      img.onload = () => resolve(img);
+      img.onerror = () => resolve(null);
     });
   };
 
-  await addLogo("/espa-logo.png");
+  // Chargement préalable des images
+  const logoImg = await loadImage("/espa-logo.png");
+  const signatureImg = await loadImage("/signature.jpeg");
+
+  // --- LOGO ---
+  if (logoImg) {
+    doc.addImage(logoImg, 'PNG', margin, 10, 25, 25);
+    doc.setFontSize(7);
+    doc.setFont("helvetica", "bold");
+    doc.text("Premier Partenaire des Professionnels", margin - 2, 40);
+  }
 
   // ==========================================
-  // EN-TÊTE (STYLE IMAGE)
+  // EN-TÊTE
   // ==========================================
   doc.setFontSize(9);
   doc.setFont("helvetica", "italic");
@@ -58,6 +62,7 @@ export const generateReceiptPDF = async (
   doc.setFontSize(14);
   doc.text("Année Universitaire 2025-2026", centerX, 53, { align: "center" });
 
+  // Cadre Photo
   doc.setLineWidth(0.5);
   doc.rect(155, 15, 40, 45); 
   doc.setFontSize(16);
@@ -144,11 +149,25 @@ export const generateReceiptPDF = async (
     headStyles: { fillColor: [230, 230, 230], textColor: 0 }
   });
 
-  // --- POSITIONNEMENT DU RESPONSABLE TOUT EN BAS ---
-  // On utilise pageHeight - 30 pour laisser une marge de sécurité au fond
+  // ==========================================
+  // BLOC SIGNATURE RESPONSABLE (TOUT EN BAS)
+  // ==========================================
+  const finalY = (doc as any).lastAutoTable.finalY + 10;
+  const signatureX = pageWidth - margin - 60; // Position horizontale du bloc
+
   doc.setFont("helvetica", "bold");
   doc.setFontSize(11);
-  doc.text("Le Responsable,", pageWidth - margin - 40, pageHeight - 35);
+  doc.text("Le Responsable,", signatureX, finalY);
+
+  // Ajout de l'image de la signature si elle existe
+  if (signatureImg) {
+    // On la place entre "Le Responsable" et le Nom
+    doc.addImage(signatureImg, 'JPEG', signatureX, finalY + 2, 40, 25);
+  }
+
+  // Nom du responsable
+  doc.setFontSize(10);
+  doc.text("RAZAFINTSALAMA Hantanirina Tahinasoa", signatureX - 5, finalY + 32);
 
   doc.save(`Fiche_ESPA_${identite.nom.replace(/\s+/g, '_')}.pdf`);
 };
