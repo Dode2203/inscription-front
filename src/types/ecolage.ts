@@ -37,6 +37,9 @@ export interface EcolageRegistration {
 
 export interface EtudiantEcolageDetail extends EtudiantSearchResult {
     registrations: EcolageRegistration[];
+    formation?: {
+        mention: string;
+    };
 }
 
 export interface EcolageFormInput {
@@ -52,7 +55,9 @@ export interface EcolageHistoryItem {
     date?: string; // Keep for safety if backend uses both
     montant: number;
     ref_bordereau: string;
+    reference?: string; // New field from backend
     annee_universitaire: string;
+    annee?: string; // New field from backend
     niveau: string | { nom: string };
     mention: string | { nom: string };
     reste_global: number;
@@ -61,7 +66,7 @@ export interface EcolageHistoryItem {
 export interface EcolageHistoryResponse {
     status: string;
     data: {
-        etudiant: { id: number; nom: string; prenom: string };
+        etudiant: { id: number; nom: string; prenom: string; mention?: string };
         history: EcolageHistoryItem[];
     };
 }

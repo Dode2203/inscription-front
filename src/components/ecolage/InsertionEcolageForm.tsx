@@ -31,6 +31,7 @@ export function InsertionEcolageForm() {
     const [loadingRecherche, setLoadingRecherche] = useState(false)
     const [afficherListeEtudiants, setAfficherListeEtudiants] = useState(false)
     const [loadingEtudiant, setLoadingEtudiant] = useState(false)
+    const [formation, setFormation] = useState<any>(null)
 
     // Form states
     const [registrationId, setRegistrationId] = useState("")
@@ -101,6 +102,8 @@ export function InsertionEcolageForm() {
             const ecolageRes = await ecolageService.fetchStudentEcolageDetails(idEtudiant);
             const registrations = ecolageRes.data || [];
 
+            setFormation(response.data.formation);
+
             setSelectedStudent({
                 id: Number(idEtudiant),
                 nom: identite.nom,
@@ -108,6 +111,7 @@ export function InsertionEcolageForm() {
                 dateNaissance: identite.dateNaissance || "",
                 sexe: identite.sexe || "",
                 contact: identite.contact || {},
+                formation: response.data.formation,
                 registrations: registrations.map((reg: any) => ({
                     ...reg,
                     id_niveau_etudiant: reg.id_niveau_etudiant,
@@ -244,6 +248,11 @@ export function InsertionEcolageForm() {
                                 <p className="text-sm text-blue-700 font-medium">Étudiant sélectionné :</p>
                                 <p className="text-xl font-bold text-slate-900 uppercase">
                                     {selectedStudent.nom} <span className="capitalize font-semibold">{selectedStudent.prenom}</span>
+                                    {formation?.mention && (
+                                        <span className="ml-3 text-sm font-normal bg-blue-100 text-blue-800 px-2 py-1 rounded-full uppercase tracking-wider">
+                                            {formation.mention}
+                                        </span>
+                                    )}
                                 </p>
                             </div>
                         </div>
@@ -356,7 +365,11 @@ export function InsertionEcolageForm() {
 
                     {showHistory && (
                         <div className="animate-in slide-in-from-bottom-6 duration-500">
-                            <EcolageHistoryTable idEtudiant={selectedStudent.id} lastUpdated={lastUpdatedHistory} />
+                            <EcolageHistoryTable
+                                idEtudiant={selectedStudent.id}
+                                lastUpdated={lastUpdatedHistory}
+                                mention={formation?.mention}
+                            />
                         </div>
                     )}
                 </div>
