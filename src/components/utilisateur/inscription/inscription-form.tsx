@@ -112,8 +112,12 @@ export function InscriptionForm() {
       }
 
       const response = await res.json();
-      
-      const sortedStudents = response.data.sort((a: EtudiantRecherche, b: EtudiantRecherche) => {
+
+      // 1. On vérifie si data existe, sinon on utilise un tableau vide par défaut []
+      const etudiants = response.data || [];
+
+      // 2. On trie le tableau (qui est maintenant garanti d'exister, même s'il est vide)
+      const sortedStudents = [...etudiants].sort((a: EtudiantRecherche, b: EtudiantRecherche) => {
         const nomA = a.nom ?? "";
         const nomB = b.nom ?? "";
         const compareNom = nomA.localeCompare(nomB);
@@ -124,15 +128,16 @@ export function InscriptionForm() {
       setEtudiantsTrouves(sortedStudents);
       setAfficherListeEtudiants(true);
       
-      if (response.data.length > 0) {
+      if (sortedStudents.length > 0) {
         const successAudio = new Audio("/sounds/successed-295058.mp3");
         successAudio.play();
-        toast.success(`${response.data.length} étudiant(s) trouvé(s)`);
+        toast.success(`${sortedStudents.length} étudiant(s) trouvé(s)`);
       } else {
         toast.error("Aucun étudiant trouvé");
       }
     } catch (err) {
-      toast.error("Une erreur technique est survenue");
+      const message= (err as Error).message || "Une erreur inattendue s'est produite";
+      toast.error(message);
     } finally {
       setLoadingRecherche(false);
     }
