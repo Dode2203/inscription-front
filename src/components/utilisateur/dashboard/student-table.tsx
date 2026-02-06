@@ -40,7 +40,7 @@ export function StudentTable({ students, nbPagination = 5 }: StudentTableProps) 
       
       const result = await response.json();
       if (result.status !== 'success' || !result.data) throw new Error('Données non disponibles');
-      
+      console.log(result.data);
       const fullStudent: Student = {
         ...student,
         ...result.data,

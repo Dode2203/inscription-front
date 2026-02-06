@@ -89,7 +89,7 @@ function extractPaiementData(student: Student): PaiementData {
         refAdmin = ref;
         dateAdmin = date;
         montantAdmin = montant;
-      } else if (paiement.typeDroit === 'Pédagogique') {
+      } else if (paiement.typeDroit === 'P‚dagogique') {
         refPedag = ref;
         datePedag = date;
         montantPedag = montant;
@@ -152,11 +152,16 @@ export async function downloadReceipt(student: Student) {
     const fullStudentData = await fetchStudentDetails(student.id);
     
     console.log('📄 Préparation des données PDF...');
+    console.log('Données de l\'étudiant:', fullStudentData);
     
     // Préparer les données avec les interfaces de db.ts
     const { identite, formation, paiementData, inscription } = prepareReceiptData(fullStudentData);
     
-    console.log('✅ Génération du PDF...');
+    // console.log('✅ Génération du PDF...');
+    // console.log('Identité:', identite);
+    // console.log('Formation:', formation);
+    // console.log('Paiement:', paiementData);
+    // console.log('Inscription:', inscription);
     
     // Générer le PDF
     generateReceiptPDF(identite, formation, paiementData, inscription);

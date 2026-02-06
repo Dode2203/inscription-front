@@ -28,7 +28,8 @@ export function StudentDetailsModal({ student, onClose }: StudentDetailsModalPro
   const handleDownloadPDF = async () => {
     try {
       setIsDownloading(true);
-      await downloadReceipt(student);
+      console.log('Tentative de téléchargement pour:', student);
+      // await downloadReceipt(student);
     } catch (error) {
       console.error('Erreur:', error);
       alert('Erreur lors de la génération du PDF');
