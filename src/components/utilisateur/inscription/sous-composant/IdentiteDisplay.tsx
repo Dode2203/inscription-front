@@ -13,7 +13,7 @@ interface DetailItemProps {
 }
 
 
-const IdentiteDisplay = ({ identite,  onNext }: IdentiteDisplayProps) => {
+const IdentiteDisplay = ({ identite, onNext }: IdentiteDisplayProps) => {
   return (
     <div className="space-y-6 mt-6">
       {/* Message de succès */}
@@ -52,7 +52,7 @@ const IdentiteDisplay = ({ identite,  onNext }: IdentiteDisplayProps) => {
 };
 
 // Petit composant utilitaire pour uniformiser l'affichage des labels/valeurs
-const DetailItem = ({ label, value }:DetailItemProps) => (
+const DetailItem = ({ label, value }: DetailItemProps) => (
   <div className="space-y-1">
     <p className="text-sm font-medium text-muted-foreground">{label}</p>
     <p className="p-2 bg-gray-50 rounded-md border border-gray-100 text-foreground">

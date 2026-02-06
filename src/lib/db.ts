@@ -4,24 +4,24 @@
 export interface User {
   id?: string
   name?: string
-  nom?:string
-  prenom?:string
+  nom?: string
+  prenom?: string
   email: string
   password?: string
   role?: "Admin" | "Utilisateur"
   createdAt?: Date
-  status?:string
+  status?: string
 }
 
 export interface Event {
-  id?: string| number
+  id?: string | number
   titre: string
   description: string
   debut?: string
   fin?: string
   type?: string | number
-  typeEventId?: string|number
-  photoId?: string|number|null
+  typeEventId?: string | number
+  photoId?: string | number | null
   photoBinaire?: string
   user?: User
   datePublication?: string
@@ -37,57 +37,59 @@ export interface News {
   updatedAt: Date
 }
 export interface Contact {
-  id?: number|string;
+  id?: number | string;
   adresse: string;
   email: string;
   telephone?: string; // "?" signifie optionnel
 }
 export interface Nationalite {
-  id?: number|string;
+  id?: number | string;
   nom: string;
   type: number;
   typeNationaliteNom?: string;
 }
 
 export interface Cin {
-  id?: number|string;
+  id?: number | string;
   numero: string;
   dateDelivrance: string;
-  lieuDelivrance: string; 
+  lieuDelivrance: string;
 }
 
 export interface Baccalaureat {
-  id?: number|string;
+  id?: number | string;
   serie: string;
   anneeObtention: string;
   numero?: string;
 }
 // Structure de l'objet identité (basée sur votre JSON)
 export interface Identite {
-  id: number|string;
+  id: number | string;
   nom: string;
   prenom: string;
   dateNaissance: string;
   lieuNaissance: string;
   sexe: string;
+  nomPere?: string;
+  nomMere?: string;
   nationalite?: Nationalite;
   contact: Contact;
   cin?: Cin;
   bacc?: Baccalaureat;
 }
 export interface Formation {
-  idFormation:string|number;
+  idFormation: string | number;
   formation: string;
   formationType: string;
-  idNiveau:string|number;
+  idNiveau: string | number;
   typeNiveau: number;
   gradeNiveau: number
   niveau: string;
   mention: string;
   statusEtudiant?: string;
-  id?:string|number;
-  nom?:string;
-  typeFormation?:string;
+  id?: string | number;
+  nom?: string;
+  typeFormation?: string;
 
 }
 
@@ -107,11 +109,11 @@ export interface PaiementData {
   montantEcolage?: string;
   refEcolage?: string;
   dateEcolage?: string;
-  idNiveau: string|number;
-  idFormation: string|number;
+  idNiveau: string | number;
+  idFormation: string | number;
 }
 export interface EtudiantRecherche {
-  id: number|string;
+  id: number | string;
   nom: string;
   prenom: string;
 }
@@ -137,18 +139,18 @@ export interface InscriptionData {
   montantEcolage?: string;
   refEcolage?: string;
   dateEcolage?: string;
-  idEtudiant:string;
-  typeFormation:string;
-  passant?:boolean
+  idEtudiant: string;
+  typeFormation: string;
+  passant?: boolean
 }
 export interface Inscription {
-  id: number|string;
+  id: number | string;
   matricule: string;
-  dateInscription : string | Date;
-  description : string
+  dateInscription: string | Date;
+  description: string
 }
 export interface Niveau {
-  id: number|string;
+  id: number | string;
   nom: string;
   grade: number;
   type: number;
@@ -187,13 +189,15 @@ export interface Student {
   dateNaissance: string;
   lieuNaissance?: string;
   sexe?: string;
+  nomPere?: string;
+  nomMere?: string;
   matricule?: string;
   contact?: {
     adresse?: string;
     email?: string;
     telephone?: string;
   };
-  
+
   formation?: {
     id: number;
     nom: string;

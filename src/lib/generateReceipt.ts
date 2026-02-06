@@ -48,23 +48,23 @@ export const generateReceiptPDF = async (
   doc.setFontSize(11);
   doc.setFont("helvetica", "normal");
   doc.text("Université d’Antananarivo", centerX, 18, { align: "center" });
-  
+
   doc.setFont("helvetica", "bold");
   doc.text("Ecole Supérieure Polytechnique d’Antananarivo", centerX, 24, { align: "center" });
-  
+
   doc.setFont("helvetica", "normal");
   doc.text("Service des Etudiants", centerX, 30, { align: "center" });
 
   doc.setFontSize(18);
   doc.setFont("helvetica", "bold");
   doc.text("FICHE D’INSCRIPTION", centerX, 45, { align: "center" });
-  
+
   doc.setFontSize(14);
   doc.text("Année Universitaire 2025-2026", centerX, 53, { align: "center" });
 
   // Cadre Photo
   doc.setLineWidth(0.5);
-  doc.rect(155, 15, 40, 45); 
+  doc.rect(155, 15, 40, 45);
   doc.setFontSize(16);
   doc.text("PHOTO", 175, 42, { align: "center" });
 
@@ -80,7 +80,7 @@ export const generateReceiptPDF = async (
   doc.text(`Dossier N° :`, 140, currentY);
   doc.setFont("helvetica", "italic");
   doc.text(`${numDossier}`, 170, currentY);
-  
+
   currentY += 12;
   doc.setFontSize(10);
   doc.setFont("helvetica", "normal");
@@ -98,12 +98,16 @@ export const generateReceiptPDF = async (
   doc.setFont("helvetica", "bold");
   doc.text("ETAT CIVIL", margin, currentY);
   doc.line(margin, currentY + 1, margin + 22, currentY + 1);
-  
+
   currentY += 8;
   doc.setFont("helvetica", "normal");
   doc.text(`Nom : ${identite.nom.toUpperCase()}`, margin, currentY);
   currentY += 7;
   doc.text(`Prénom(s) : ${identite.prenom}`, margin, currentY);
+  currentY += 7;
+  doc.text(`Fils/Fille de : ${identite.nomPere || ".................................................."}`, margin, currentY);
+  currentY += 7;
+  doc.text(`Et de : ${identite.nomMere || ".................................................."}`, margin, currentY);
   currentY += 7;
   doc.text(`Date et Lieu de naissance : ${identite.dateNaissance} à ${identite.lieuNaissance}`, margin, currentY);
   currentY += 7;
