@@ -31,6 +31,8 @@ interface FormDataState {
   proposEmail: string;
   proposAdresse: string;
   proposTelephone: string;
+  nomPere: string;
+  nomMere: string;
   nationaliteId: number;
   proposId: number | string | null;
 
@@ -48,7 +50,7 @@ export default function ModificationPage() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadingSave, setLoadingSave] = useState(false);
-  
+
   // États recherche
   const [nomSearch, setNomSearch] = useState("");
   const [prenomSearch, setPrenomSearch] = useState("");
@@ -65,24 +67,26 @@ export default function ModificationPage() {
   const [afficherListe, setAfficherListe] = useState(false);
 
   const [currentEtudiantId, setCurrentEtudiantId] = useState<number | string | null>(null);
-  
+
   // État du formulaire initialisé
   const [formData, setFormData] = useState<FormDataState>({
     id: null,
-    nom: '', 
-    prenom: '', 
-    dateNaissance: '', 
+    nom: '',
+    prenom: '',
+    dateNaissance: '',
     lieuNaissance: '',
-    sexeId: 1, 
-    cinNumero: '', 
-    cinLieu: '', 
+    sexeId: 1,
+    cinNumero: '',
+    cinLieu: '',
     dateCin: '',
-    baccNumero: '', 
-    baccAnnee: '', 
+    baccNumero: '',
+    baccAnnee: '',
     baccSerie: '',
-    proposEmail: '', 
-    proposAdresse: '', 
+    proposEmail: '',
+    proposAdresse: '',
     proposTelephone: '',
+    nomPere: '',
+    nomMere: '',
     nationaliteId: 1,
     proposId: null
   });
@@ -95,13 +99,13 @@ export default function ModificationPage() {
     const checkAuth = async () => {
       try {
         const [authRes, initialData] = await Promise.all([
-            fetch(`/api/auth/me`),
-            getInitialData()
+          fetch(`/api/auth/me`),
+          getInitialData()
         ]);
-        
+
         if (!authRes.ok) {
-            window.location.href = login;
-            return;
+          window.location.href = login;
+          return;
         }
         if (!authRes.ok) { router.push(login); return; }
         const data = await authRes.json();
@@ -138,7 +142,7 @@ export default function ModificationPage() {
     try {
       const response = await fetch(`/api/etudiants/modifier/formulaire?id=${id}`);
       const result = await response.json();
-      
+
       if (result.status === "success") {
         const d = result.data;
         // On peuple l'état du formulaire champ par champ
@@ -159,7 +163,9 @@ export default function ModificationPage() {
           proposId: d.proposId || "",
           proposAdresse: d.proposAdresse || "",
           proposTelephone: d.proposTelephone || "",
-          nationaliteId:1
+          nomPere: d.nomPere || "",
+          nomMere: d.nomMere || "",
+          nationaliteId: 1
         });
         // On définit l'ID de l'étudiant courant pour afficher le formulaire
         setCurrentEtudiantId(id);
@@ -179,7 +185,7 @@ export default function ModificationPage() {
   // 4. Mise à jour des données de l'étudiant
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validation des champs obligatoires
     const requiredFields = [
       { field: 'nom', label: 'Nom' },
@@ -208,7 +214,7 @@ export default function ModificationPage() {
     }
 
     setLoadingSave(true);
-    
+
     try {
       // Vérification de l'ID
       if (!formData.id) {
@@ -237,6 +243,8 @@ export default function ModificationPage() {
         proposAdresse: formData.proposAdresse || "",
         // Champ optionnel
         proposTelephone: formData.proposTelephone || "",
+        nomPere: formData.nomPere || "",
+        nomMere: formData.nomMere || "",
         nationaliteId: formData.nationaliteId ? Number(formData.nationaliteId) : null,
         proposId: formData.proposId ? Number(formData.proposId) : null
       };
@@ -249,15 +257,15 @@ export default function ModificationPage() {
         body: JSON.stringify(dataToSend),
       });
       if (response.status === 401 || response.status === 403) {
-            setLoading(false); 
-            
-            // Redirection immédiate
-            await fetch("/api/auth/logout", { method: "POST" })
-            router.push(login); 
-            return; // ⬅️ Arrêter l'exécution de la fonction ici
-        }
+        setLoading(false);
+
+        // Redirection immédiate
+        await fetch("/api/auth/logout", { method: "POST" })
+        router.push(login);
+        return; // ⬅️ Arrêter l'exécution de la fonction ici
+      }
       const result = await response.json();
-      
+
       if (response.ok && result.status === 'success') {
         toast.success('Modifications enregistrées !');
         setAfficherListe(true);
@@ -270,8 +278,8 @@ export default function ModificationPage() {
     } catch (error: any) {
       // console.error('Détail erreur:', error);
       toast.error(error.message || 'Erreur de connexion au serveur');
-    } finally { 
-      setLoadingSave(false); 
+    } finally {
+      setLoadingSave(false);
     }
   };
 
@@ -281,14 +289,14 @@ export default function ModificationPage() {
     <main className="min-h-screen bg-[#f8fafc]">
       <Header user={user} />
       <div className="max-w-7xl mx-auto px-4 py-6">
-        <Menu user={user} activeTab="" setActiveTab={() => {}} />
+        <Menu user={user} activeTab="" setActiveTab={() => { }} />
 
         {/* BARRE DE RECHERCHE */}
         <div className="relative z-20 mb-6">
           <div className="bg-white p-2 rounded-lg shadow-sm border flex items-center gap-3">
             <Search size={18} className="text-slate-400 ml-2" />
-            <input className="flex-1 bg-transparent border-none focus:ring-0 text-sm h-9" placeholder="Nom..." value={nomSearch} onChange={(e)=>setNomSearch(e.target.value)} />
-            <input className="flex-1 bg-transparent border-none focus:ring-0 text-sm h-9 border-l pl-3" placeholder="Prénom..." value={prenomSearch} onChange={(e)=>setPrenomSearch(e.target.value)} />
+            <input className="flex-1 bg-transparent border-none focus:ring-0 text-sm h-9" placeholder="Nom..." value={nomSearch} onChange={(e) => setNomSearch(e.target.value)} />
+            <input className="flex-1 bg-transparent border-none focus:ring-0 text-sm h-9 border-l pl-3" placeholder="Prénom..." value={prenomSearch} onChange={(e) => setPrenomSearch(e.target.value)} />
             <Button onClick={rechercheEtudiants} disabled={loadingRecherche} size="sm" className="bg-blue-900 px-6">
               {loadingRecherche ? <Loader2 className="animate-spin" /> : "Rechercher"}
             </Button>
@@ -312,12 +320,12 @@ export default function ModificationPage() {
             <CardHeader className="bg-blue-900 text-white py-3">
               <div className="flex justify-between items-center">
                 <CardTitle className="text-md flex items-center gap-2"><UserIcon size={18} /> Dossier N° {currentEtudiantId}</CardTitle>
-                <Button variant="ghost" size="sm" className="text-white hover:bg-blue-800" onClick={() => setCurrentEtudiantId(null)}><X size={16}/></Button>
+                <Button variant="ghost" size="sm" className="text-white hover:bg-blue-800" onClick={() => setCurrentEtudiantId(null)}><X size={16} /></Button>
               </div>
             </CardHeader>
             <CardContent className="p-6 bg-white">
               <form onSubmit={handleUpdate} className="space-y-8">
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   {/* COL 1: IDENTITÉ */}
                   <div className="space-y-4">
@@ -326,36 +334,48 @@ export default function ModificationPage() {
                       <p className="text-xs text-slate-500">ID Étudiant</p>
                       <p className="font-medium">{formData.id}</p>
                     </div>
-                    <CompactField 
-                      label="Nom" 
-                      value={formData.nom} 
-                      onChange={(v: string) => setFormData({...formData, nom: v})} 
+                    <CompactField
+                      label="Nom"
+                      value={formData.nom}
+                      onChange={(v: string) => setFormData({ ...formData, nom: v })}
                       required
                     />
-                    <CompactField 
-                      label="Prénom" 
-                      value={formData.prenom} 
-                      onChange={(v: string) => setFormData({...formData, prenom: v})} 
-                      // required
+                    <CompactField
+                      label="Prénom"
+                      value={formData.prenom}
+                      onChange={(v: string) => setFormData({ ...formData, prenom: v })}
+                    // required
                     />
-                    <CompactField 
-                      label="Date de naissance" 
-                      type="date" 
-                      value={formData.dateNaissance} 
-                      onChange={(v: string) => setFormData({...formData, dateNaissance: v})} 
+                    <CompactField
+                      label="Date de naissance"
+                      type="date"
+                      value={formData.dateNaissance}
+                      onChange={(v: string) => setFormData({ ...formData, dateNaissance: v })}
                       required
                     />
-                    <CompactField 
-                      label="Lieu de naissance" 
-                      value={formData.lieuNaissance} 
-                      onChange={(v: string) => setFormData({...formData, lieuNaissance: v})} 
+                    <CompactField
+                      label="Lieu de naissance"
+                      value={formData.lieuNaissance}
+                      onChange={(v: string) => setFormData({ ...formData, lieuNaissance: v })}
                       required
+                    />
+                    <CompactField
+                      label="Nom du père"
+                      value={formData.nomPere}
+                      onChange={(v: string) => setFormData({ ...formData, nomPere: v })}
+                      placeholder="Nom complet du père"
+                    />
+                    <CompactField
+                      label="Nom de la mère"
+                      value={formData.nomMere}
+                      onChange={(v: string) => setFormData({ ...formData, nomMere: v })}
+                      placeholder="Nom complet de la mère"
                     />
                     <div className="space-y-1">
                       <Label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Sexe</Label>
-                      <select 
-                        value={formData.sexeId} 
-                        onChange={(e) => setFormData({...formData, sexeId: Number(e.target.value)})}
+                      <select
+                        value={formData.sexeId}
+                        onChange={(e) => setFormData({ ...formData, sexeId: Number(e.target.value) })}
                         className="h-9 w-full text-sm border-slate-200 focus:border-blue-400 bg-slate-50/50 rounded-md px-3"
                         required
                       >
@@ -369,50 +389,50 @@ export default function ModificationPage() {
                   <div className="space-y-6">
                     <div className="space-y-4">
                       <h4 className="text-[10px] font-black text-blue-900 uppercase tracking-widest border-b pb-1 flex items-center gap-1">
-                        <Fingerprint size={12}/> CIN
+                        <Fingerprint size={12} /> CIN
                       </h4>
-                      <CompactField 
-                        label="Numéro CIN" 
-                        value={formData.cinNumero} 
-                        onChange={(v: string) => setFormData({...formData, cinNumero: v})} 
+                      <CompactField
+                        label="Numéro CIN"
+                        value={formData.cinNumero}
+                        onChange={(v: string) => setFormData({ ...formData, cinNumero: v })}
                         required
                       />
-                      <CompactField 
-                        label="Lieu de délivrance" 
-                        value={formData.cinLieu} 
-                        onChange={(v: string) => setFormData({...formData, cinLieu: v})} 
+                      <CompactField
+                        label="Lieu de délivrance"
+                        value={formData.cinLieu}
+                        onChange={(v: string) => setFormData({ ...formData, cinLieu: v })}
                         required
                       />
-                      <CompactField 
-                        label="Date de délivrance" 
-                        type="date" 
-                        value={formData.dateCin} 
-                        onChange={(v: string) => setFormData({...formData, dateCin: v})} 
+                      <CompactField
+                        label="Date de délivrance"
+                        type="date"
+                        value={formData.dateCin}
+                        onChange={(v: string) => setFormData({ ...formData, dateCin: v })}
                         required
                       />
                     </div>
 
                     <div className="space-y-4">
                       <h4 className="text-[10px] font-black text-blue-900 uppercase tracking-widest border-b pb-1 flex items-center gap-1">
-                        <GraduationCap size={12}/> Baccalauréat
+                        <GraduationCap size={12} /> Baccalauréat
                       </h4>
-                      <CompactField 
-                        label="Numéro BACC" 
-                        value={formData.baccNumero} 
-                        onChange={(v: string) => setFormData({...formData, baccNumero: v})} 
+                      <CompactField
+                        label="Numéro BACC"
+                        value={formData.baccNumero}
+                        onChange={(v: string) => setFormData({ ...formData, baccNumero: v })}
                         required
                       />
-                      <CompactField 
-                        label="Année d'obtention" 
-                        type="number" 
-                        value={formData.baccAnnee} 
-                        onChange={(v: string) => setFormData({...formData, baccAnnee: v})} 
+                      <CompactField
+                        label="Année d'obtention"
+                        type="number"
+                        value={formData.baccAnnee}
+                        onChange={(v: string) => setFormData({ ...formData, baccAnnee: v })}
                         required
                       />
-                      <CompactField 
-                        label="Série BACC" 
-                        value={formData.baccSerie} 
-                        onChange={(v: string) => setFormData({...formData, baccSerie: v})} 
+                      <CompactField
+                        label="Série BACC"
+                        value={formData.baccSerie}
+                        onChange={(v: string) => setFormData({ ...formData, baccSerie: v })}
                         required
                       />
                     </div>
@@ -423,34 +443,34 @@ export default function ModificationPage() {
                     <h4 className="text-[10px] font-black text-blue-900 uppercase tracking-widest border-b pb-1">
                       Coordonnées
                     </h4>
-                    <CompactField 
-                      label="Email" 
-                      type="email" 
-                      value={formData.proposEmail} 
-                      onChange={(v: string) => setFormData({...formData, proposEmail: v})} 
+                    <CompactField
+                      label="Email"
+                      type="email"
+                      value={formData.proposEmail}
+                      onChange={(v: string) => setFormData({ ...formData, proposEmail: v })}
                       required
                     />
-                    <CompactField 
-                      label="Téléphone" 
-                      type="tel" 
-                      value={formData.proposTelephone} 
-                      onChange={(v: string) => setFormData({...formData, proposTelephone: v})} 
+                    <CompactField
+                      label="Téléphone"
+                      type="tel"
+                      value={formData.proposTelephone}
+                      onChange={(v: string) => setFormData({ ...formData, proposTelephone: v })}
                       required
                     />
                     <div className="space-y-1">
                       <Label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Adresse</Label>
-                      <textarea 
-                        value={formData.proposAdresse} 
-                        onChange={(e) => setFormData({...formData, proposAdresse: e.target.value})}
+                      <textarea
+                        value={formData.proposAdresse}
+                        onChange={(e) => setFormData({ ...formData, proposAdresse: e.target.value })}
                         className="min-h-[100px] w-full text-sm border-slate-200 focus:border-blue-400 bg-slate-50/50 rounded-md p-2"
                         required
                       />
                     </div>
                     <div className="space-y-1.5">
                       <Label className="text-sm font-semibold">Nationalité</Label>
-                      <select 
-                        value={formData.sexeId} 
-                        onChange={(e) => setFormData({...formData, sexeId: Number(e.target.value)})}
+                      <select
+                        value={formData.sexeId}
+                        onChange={(e) => setFormData({ ...formData, sexeId: Number(e.target.value) })}
                         className="h-9 w-full text-sm border-slate-200 focus:border-blue-400 bg-slate-50/50 rounded-md px-3"
                         required
                       >
@@ -479,7 +499,7 @@ export default function ModificationPage() {
 }
 
 // --- SOUS-COMPOSANT TYPÉ ---
-function CompactField({ label, value, onChange, type = "text", required = false }: CompactFieldProps & { required?: boolean }) {
+function CompactField({ label, value, onChange, type = "text", required = false, ...props }: CompactFieldProps & { required?: boolean, placeholder?: string }) {
   return (
     <div className="space-y-1">
       <div className="flex items-center justify-between">
@@ -488,10 +508,11 @@ function CompactField({ label, value, onChange, type = "text", required = false 
         </Label>
         {required && <span className="text-red-500 text-xs">*</span>}
       </div>
-      <Input 
-        type={type} 
-        value={value ?? ""} 
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange(e.target.value)} 
+      <Input
+        type={type}
+        value={value ?? ""}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange(e.target.value)}
+        placeholder={props.placeholder}
         className="h-9 text-sm border-slate-200 focus:border-blue-400 bg-slate-50/50"
         required={required}
       />

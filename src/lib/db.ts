@@ -41,6 +41,8 @@ export interface Contact {
   adresse: string;
   email: string;
   telephone?: string; // "?" signifie optionnel
+  nomPere?: string;
+  nomMere?: string;
 }
 export interface Nationalite {
   id?: number | string;

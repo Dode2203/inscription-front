@@ -105,9 +105,9 @@ export const generateReceiptPDF = async (
   currentY += 7;
   doc.text(`Prénom(s) : ${identite.prenom}`, margin, currentY);
   currentY += 7;
-  doc.text(`Fils/Fille de : ${identite.nomPere || ".................................................."}`, margin, currentY);
+  doc.text(`Fils/Fille de : ${identite.contact.nomPere || ".................................................."}`, margin, currentY);
   currentY += 7;
-  doc.text(`Et de : ${identite.nomMere || ".................................................."}`, margin, currentY);
+  doc.text(`Et de : ${identite.contact.nomMere || ".................................................."}`, margin, currentY);
   currentY += 7;
   doc.text(`Date et Lieu de naissance : ${identite.dateNaissance} à ${identite.lieuNaissance}`, margin, currentY);
   currentY += 7;

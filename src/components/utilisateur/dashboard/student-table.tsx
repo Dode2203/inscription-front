@@ -39,6 +39,7 @@ export function StudentTable({ students, nbPagination = 5 }: StudentTableProps) 
       if (!response.ok) throw new Error('Erreur lors de la récupération des détails');
       
       const result = await response.json();
+      console.log(result);
       if (result.status !== 'success' || !result.data) throw new Error('Données non disponibles');
       // console.log(result.data);
       const fullStudent: Student = {

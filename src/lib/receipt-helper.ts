@@ -24,7 +24,9 @@ export function prepareReceiptData(student: Student) {
     contact: {
       adresse: student.contact?.adresse || elanelana,
       email: student.contact?.email || elanelana,
-      telephone: student.contact?.telephone || ''
+      telephone: student.contact?.telephone || '',
+      nomMere: student.contact?.nomMere || elanelana,
+      nomPere: student.contact?.nomPere || elanelana
     },
     cin: {
       numero: student.cin?.numero || elanelana,
