@@ -13,6 +13,7 @@ import { generateStudentPDF } from "@/lib/generateliste";
 
 interface EtudiantFiltre {
   id: number;
+  matricule?: string;
   nom: string;
   prenom: string;
   mention: string;
@@ -26,7 +27,7 @@ export function FiltrageEtudiants() {
   const [loading, setLoading] = useState(false);
   const [mentions, setMentions] = useState<Mention[]>([]);
   const [niveaux, setNiveaux] = useState<Niveau[]>([]);
-  
+
   const [selectedMention, setSelectedMention] = useState("");
   const [selectedNiveau, setSelectedNiveau] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -56,9 +57,9 @@ export function FiltrageEtudiants() {
       if (selectedNiveau) params.append("idNiveau", selectedNiveau);
 
       const response = await fetch(`${baseUrl}/filtres/etudiant?${params.toString()}`);
-      
+
       if (!response.ok) throw new Error("Erreur réseau");
-      
+
       const result = await response.json();
       if (result.status === 'success') {
         setResultats(result.data);
@@ -77,10 +78,11 @@ export function FiltrageEtudiants() {
     fetchEtudiants();
   }, [fetchEtudiants]);
 
-  // Filtrage local pour la recherche par nom
-  const filteredData = resultats.filter(et => 
-    et.nom.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    et.prenom.toLowerCase().includes(searchQuery.toLowerCase())
+  // Filtrage local pour la recherche
+  const filteredData = resultats.filter(et =>
+    et.nom.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    et.prenom.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (et.matricule && et.matricule.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
   const handleExportPDF = () => {
@@ -102,7 +104,7 @@ export function FiltrageEtudiants() {
         <div className="grid md:grid-cols-3 gap-6">
           <div className="space-y-2">
             <Label className="text-blue-900 font-bold">1. Mention</Label>
-            <select 
+            <select
               className="w-full h-10 px-3 rounded-md border border-slate-300 outline-none focus:ring-2 focus:ring-blue-900"
               value={selectedMention}
               onChange={(e) => setSelectedMention(e.target.value)}
@@ -114,7 +116,7 @@ export function FiltrageEtudiants() {
 
           <div className="space-y-2">
             <Label className="text-blue-900 font-bold">2. Niveau</Label>
-            <select 
+            <select
               className="w-full h-10 px-3 rounded-md border border-slate-300 outline-none focus:ring-2 focus:ring-blue-900"
               value={selectedNiveau}
               onChange={(e) => setSelectedNiveau(e.target.value)}
@@ -128,9 +130,9 @@ export function FiltrageEtudiants() {
             <Label className="text-blue-900 font-bold">3. Recherche par nom</Label>
             <div className="relative">
               <Search className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
-              <Input 
-                className="pl-9" 
-                placeholder="Ex: RAKOTO..." 
+              <Input
+                className="pl-9"
+                placeholder="Ex: RAKOTO..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -143,18 +145,18 @@ export function FiltrageEtudiants() {
         <div className="bg-slate-50 px-6 py-4 border-b flex justify-between items-center">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
-                <Users className="w-5 h-5 text-blue-900" />
-                <span className="font-bold text-blue-900">{filteredData.length} Étudiants</span>
+              <Users className="w-5 h-5 text-blue-900" />
+              <span className="font-bold text-blue-900">{filteredData.length} Étudiants</span>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
-            <Button 
-                onClick={handleExportPDF}
-                variant="outline"
-                className="border-blue-900 text-blue-900 hover:bg-blue-900 hover:text-white flex gap-2"
+            <Button
+              onClick={handleExportPDF}
+              variant="outline"
+              className="border-blue-900 text-blue-900 hover:bg-blue-900 hover:text-white flex gap-2"
             >
-                <FileText className="w-4 h-4" /> Imprimer Liste
+              <FileText className="w-4 h-4" /> Imprimer Liste
             </Button>
             {loading && <Loader2 className="w-5 h-5 animate-spin text-blue-900" />}
           </div>
@@ -174,7 +176,7 @@ export function FiltrageEtudiants() {
               {filteredData.length > 0 ? (
                 filteredData.map((et) => (
                   <tr key={et.id} className="hover:bg-blue-50/50 transition-colors">
-                    <td className="px-6 py-4 font-mono font-bold text-blue-800">#{et.id.toString().padStart(4, '0')}</td>
+                    <td className="px-6 py-4 font-mono font-bold text-blue-800">{et.matricule || "-"}</td>
                     <td className="px-6 py-4 font-semibold">{et.nom.toUpperCase()} {et.prenom}</td>
                     <td className="px-6 py-4"><span className="bg-blue-100 text-blue-700 px-2 py-1 rounded font-bold">{et.mentionAbr}</span></td>
                     <td className="px-6 py-4"><span className="bg-amber-100 text-amber-700 px-2 py-1 rounded font-bold">{et.niveau}</span></td>

@@ -2,7 +2,7 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
 // Remplacez cette chaîne par le Base64 réel de votre logo
-const LOGO_BASE64 = "/espa-logo.png"; 
+const LOGO_BASE64 = "/espa-logo.png";
 
 export const generateStudentPDF = (data: any[], mention: string, niveau: string) => {
   const doc = new jsPDF();
@@ -42,7 +42,7 @@ export const generateStudentPDF = (data: any[], mention: string, niveau: string)
 
   // --- 4. TABLEAU DES DONNÉES (Avec colonnes Date et Signature) ---
   const tableRows = data.map((et) => [
-    `#${et.id.toString().padStart(4, '0')}`,
+    et.matricule || "-",
     `${et.nom.toUpperCase()} ${et.prenom}`,
     et.mentionAbr,
     "", // Colonne vide pour la DATE
@@ -91,7 +91,7 @@ export const generateStudentPDF = (data: any[], mention: string, niveau: string)
   const signatureY = finalY + 10;
   doc.setFont("helvetica", "normal");
   doc.text(`Fait à Antananarivo, le ${dateGeneration}`, 130, signatureY);
-  
+
   doc.setFont("helvetica", "bold");
   doc.text("Le Responsable,", 145, signatureY + 8);
   
