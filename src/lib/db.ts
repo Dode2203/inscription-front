@@ -239,6 +239,7 @@ export interface Student {
     anneeUniversitaire?: string;
   };
   dateInscription?: string;
+  cin?: Cin
 }
 
 // In-memory storage (replace with database)

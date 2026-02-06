@@ -9,21 +9,27 @@ export function prepareReceiptData(student: Student) {
   if (!student) {
     throw new Error("Données de l'étudiant manquantes");
   }
+  const elanelana= '                           '
 
   // 1. IDENTITÉ - Utilise l'interface Identite de db.ts
   const identite: Identite = {
     id: student.id,
-    nom: student.nom || 'Non spécifié',
-    prenom: student.prenom || 'Non spécifié',
+    nom: student.nom || elanelana,
+    prenom: student.prenom || elanelana,
     dateNaissance: student.dateNaissance 
       ? new Date(student.dateNaissance).toLocaleDateString('fr-FR') 
-      : 'Non spécifié',
-    lieuNaissance: student.lieuNaissance || 'Non renseigné',
-    sexe: student.sexe || 'Non spécifié',
+      : elanelana,
+    lieuNaissance: student.lieuNaissance || elanelana,
+    sexe: student.sexe || elanelana,
     contact: {
-      adresse: student.contact?.adresse || 'Non renseigné',
-      email: student.contact?.email || 'Non renseigné',
+      adresse: student.contact?.adresse || elanelana,
+      email: student.contact?.email || elanelana,
       telephone: student.contact?.telephone || ''
+    },
+    cin: {
+      numero: student.cin?.numero || elanelana,
+      dateDelivrance: student.cin?.dateDelivrance || elanelana,
+      lieuDelivrance: student.cin?.lieuDelivrance || elanelana
     }
   };
 
@@ -31,8 +37,8 @@ export function prepareReceiptData(student: Student) {
   const formation: Formation = {
     // On s'assure que l'ID est bien traité selon le type string | number
     idFormation: student.formation?.id ?? 0, 
-    formation: student.formation?.nom || 'Non spécifié',
-    formationType: student.formation?.type?.nom || 'Initial',
+    formation: student.formation?.nom || elanelana,
+    formationType: student.formation?.type?.nom || elanelana,
     
     // Attention ici : si l'interface attend des strings, ajoute .toString()
     idNiveau: (student.niveau?.id ?? 0).toString(),
@@ -41,8 +47,8 @@ export function prepareReceiptData(student: Student) {
     typeNiveau: student.niveau?.type || 0, 
     gradeNiveau: student.niveau?.grade || 0,
     
-    niveau: student.niveau?.nom || 'Non spécifié',
-    mention: student.mention?.nom || 'Non spécifiée'
+    niveau: student.niveau?.nom || elanelana,
+    mention: student.mention?.nom || elanelana
   };
   // 3. INSCRIPTION - Utilise l'interface Inscription de db.ts
   const inscription: Inscription | null = student.inscription 
@@ -118,52 +124,19 @@ function extractPaiementData(student: Student): PaiementData {
     passant: false // À adapter selon votre logique métier
   };
 }
-/**
- * Récupère les détails complets d'un étudiant depuis l'API
- */
-async function fetchStudentDetails(studentId: number): Promise<Student> {
-  const currentYear = new Date().getFullYear();
-  const response = await fetch(
-    `/api/etudiants/details-par-annee?idEtudiant=${studentId}&annee=${currentYear}`
-  );
-  
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Erreur API (${response.status}): ${errorText}`);
-  }
-  
-  const result = await response.json();
-  
-  if (result.status !== 'success' || !result.data) {
-    throw new Error(result.message || 'Données de l\'étudiant non disponibles');
-  }
-  
-  return result.data;
-}
 
-/**
- * Télécharge le reçu d'un étudiant
- */
 export async function downloadReceipt(student: Student) {
   try {
-    console.log('📥 Récupération des détails de l\'étudiant...');
+    // console.log('📥 Récupération des détails de l\'étudiant...');
     
     // Récupérer les détails complets
-    const fullStudentData = await fetchStudentDetails(student.id);
+    // const fullStudentData = await fetchStudentDetails(student.id);
     
-    console.log('📄 Préparation des données PDF...');
-    console.log('Données de l\'étudiant:', fullStudentData);
+    // console.log('📄 Préparation des données PDF...');
+    // console.log('Données de l\'étudiant:', student);
     
     // Préparer les données avec les interfaces de db.ts
-    const { identite, formation, paiementData, inscription } = prepareReceiptData(fullStudentData);
-    
-    // console.log('✅ Génération du PDF...');
-    // console.log('Identité:', identite);
-    // console.log('Formation:', formation);
-    // console.log('Paiement:', paiementData);
-    // console.log('Inscription:', inscription);
-    
-    // Générer le PDF
+    const { identite, formation, paiementData, inscription } = prepareReceiptData(student);
     generateReceiptPDF(identite, formation, paiementData, inscription);
     
   } catch (error) {
