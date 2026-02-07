@@ -7,9 +7,12 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Search, Users, Filter, Loader2, FileText, Hash } from "lucide-react";
 import { getInitialData } from "@/lib/appConfig";
-import { Mention, Niveau } from "@/lib/db";
+import { Mention, Niveau,Student } from "@/lib/db";
 import { toast } from "sonner";
 import { generateStudentPDF } from "@/lib/generateliste";
+import { downloadReceipt } from "@/lib/receipt-helper";
+import { StudentDetailsModal } from "../dashboard/student-model";
+import router from "next/router";
 
 interface EtudiantFiltre {
   id: number;
@@ -24,6 +27,7 @@ interface EtudiantFiltre {
 }
 
 export function FiltrageEtudiants() {
+  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [loading, setLoading] = useState(false);
   const [mentions, setMentions] = useState<Mention[]>([]);
   const [niveaux, setNiveaux] = useState<Niveau[]>([]);
@@ -32,6 +36,7 @@ export function FiltrageEtudiants() {
   const [selectedNiveau, setSelectedNiveau] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [resultats, setResultats] = useState<EtudiantFiltre[]>([]);
+  const [chargementRecipisse,setChangementRecipisse] = useState(false)
 
   // Chargement des mentions/niveaux pour les menus déroulants
   useEffect(() => {
@@ -57,6 +62,15 @@ export function FiltrageEtudiants() {
       if (selectedNiveau) params.append("idNiveau", selectedNiveau);
 
       const response = await fetch(`${baseUrl}/filtres/etudiant?${params.toString()}`);
+      const login = process.env.NEXT_PUBLIC_LOGIN_URL || '/login';
+      if (response.status === 401 || response.status === 403) {
+            setLoading(false); 
+            
+            // Redirection immédiate
+            await fetch("/api/auth/logout", { method: "POST" })
+            router.push(login); 
+            return; // ⬅️ Arrêter l'exécution de la fonction ici
+      }
 
       if (!response.ok) throw new Error("Erreur réseau");
 
@@ -90,6 +104,34 @@ export function FiltrageEtudiants() {
     const niveauLabel = niveaux.find(n => n.id.toString() === selectedNiveau)?.nom || "";
     generateStudentPDF(filteredData, mentionLabel, niveauLabel);
   };
+    const handleViewDetails = async (idEtudiant: number) => {
+      try {
+        setChangementRecipisse(true);
+        const currentYear = new Date().getFullYear();
+        const response = await fetch(
+          `/api/etudiants/details-par-annee?idEtudiant=${idEtudiant}&annee=${currentYear}`
+        );
+        
+        if (!response.ok) throw new Error('Erreur lors de la récupération des détails');
+        
+        const result = await response.json();
+        if (result.status !== 'success' || !result.data) throw new Error('Données non disponibles');
+        // console.log(result.data);
+        const fullStudent: Student = {
+          ...result.data,
+          typeFormation: result.data.formation?.type || result.data.typeFormation,
+          droitsPayes: result.data.droitsPayes || [],
+          ecolage: result.data.ecolage || null
+        };
+        downloadReceipt(fullStudent);
+        
+      } catch (error) {
+        // console.error('Erreur:', error);
+        alert('Impossible de charger les détails de l\'étudiant');
+      } finally {
+        setChangementRecipisse(false);
+      }
+    };
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto p-4">
@@ -170,6 +212,7 @@ export function FiltrageEtudiants() {
                 <th className="px-6 py-4">Nom & Prénoms</th>
                 <th className="px-6 py-4">Mention</th>
                 <th className="px-6 py-4">Niveau</th>
+                <th className="px-6 py-4">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -180,14 +223,31 @@ export function FiltrageEtudiants() {
                     <td className="px-6 py-4 font-semibold">{et.nom.toUpperCase()} {et.prenom}</td>
                     <td className="px-6 py-4"><span className="bg-blue-100 text-blue-700 px-2 py-1 rounded font-bold">{et.mentionAbr}</span></td>
                     <td className="px-6 py-4"><span className="bg-amber-100 text-amber-700 px-2 py-1 rounded font-bold">{et.niveau}</span></td>
+                    <td className="px-6 py-4">
+                      <Button
+                        onClick={() => handleViewDetails(et.id)}
+                        variant="outline"
+                        className="border-blue-900 text-blue-900 hover:bg-blue-900 hover:text-white flex gap-2"
+                        disabled={chargementRecipisse}
+                      >
+                        <FileText className="w-4 h-4" /> Voir Détails
+                      </Button>
+                      
+                    </td>
                   </tr>
                 ))
               ) : (
-                <tr><td colSpan={4} className="px-6 py-10 text-center text-slate-400">Aucun résultat.</td></tr>
+                <tr><td colSpan={5} className="px-6 py-10 text-center text-slate-400">Aucun résultat.</td></tr>
               )}
             </tbody>
           </table>
         </div>
+        {selectedStudent && (
+                <StudentDetailsModal
+                  student={selectedStudent}
+                  onClose={() => setSelectedStudent(null)}
+                />
+              )}
       </Card>
     </div>
   );

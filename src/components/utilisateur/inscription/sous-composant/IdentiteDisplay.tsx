@@ -19,8 +19,8 @@ interface DetailItemProps {
 
 
 const IdentiteDisplay = ({ identite, onNext }: IdentiteDisplayProps) => {
-  const [nomPere, setNomPere] = useState(identite.nomPere || "");
-  const [nomMere, setNomMere] = useState(identite.nomMere || "");
+  const [nomPere, setNomPere] = useState(identite.contact?.nomPere || "");
+  const [nomMere, setNomMere] = useState(identite.contact?.nomMere || "");
   const [loading, setLoading] = useState(false);
 
   const handleNext = async () => {

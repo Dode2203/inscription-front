@@ -120,6 +120,8 @@ export default function InscriptionPage() {
       });
 
       const result = await response.json();
+      toast.error("Session expirée. Redirection... ");
+
       if (response.status === 401 || response.status === 403) {
             setLoading(false); 
             

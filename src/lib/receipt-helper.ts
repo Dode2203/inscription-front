@@ -50,7 +50,8 @@ export function prepareReceiptData(student: Student) {
     gradeNiveau: student.niveau?.grade || 0,
     
     niveau: student.niveau?.nom || elanelana,
-    mention: student.mention?.nom || elanelana
+    mention: student.mention?.nom || elanelana,
+    matricule: student.matricule || elanelana
   };
   // 3. INSCRIPTION - Utilise l'interface Inscription de db.ts
   const inscription: Inscription | null = student.inscription 
@@ -123,7 +124,8 @@ function extractPaiementData(student: Student): PaiementData {
     montantEcolage,
     idNiveau: (student.niveau?.id || 0).toString(),
     idFormation: (student.formation?.id || 0).toString(),
-    passant: false // À adapter selon votre logique métier
+    passant: false, // À adapter selon votre logique métier,
+    estBoursier: student.estBoursier ? 1 : 0
   };
 }
 
@@ -138,8 +140,11 @@ export async function downloadReceipt(student: Student) {
     // console.log('Données de l\'étudiant:', student);
     
     // Préparer les données avec les interfaces de db.ts
-    const { identite, formation, paiementData, inscription } = prepareReceiptData(student);
-    generateReceiptPDF(identite, formation, paiementData, inscription);
+    // console.log(student);
+    // console.log(student)
+    const { identite, formation, paiementData} = prepareReceiptData(student);
+    // console.log(paiementData)
+    generateReceiptPDF(identite, formation, paiementData);
     
   } catch (error) {
     console.error('❌ Erreur lors de la génération du reçu:', error);

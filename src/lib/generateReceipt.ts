@@ -6,14 +6,13 @@ export const generateReceiptPDF = async (
   identite: Identite,
   formation: Formation,
   paiement: PaiementData,
-  inscription?: Inscription | null,
 ) => {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
   const margin = 15;
   const centerX = pageWidth / 2;
-  const numDossier = inscription?.matricule || `D-${identite.id}`;
+  const numDossier = formation?.matricule || `D-${identite.id}`;
   const today = new Date().toLocaleDateString('fr-FR');
 
   // --- FONCTION CHARGEMENT IMAGES ---
@@ -91,7 +90,7 @@ export const generateReceiptPDF = async (
   doc.text(`Niveau : ${formation.niveau}`, margin, currentY);
   doc.text(`Type de formation : ${formation.formationType}`, 110, currentY);
   currentY += 7;
-  doc.text(`IM : ${inscription?.matricule || "-"}`, margin, currentY);
+  doc.text(`IM : ${ numDossier }`, margin, currentY);
 
   // --- ETAT CIVIL ---
   currentY += 12;
@@ -148,6 +147,7 @@ export const generateReceiptPDF = async (
     body: [
       ['Droit Administratif', paiement.refAdmin || '-', `${formatMontant(paiement.montantAdmin || 0)} Ar`],
       ['Droit Pédagogique', paiement.refPedag || '-', `${formatMontant(paiement.montantPedag || 0)} Ar`],
+      ['Écolage', paiement.refEcolage || '-', `${formatMontant(paiement.montantEcolage || 0)} Ar`],
     ],
     theme: 'grid',
     headStyles: { fillColor: [230, 230, 230], textColor: 0 }
