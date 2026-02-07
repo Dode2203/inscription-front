@@ -113,6 +113,7 @@ export interface PaiementData {
   dateEcolage?: string;
   idNiveau: string | number;
   idFormation: string | number;
+  estBoursier: number;
 }
 export interface EtudiantRecherche {
   id: number | string;
@@ -130,6 +131,7 @@ export interface PaiementData {
   refEcolage?: string;
   dateEcolage?: string;
   passant?: boolean;
+  estBoursier: number;
 }
 export interface InscriptionData {
   refAdmin: string;
@@ -143,7 +145,8 @@ export interface InscriptionData {
   dateEcolage?: string;
   idEtudiant: string;
   typeFormation: string;
-  passant?: boolean
+  passant?: boolean;
+  estBoursier: number;
 }
 export interface Inscription {
   id: number | string;

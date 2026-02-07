@@ -14,14 +14,14 @@ import FormationDisplay from "./sous-composant/FormationDisplay"
 import { Formation, Identite, PaiementData, EtudiantRecherche, Inscription, Niveau } from '@/lib/db'
 import PaiementForm from "./sous-composant/PayementForm"
 import { useRouter } from "next/navigation"
-import { generateReceiptPDF } from "@/lib/generateReceipt" 
+import { generateReceiptPDF } from "@/lib/generateReceipt"
 import { getInitialData } from '@/lib/appConfig';
 
 export function InscriptionForm() {
   const [step, setStep] = useState("identite");
   const router = useRouter();
   const login = process.env.NEXT_PUBLIC_LOGIN_URL || '/login';
-  
+
   const [loadingInscription, setLoadingInscription] = useState(false);
   const [errorInscription, setErrorInscription] = useState("");
   const [successMessageInscription, setSuccessMessageInscription] = useState("");
@@ -46,21 +46,22 @@ export function InscriptionForm() {
     refAdmin: "", dateAdmin: "", montantAdmin: "",
     refPedag: "", datePedag: "", montantPedag: "",
     montantEcolage: "", refEcolage: "", dateEcolage: "",
-    idNiveau: "", idFormation: ""
+    idNiveau: "", idFormation: "",
+    estBoursier: 0
   });
 
   // INITIALISATION DES DOCUMENTS (Sans médical)
   const [validatedDocs, setValidatedDocs] = useState<Record<string, boolean>>({
-    photo: false, 
-    acte: false, 
+    photo: false,
+    acte: false,
     diplome: false,
     cni: false,
     exonere: false
   });
 
   // LOGIQUE DE VALIDATION CORRIGÉE : Photo + Diplome + (Acte OU CNI)
-  const allDocsValidated = 
-    !!validatedDocs.photo &&  
+  const allDocsValidated =
+    !!validatedDocs.photo &&
     (!!validatedDocs.acte || !!validatedDocs.cni);
 
   const updatePaiement = (fields: Partial<PaiementData>) => {
@@ -82,12 +83,13 @@ export function InscriptionForm() {
       refPedag: "", datePedag: "", montantPedag: "",
       montantEcolage: "", refEcolage: "", dateEcolage: "",
       idNiveau: "", idFormation: "",
+      estBoursier: 0,
     });
     setValidatedDocs({
-      photo: false, 
-      acte: false, 
-      diplome: false, 
-      cni: false, 
+      photo: false,
+      acte: false,
+      diplome: false,
+      cni: false,
       exonere: false
     });
     setErrorInscription("");
@@ -127,7 +129,7 @@ export function InscriptionForm() {
 
       setEtudiantsTrouves(sortedStudents);
       setAfficherListeEtudiants(true);
-      
+
       if (sortedStudents.length > 0) {
         const successAudio = new Audio("/sounds/successed-295058.mp3");
         successAudio.play();
@@ -136,7 +138,7 @@ export function InscriptionForm() {
         toast.error("Aucun étudiant trouvé");
       }
     } catch (err) {
-      const message= (err as Error).message || "Une erreur inattendue s'est produite";
+      const message = (err as Error).message || "Une erreur inattendue s'est produite";
       toast.error(message);
     } finally {
       setLoadingRecherche(false);
@@ -152,15 +154,15 @@ export function InscriptionForm() {
         router.push(login);
         return;
       }
-      
+
       const response = await res.json();
       if (!res.ok) throw new Error(response.error || "Erreur");
-      
+
       setIdentite(response.data.identite);
       setFormation(response.data.formation);
       setParcoursType(response.data.formation.formationType);
       setAfficherListeEtudiants(false);
-    } catch (err : any) {
+    } catch (err: any) {
       toast.error(err.message);
       const errorAudio = new Audio("/sounds/error-011-352286.mp3");
       errorAudio.play();
@@ -181,7 +183,13 @@ export function InscriptionForm() {
       const res = await fetch("/api/etudiants/inscription", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...paiementData, idEtudiant: identite.id.toString(), typeFormation: parcoursType, isExonere }),
+        body: JSON.stringify({
+          ...paiementData,
+          estBoursier: Number(paiementData.estBoursier),
+          idEtudiant: identite.id.toString(),
+          typeFormation: parcoursType,
+          isExonere
+        }),
       });
       if (res.status === 401 || res.status === 403) {
         toast.error("Session expirée. Redirection...");
@@ -190,18 +198,18 @@ export function InscriptionForm() {
         return;
       }
       const response = await res.json();
-      
+
       if (!res.ok) throw new Error(response.error || "Erreur lors de l'inscription");
 
       setSuccessMessageInscription("Inscription réussie !");
       generateReceiptPDF(identite, formation, paiementData, response.data);
-      
+
       const successAudio = new Audio("/sounds/success-221935.mp3");
       successAudio.play();
       toast.success("Inscription réussie pour " + identite.nom);
 
       setTimeout(() => {
-        router.push('/utilisateur/dashboard'); 
+        router.push('/utilisateur/dashboard');
       }, 2000);
 
     } catch (err: any) {
@@ -271,7 +279,7 @@ export function InscriptionForm() {
             </TabsContent>
 
             <TabsContent value="documents" className="mt-6">
-              <DocumentsForm 
+              <DocumentsForm
                 validatedDocs={validatedDocs}
                 onToggleDoc={toggleDoc}
                 isExonere={isExonere}
@@ -291,7 +299,7 @@ export function InscriptionForm() {
                 parcoursType={parcoursType}
                 isExonere={isExonere}
                 onBack={() => setStep("documents")}
-                onNext={() => {}}
+                onNext={() => { }}
               />
             </TabsContent>
           </Tabs>
@@ -299,18 +307,18 @@ export function InscriptionForm() {
           <div className="flex gap-4 pt-6 border-t">
             {step === "paiement" ? (
               <>
-                <Button 
-                  type="button" 
-                  variant="outline" 
+                <Button
+                  type="button"
+                  variant="outline"
                   onClick={() => setStep("documents")}
                 >
                   Précédent
                 </Button>
 
                 {allDocsValidated ? (
-                  <Button 
-                    type="submit" 
-                    disabled={loadingInscription || !!successMessageInscription} 
+                  <Button
+                    type="submit"
+                    disabled={loadingInscription || !!successMessageInscription}
                     className="flex-1 h-12 text-lg bg-green-700 hover:bg-green-800"
                   >
                     {loadingInscription ? <Loader2 className="animate-spin mr-2" /> : null}

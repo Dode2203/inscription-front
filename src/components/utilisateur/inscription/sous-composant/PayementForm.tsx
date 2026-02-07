@@ -1,8 +1,15 @@
 import React, { useEffect } from 'react';
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Info } from "lucide-react"; 
+import { Info } from "lucide-react";
 import { Formation, Niveau, PaiementData } from '@/lib/db';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select";
 import { getByIdNiveau } from '@/lib/utils/grade-utils';
 
 interface PaiementFormProps {
@@ -124,7 +131,25 @@ const PaiementForm: React.FC<PaiementFormProps> = ({
           </div>
         </div>
       )}
-      
+
+      {/* Groupement Boursier */}
+      <div className="mt-6 p-4 bg-slate-50 border rounded-xl max-w-sm">
+        <Label className="text-slate-600 font-bold mb-3 block">L'étudiant est-il boursier ? *</Label>
+        <Select
+          value={formData.estBoursier?.toString() ?? "0"}
+          onValueChange={(val: string) => updateData({ estBoursier: parseInt(val) })}
+        >
+          <SelectTrigger className="w-full bg-white">
+            <SelectValue placeholder="Sélectionnez..." />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="0">Non</SelectItem>
+            <SelectItem value="1">Oui</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+
       {/* Les boutons Précédent/Suivant ont été supprimés ici car ils sont gérés par le parent InscriptionForm */}
     </div>
   );
