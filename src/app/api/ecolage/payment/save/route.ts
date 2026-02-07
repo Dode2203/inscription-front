@@ -5,7 +5,7 @@ export async function POST(request: NextRequest) {
     // Champs requis pour l'enregistrement d'un paiement d'écolage
     const requiredFields = [
         "etudiant_id",
-        "nom_niveau",
+        "annee_scolaire",
         "montant",
         "date_paiement",
         "ref_bordereau"

@@ -153,7 +153,7 @@ export function InsertionEcolageForm() {
         // Payload format for /api/ecolage/payment/save (PHP Backend expected)
         const payload = {
             etudiant_id: Number(selectedStudent.id),
-            nom_niveau: selectedReg.niveau, // We need the Level Name (e.g., LP2)
+            annee_scolaire: selectedReg.annee_scolaire, // We need the Level Name (e.g., LP2)
             montant: Number(montant),
             date_paiement: datePaiement, // Already YYYY-MM-DD from 'date' input
             ref_bordereau: refBordereau
