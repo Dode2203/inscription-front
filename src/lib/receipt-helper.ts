@@ -98,7 +98,7 @@ function extractPaiementData(student: Student): PaiementData {
         refAdmin = ref;
         dateAdmin = date;
         montantAdmin = montant;
-      } else if (paiement.typeDroit === 'P‚dagogique') {
+      } else if (paiement.typeDroit === 'P‚dagogique' || paiement.typeDroit === 'Pédagogique') {
         refPedag = ref;
         datePedag = date;
         montantPedag = montant;

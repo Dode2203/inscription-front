@@ -9,7 +9,7 @@ import { Eye, EyeOff } from "lucide-react"
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState("test@gmail.com")
-  const [password, setPassword] = useState("test")
+  const [password, setPassword] = useState("admin")
   const [showPassword, setShowPassword] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
   const [error, setError] = useState("")
