@@ -10,7 +10,7 @@ export interface User {
   prenom?: string
   email: string
   password?: string
-  role?: "Admin" | "Utilisateur"
+  role?: "Admin" | "Utilisateur" | "Ecolage"
   createdAt?: Date
   status?: string
 }

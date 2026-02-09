@@ -50,8 +50,9 @@ export function InsertionEcolageForm() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ nom: nomSearch, prenom: prenomSearch })
             });
-            toast.error("Session expirée. Redirection... ");
+            
             if (res.status === 401 || res.status === 403) {
+
                 toast.error("Session expirée. Redirection...");
                 await fetch("/api/auth/logout", { method: "POST" });
                 router.push(login);

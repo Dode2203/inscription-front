@@ -179,7 +179,7 @@ export const generateReceiptPDF = async (
   // Ajout de l'image de la signature si elle existe
   if (signatureImg) {
     // On la place entre "Le Responsable" et le Nom
-    doc.addImage(signatureImg, 'JPEG', signatureX, finalY + 2, 40, 25);
+    // doc.addImage(signatureImg, 'JPEG', signatureX, finalY + 2, 40, 25);
   }
 
   // Nom du responsable

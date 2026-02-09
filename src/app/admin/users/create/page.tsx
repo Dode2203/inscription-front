@@ -155,6 +155,8 @@ export default function CreateUser() {
               >
                 <option value="2">Utilisateur</option>
                 <option value="1">Admin</option>
+                <option value="3">Ecolage</option>
+
               </select>
             </div>
 
