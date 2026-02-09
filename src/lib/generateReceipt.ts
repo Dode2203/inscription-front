@@ -1,19 +1,31 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { Identite, Formation, PaiementData, Inscription } from '@/lib/db';
+const formatAr = (value: number | string | null | undefined): string => {
+  const number = Number(value) || 0;
+
+  return (
+    new Intl.NumberFormat('fr-FR', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    })
+      .format(number)
+      .replace(/\s/g, ' ') // 🔥 CRUCIAL
+      + ' Ar'
+  );
+};
 
 export const generateReceiptPDF = async (
   identite: Identite,
   formation: Formation,
   paiement: PaiementData,
-  inscription?: Inscription | null,
 ) => {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
   const margin = 15;
   const centerX = pageWidth / 2;
-  const numDossier = inscription?.matricule || `D-${identite.id}`;
+  const numDossier = formation?.matricule || `D-${identite.id}`;
   const today = new Date().toLocaleDateString('fr-FR');
 
   // --- FONCTION CHARGEMENT IMAGES ---
@@ -91,7 +103,7 @@ export const generateReceiptPDF = async (
   doc.text(`Niveau : ${formation.niveau}`, margin, currentY);
   doc.text(`Type de formation : ${formation.formationType}`, 110, currentY);
   currentY += 7;
-  doc.text(`IM : ${inscription?.matricule || "-"}`, margin, currentY);
+  doc.text(`IM : ${ numDossier }`, margin, currentY);
 
   // --- ETAT CIVIL ---
   currentY += 12;
@@ -146,8 +158,9 @@ export const generateReceiptPDF = async (
     startY: (doc as any).lastAutoTable.finalY + 5,
     head: [['DESIGNATION', 'REFERENCE', 'MONTANT']],
     body: [
-      ['Droit Administratif', paiement.refAdmin || '-', `${formatMontant(paiement.montantAdmin || 0)} Ar`],
-      ['Droit Pédagogique', paiement.refPedag || '-', `${formatMontant(paiement.montantPedag || 0)} Ar`],
+      ['Droit Administratif', paiement.refAdmin || '-', formatAr(paiement.montantAdmin)],
+      ['Droit Pédagogique', paiement.refPedag || '-', formatAr(paiement.montantPedag)],
+      ['Écolage', paiement.refEcolage || '-', formatAr(paiement.montantEcolage)],
     ],
     theme: 'grid',
     headStyles: { fillColor: [230, 230, 230], textColor: 0 }
@@ -166,7 +179,7 @@ export const generateReceiptPDF = async (
   // Ajout de l'image de la signature si elle existe
   if (signatureImg) {
     // On la place entre "Le Responsable" et le Nom
-    doc.addImage(signatureImg, 'JPEG', signatureX, finalY + 2, 40, 25);
+    // doc.addImage(signatureImg, 'JPEG', signatureX, finalY + 2, 40, 25);
   }
 
   // Nom du responsable

@@ -1,6 +1,8 @@
 // Simple in-memory database for demonstration
 // In production, replace with a real database like Supabase or Neon
 
+import { Parentheses } from "lucide-react"
+
 export interface User {
   id?: string
   name?: string
@@ -92,6 +94,8 @@ export interface Formation {
   id?: string | number;
   nom?: string;
   typeFormation?: string;
+  matricule?: string;
+  estBoursier?: number;
 
 }
 
@@ -186,10 +190,13 @@ export interface Student {
   nomPere?: string;
   nomMere?: string;
   matricule?: string;
+  estBoursier?: number | string;
   contact?: {
     adresse?: string;
     email?: string;
     telephone?: string;
+    nomMere?: string;
+    nomPere?: string;
   };
 
   formation?: {
@@ -239,6 +246,10 @@ export interface Student {
   dateInscription?: string;
   estBoursier?: number;
   cin?: Cin
+}
+export interface Parent {
+  nomPere: string;
+  nomMere: string;
 }
 
 // In-memory storage (replace with database)

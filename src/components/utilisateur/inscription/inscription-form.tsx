@@ -16,6 +16,8 @@ import PaiementForm from "./sous-composant/PayementForm"
 import { useRouter } from "next/navigation"
 import { generateReceiptPDF } from "@/lib/generateReceipt"
 import { getInitialData } from '@/lib/appConfig';
+import { Student } from '@/lib/db';
+import { downloadReceipt } from '@/lib/receipt-helper';
 
 export function InscriptionForm() {
   const [step, setStep] = useState("identite");
@@ -156,7 +158,9 @@ export function InscriptionForm() {
       }
 
       const response = await res.json();
+      // console.log(response.data)
       if (!res.ok) throw new Error(response.error || "Erreur");
+      
 
       setIdentite(response.data.identite);
       setFormation(response.data.formation);
@@ -202,7 +206,14 @@ export function InscriptionForm() {
       if (!res.ok) throw new Error(response.error || "Erreur lors de l'inscription");
 
       setSuccessMessageInscription("Inscription réussie !");
-      generateReceiptPDF(identite, formation, paiementData, response.data);
+      const fullStudent: Student = {
+              ...response.data,
+              typeFormation: response.data.formation?.type || "",
+              droitsPayes: response.data.droitsPayes || [],
+              ecolage: response.data.ecolage || null
+            };
+            
+      downloadReceipt(fullStudent);
 
       const successAudio = new Audio("/sounds/success-221935.mp3");
       successAudio.play();

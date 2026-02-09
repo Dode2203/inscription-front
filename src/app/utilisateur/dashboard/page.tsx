@@ -93,7 +93,7 @@ export default function UtilisateurDashboard() {
           throw new Error(result.message || 'Données non disponibles');
         }
       } catch (err) {
-        console.error('❌ Erreur lors de la récupération des stats:', err);
+        toast.error('❌ Erreur lors de la récupération des stats');
         setStatsError(err instanceof Error ? err.message : 'Erreur inconnue');
       } finally {
         setStatsLoading(false);

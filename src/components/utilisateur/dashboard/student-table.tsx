@@ -5,6 +5,8 @@ import { Loader2, Eye, ChevronLeft, ChevronRight } from 'lucide-react'; // Ajout
 import { Student } from '@/lib/db';
 import { StudentDetailsModal } from './student-model';
 import { formatDateTime } from '@/lib/utils';
+import { useRouter } from "next/navigation"
+import { toast } from 'sonner';
 
 interface StudentTableProps {
   students: Student[];
@@ -14,7 +16,7 @@ interface StudentTableProps {
 export function StudentTable({ students, nbPagination = 5 }: StudentTableProps) {
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [loadingStudentId, setLoadingStudentId] = useState<number | null>(null);
-  
+  const router = useRouter();
   // --- Logique de Pagination ---
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = nbPagination;
@@ -24,7 +26,8 @@ export function StudentTable({ students, nbPagination = 5 }: StudentTableProps) 
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentStudents = students.slice(indexOfFirstItem, indexOfLastItem);
 
-  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
+  const paginate = (pageNumber: number) => setCurrentPage(pageNumber)
+  ;
   // ----------------------------
 
 
@@ -35,12 +38,31 @@ export function StudentTable({ students, nbPagination = 5 }: StudentTableProps) 
       const response = await fetch(
         `/api/etudiants/details-par-annee?idEtudiant=${student.id}&annee=${currentYear}`
       );
-      
-      if (!response.ok) throw new Error('Erreur lors de la récupération des détails');
+      const login = process.env.NEXT_PUBLIC_LOGIN_URL || '/login';
+      toast.error("Session expirée. Redirection... ");
+      if (response.status === 401 || response.status === 403) {
+            
+            await fetch("/api/auth/logout", { method: "POST" })
+            router.push(login); 
+            return; 
+      }
+      toast.error("Session expirée. Redirection... ");
+      if (response.status === 401 || response.status === 403) {
+            
+            await fetch("/api/auth/logout", { method: "POST" })
+            router.push(login); 
+            return; 
+      }
+      if (!response.ok) {
+        toast.error("Erreur lors de la récupération des détails");
+        return;
+      }
       
       const result = await response.json();
-      console.log(result);
-      if (result.status !== 'success' || !result.data) throw new Error('Données non disponibles');
+      if (result.status !== 'success' || !result.data) {
+        toast.error("Données non disponibles");
+        return;
+      }
       // console.log(result.data);
       const fullStudent: Student = {
         ...student,
@@ -52,8 +74,7 @@ export function StudentTable({ students, nbPagination = 5 }: StudentTableProps) 
       
       setSelectedStudent(fullStudent);  
     } catch (error) {
-      // console.error('Erreur:', error);
-      alert('Impossible de charger les détails de l\'étudiant');
+      toast.error("Impossible de charger les détails de l'étudiant");
     } finally {
       setLoadingStudentId(null);
     }
