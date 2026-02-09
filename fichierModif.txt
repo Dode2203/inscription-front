@@ -1,0 +1,471 @@
+Ligne 21 : étudiant introuvable ANDRIANIRINA Henintsoa Sandaniaina
+Ligne 22 : étudiant introuvable ANDRIANIRINA Henintsoa Sandaniaina
+Ligne 23 : étudiant introuvable RAKOTOARY Tinno Tantely
+Ligne 24 : étudiant introuvable RAKOTOARY Tinno Tantely
+D:\prog\stage\inscription\python\service\importService.py:49: UserWarning: Parsing dates in %Y-%m-%d format when dayfirst=True was specified. Pass `dayfirst=False` or specify a format to silence this warning.
+  dt = pd.to_datetime(
+Ligne 3538 : étudiant introuvable RAMANGARIVO Nantenaina Tiana Mirado
+Ligne 3539 : étudiant introuvable RAMANGARIVO Nantenaina Tiana Mirado
+Ligne 5970 : niveau introuvable
+Ligne 5971 : niveau introuvable
+Ligne 6254 : étudiant introuvable
+Ligne 6850 : étudiant introuvable RAVELOMANANTSOA Nantenaina Princilio Rakotoseheno
+Ligne 6851 : étudiant introuvable RAVELOMANANTSOA Nantenaina Princilio Rakotoseheno
+Ligne 7233 : étudiant introuvable NARINDRANIAINA Jean Roland
+Ligne 7235 : étudiant introuvable NARINDRANIAINA Jean Roland
+Ligne 7538 : niveau introuvable
+Ligne 8124 : étudiant introuvable
+Ligne 9909 : étudiant introuvable
+Ligne 9910 : étudiant introuvable
+Ligne 9911 : étudiant introuvable
+Ligne 9957 : type introuvable None
+Ligne 10000 : étudiant introuvable
+Ligne 10001 : étudiant introuvable
+Ligne 10007 : étudiant introuvable
+Ligne 10008 : étudiant introuvable
+Ligne 10009 : étudiant introuvable
+Ligne 10155 : étudiant introuvable
+Ligne 10236 : étudiant introuvable RABA-ANDRIAMAROZOKY Rova Hervé
+Ligne 10489 : étudiant introuvable RABA-ANDRIAMAROZOKY Rova Hervé
+Ligne 11001 : étudiant introuvable
+Ligne 11166 : étudiant introuvable
+Ligne 11252 : étudiant introuvable
+Ligne 11287 : étudiant introuvable
+Ligne 11329 : étudiant introuvable
+Ligne 11346 : étudiant introuvable
+Ligne 11426 : étudiant introuvable
+Ligne 11615 : étudiant introuvable
+Ligne 11655 : étudiant introuvable
+Ligne 11684 : étudiant introuvable
+Ligne 11708 : étudiant introuvable
+Ligne 11991 : étudiant introuvable
+Ligne 12020 : montant invalide ( -    ), ligne ignorée.
+Ligne 12021 : montant invalide ( -    ), ligne ignorée.
+Ligne 12964 : niveau introuvable
+Ligne 12965 : niveau introuvable
+Ligne 12966 : niveau introuvable
+Ligne 13109 : niveau introuvable
+Ligne 13110 : niveau introuvable
+Ligne 13111 : niveau introuvable
+Ligne 13118 : étudiant introuvable FANAMBY Sarobidy Zo Christianà
+Ligne 13119 : étudiant introuvable FANAMBY Sarobidy Zo Christianà
+Ligne 13120 : étudiant introuvable FANAMBY Sarobidy Zo Christianà
+Ligne 13175 : niveau introuvable
+Ligne 13176 : niveau introuvable
+Ligne 13463 : étudiant introuvable RAKOTONDRAVO Fetra Ny Aina
+Ligne 13464 : étudiant introuvable RAKOTONDRAVO Fetra Ny Aina
+Ligne 13508 : étudiant introuvable FANAMBY Sarobidy Zo Christianà
+Ligne 13594 : étudiant introuvable FANAMBY Sarobidy Zo Christianà
+Ligne 13595 : étudiant introuvable FANAMBY Sarobidy Zo Christianà
+Ligne 13596 : étudiant introuvable FANAMBY Sarobidy Zo Christianà
+Ligne 14389 : montant invalide ( -    ), ligne ignorée.
+Ligne 14978 : étudiant introuvable RABENANDRASANA Francois Xavier
+Ligne 14979 : étudiant introuvable RABENANDRASANA Francois Xavier
+Ligne 15304 : étudiant introuvable RABENANDRASANA Francois Xavier
+Ligne 15305 : étudiant introuvable RABENANDRASANA Francois Xavier
+Ligne 15533 : étudiant introuvable RABENANDRASANA Francois Xavier
+Ligne 15534 : étudiant introuvable RABENANDRASANA Francois Xavier
+Ligne 15936 : étudiant introuvable RABENANDRASANA Francois Xavier
+Ligne 15937 : étudiant introuvable RABENANDRASANA Francois Xavier
+Ligne 15975 : étudiant introuvable RAHARILALAINA Hasina Nantenaina Hanitry Ny Ala Sitrakaraka
+Ligne 15976 : étudiant introuvable RAHARILALAINA Hasina Nantenaina Hanitry Ny Ala Sitrakaraka
+Ligne 15977 : étudiant introuvable RAHARILALAINA Hasina Nantenaina Hanitry Ny Ala Sitrakaraka
+Ligne 16059 : niveau introuvable
+Ligne 16060 : niveau introuvable
+Ligne 16239 : étudiant introuvable RAHARILALAINA Hasina Nantenaina Hanitry Ny Ala Sitrakaraka
+Ligne 16240 : étudiant introuvable RAHARILALAINA Hasina Nantenaina Hanitry Ny Ala Sitrakaraka
+Ligne 17105 : étudiant introuvable FANOMEZANTSOA Alpha Stéphaniot
+Ligne 17106 : étudiant introuvable FANOMEZANTSOA Alpha Stéphaniot
+Ligne 17107 : étudiant introuvable FANOMEZANTSOA Alpha Stéphaniot
+Ligne 17262 : montant invalide ( -    ), ligne ignorée.
+Ligne 17743 : étudiant introuvable
+Ligne 17745 : étudiant introuvable
+Ligne 17747 : étudiant introuvable
+Ligne 17756 : type introuvable None
+Ligne 17771 : étudiant introuvable
+Ligne 17925 : étudiant introuvable RAFAMANTANANTSOA Rijatiana Mickael
+Ligne 17926 : étudiant introuvable RAFAMANTANANTSOA Rijatiana Mickael
+Ligne 17927 : étudiant introuvable RAFAMANTANANTSOA Rijatiana Mickael
+Ligne 17932 : étudiant introuvable
+Ligne 18827 : étudiant introuvable RAFAMANTANANTSOA Rijatiana Mickael
+Ligne 18841 : étudiant introuvable RAFAMANTANANTSOA Rijatiana Mickael
+Ligne 18857 : étudiant introuvable RAFAMANTANANTSOA Rijatiana Mickael
+Ligne 18858 : étudiant introuvable RAFAMANTANANTSOA Rijatiana Mickael
+Ligne 19095 : étudiant introuvable RANDRIANAFERA Miharinasandratra
+Ligne 19220 : étudiant introuvable RANDRIANAFERA Miharinasandratra
+Ligne 19221 : étudiant introuvable RANDRIANAFERA Miharinasandratra
+Ligne 19452 : niveau introuvable
+Ligne 19453 : niveau introuvable
+Ligne 19454 : niveau introuvable
+Ligne 19542 : étudiant introuvable RAFAMANTANANTSOA Rijatiana Mickael
+Ligne 19804 : étudiant introuvable RAFAMANTANANTSOA Rijatiana Mickael
+Ligne 19805 : étudiant introuvable RAFAMANTANANTSOA Rijatiana Mickael
+Ligne 19806 : étudiant introuvable RAFAMANTANANTSOA Rijatiana Mickael
+Ligne 20112 : niveau introuvable
+Ligne 20113 : niveau introuvable
+Ligne 20344 : niveau introuvable
+Ligne 20345 : niveau introuvable
+Ligne 20682 : étudiant introuvable ANDRIATSITOHAINA Safidy Josã?
+Ligne 20851 : étudiant introuvable RANDRIANASOA
+Ligne 20852 : étudiant introuvable RANDRIANASOA
+Ligne 21769 : étudiant introuvable RAFAMANTANANTSOA Rijatiana Mickael
+Ligne 21784 : montant invalide ( -    ), ligne ignorée.
+Ligne 21825 : étudiant introuvable
+Ligne 21935 : montant invalide ( -    ), ligne ignorée.
+Ligne 21936 : montant invalide ( -    ), ligne ignorée.
+Ligne 22058 : montant invalide ( -    ), ligne ignorée.
+Ligne 22196 : étudiant introuvable
+Ligne 22197 : étudiant introuvable
+Ligne 22198 : étudiant introuvable
+Ligne 22541 : type introuvable None
+Ligne 22551 : étudiant introuvable
+Ligne 23256 : étudiant introuvable RABESOLO Rotsy Tsiferantsoa Ismaélia
+Ligne 23257 : étudiant introuvable RABESOLO Rotsy Tsiferantsoa Ismaélia
+Ligne 23298 : étudiant introuvable RAKOTONANAHARY Lovasoa Carolina Sabrinah
+Ligne 23299 : étudiant introuvable RAKOTONANAHARY Lovasoa Carolina Sabrinah
+Ligne 23855 : niveau introuvable
+Ligne 24005 : niveau introuvable
+Ligne 24006 : niveau introuvable
+Ligne 24117 : niveau introuvable
+Ligne 24118 : niveau introuvable
+Ligne 24967 : niveau introuvable
+Ligne 24968 : niveau introuvable
+Ligne 24987 : étudiant introuvable RALAIHOVA Hobinandrasana
+Ligne 24988 : étudiant introuvable RALAIHOVA Hobinandrasana
+Ligne 26158 : étudiant introuvable
+Ligne 26159 : étudiant introuvable
+Ligne 26614 : étudiant introuvable NOMENJANAHARY Iarotiana Steeve Mickaël Clara
+Ligne 26615 : étudiant introuvable NOMENJANAHARY Iarotiana Steeve Mickaël Clara
+Ligne 26616 : étudiant introuvable NOMENJANAHARY Iarotiana Steeve Mickaël Clara
+Ligne 26716 : étudiant introuvable NOMENJANAHARY Iarotiana Steeve Mickaël Clara
+Ligne 27056 : type introuvable None
+Ligne 27197 : montant invalide ( -    ), ligne ignorée.
+Ligne 27215 : étudiant introuvable NOMENJANAHARY Iarotiana Steeve Mickaël Clara
+Ligne 27216 : étudiant introuvable NOMENJANAHARY Iarotiana Steeve Mickaël Clara
+Ligne 27217 : étudiant introuvable NOMENJANAHARY Iarotiana Steeve Mickaël Clara
+Ligne 27485 : étudiant introuvable NOMENJANAHARY Iarotiana Steeve Mickaël Clara
+Ligne 27495 : étudiant introuvable
+Ligne 27509 : étudiant introuvable
+Ligne 27517 : type introuvable None
+Ligne 27532 : type introuvable None
+Ligne 27538 : type introuvable None
+Ligne 27556 : type introuvable None
+Ligne 28050 : étudiant introuvable LANTOMAHAFENO Fiononantsoa Francis Roméo Fanatenana Paradisa
+Ligne 28051 : étudiant introuvable LANTOMAHAFENO Fiononantsoa Francis Roméo Fanatenana Paradisa
+Ligne 28660 : étudiant introuvable RALAIARISON Rivofanambinantsoa Mayor Grâçia
+Ligne 28661 : étudiant introuvable RALAIARISON Rivofanambinantsoa Mayor Grâçia
+Ligne 28662 : étudiant introuvable RALAIARISON Rivofanambinantsoa Mayor Grâçia
+Ligne 28663 : étudiant introuvable RALAIARISON Rivofanambinantsoa Mayor Grâçia
+Ligne 28664 : étudiant introuvable RALAIARISON Rivofanambinantsoa Mayor Grâçia
+Ligne 28665 : étudiant introuvable RALAIARISON Rivofanambinantsoa Mayor Grâçia
+Ligne 28666 : étudiant introuvable RALAIARISON Rivofanambinantsoa Mayor Grâçia
+Ligne 28756 : étudiant introuvable RAMAROKOTO Christiany Malala Fandresena Manjaka Fi
+Ligne 29564 : niveau introuvable
+Ligne 29565 : niveau introuvable
+Ligne 29566 : niveau introuvable
+Ligne 29594 : étudiant introuvable ANDONIAINA Francois Xavier
+Ligne 29597 : étudiant introuvable ANDONIAINA Francois Xavier
+Ligne 29782 : étudiant introuvable
+Ligne 30042 : étudiant introuvable RAKOTONIAINA Jean François Richard
+Ligne 30043 : étudiant introuvable RAKOTONIAINA Jean François Richard
+Ligne 30938 : étudiant introuvable RASAMOELINA Notahinjanahary Sylvain
+Ligne 30939 : étudiant introuvable RASAMOELINA Notahinjanahary Sylvain
+Ligne 31648 : étudiant introuvable RAVALINIAINA Prénoms Kantonierana Miravo Finaritra Tafitasoa
+Ligne 32193 : étudiant introuvable RAVALINIAINA Prénoms Kantonierana Miravo Finaritra Tafitasoa
+Ligne 32280 : étudiant introuvable RASAMOELINA Notahinjanahary Sylvain
+Ligne 32476 : étudiant introuvable RANDRIANTSILAVINA Eric François
+Ligne 32477 : étudiant introuvable RANDRIANTSILAVINA Eric François
+Ligne 32478 : étudiant introuvable RANDRIANTSILAVINA Eric François
+Ligne 32873 : étudiant introuvable ANDRIAMAHERIMANANTSOA Herilalao Michelin Champagnatt
+Ligne 32874 : étudiant introuvable ANDRIAMAHERIMANANTSOA Herilalao Michelin Champagnatt
+Ligne 33480 : étudiant introuvable RANDRIANTSILAVINA Eric François
+Ligne 34203 : étudiant introuvable RASOARIMANANA Noronantenaina Alidä Rodolphe
+Ligne 34204 : étudiant introuvable RASOARIMANANA Noronantenaina Alidä Rodolphe
+Ligne 34205 : étudiant introuvable RASOARIMANANA Noronantenaina Alidä Rodolphe
+Ligne 34291 : étudiant introuvable SEHENONIRINA Raïssa Sylvanie
+Ligne 34292 : étudiant introuvable SEHENONIRINA Raïssa Sylvanie
+Ligne 34534 : étudiant introuvable RASOARIMANANA Noronantenaina Alidä Rodolphe
+Ligne 34637 : étudiant introuvable RANJAVOLA Fenohasina Eugã?ne
+Ligne 34638 : étudiant introuvable RANJAVOLA Fenohasina Eugã?ne
+Ligne 34957 : étudiant introuvable SEHENONIRINA Raîssa Sylvanie
+Ligne 34959 : étudiant introuvable SEHENONIRINA Raîssa Sylvanie
+Ligne 35181 : étudiant introuvable RAVALINIAINA Prénoms Kantonierana Miravo Finaritra Tafitasoaafitasoa
+Ligne 35182 : étudiant introuvable RAVALINIAINA Prénoms Kantonierana Miravo Finaritra Tafitasoaafitasoa
+Ligne 35267 : étudiant introuvable RAFANOMEZANTSOA Zãizé Elia
+Ligne 35268 : étudiant introuvable RAFANOMEZANTSOA Zãizé Elia
+Ligne 35319 : étudiant introuvable RAKOTONDRAZANANY
+Ligne 35320 : étudiant introuvable RAKOTONDRAZANANY
+Ligne 35323 : étudiant introuvable RANDRIAMIALY
+Ligne 35324 : étudiant introuvable RANDRIAMIALY
+Ligne 35329 : étudiant introuvable RANDRIAMIDONA
+Ligne 35330 : étudiant introuvable RANDRIAMIDONA
+Ligne 35334 : étudiant introuvable MAHARITRA
+Ligne 35335 : étudiant introuvable MAHARITRA
+Ligne 35362 : étudiant introuvable RAKOTOARIVAO
+Ligne 35363 : étudiant introuvable RAKOTOARIVAO
+Ligne 35364 : étudiant introuvable RAMANANTOANINA
+Ligne 35365 : étudiant introuvable RAMANANTOANINA
+Ligne 35417 : étudiant introuvable RATOVONJAKANIRINA Tina Henintsoa Tina Henintsoa
+Ligne 35418 : étudiant introuvable RATOVONJAKANIRINA Tina Henintsoa Tina Henintsoa
+Ligne 35441 : étudiant introuvable RANJAVOLA Fenohasina Eugã?ne
+Ligne 35442 : étudiant introuvable RANJAVOLA Fenohasina Eugã?ne
+Ligne 35878 : étudiant introuvable RASOARIMANANA Noronantenaina Alidä Rodolpe
+Ligne 35879 : étudiant introuvable RASOARIMANANA Noronantenaina Alidä Rodolpe
+Ligne 36037 : étudiant introuvable RAVELONJATOVO Fiononantsoa Francis Roméo
+Ligne 36038 : étudiant introuvable RAVELONJATOVO Fiononantsoa Francis Roméo
+Ligne 36039 : étudiant introuvable RAVELONJATOVO Fiononantsoa Francis Roméo
+Ligne 36519 : montant invalide ( -    ), ligne ignorée.
+Ligne 36565 : étudiant introuvable RABOTOARISON Fulgence Sylvain Fulgence Sylvain
+Ligne 36566 : étudiant introuvable RABOTOARISON Fulgence Sylvain Fulgence Sylvain
+Ligne 36567 : étudiant introuvable RABOTOARISON Fulgence Sylvain Fulgence Sylvain
+Ligne 36568 : étudiant introuvable RABOTOARISON Fulgence Sylvain Fulgence Sylvain
+Ligne 36716 : étudiant introuvable RAVELONJATOVO Fiononantsoa Francis Roméo
+Ligne 36960 : étudiant introuvable HOBIARISOA Tahiana Micheline
+Ligne 36961 : étudiant introuvable HOBIARISOA Tahiana Micheline
+Ligne 36962 : étudiant introuvable HOBIARISOA Tahiana Micheline
+Ligne 37301 : étudiant introuvable RAVELONJATOVO Fiononantsoa Francis Roméo
+Ligne 37302 : étudiant introuvable RAVELONJATOVO Fiononantsoa Francis Roméo
+Ligne 37303 : étudiant introuvable RAVELONJATOVO Fiononantsoa Francis Roméo
+Ligne 37545 : montant invalide ( -    ), ligne ignorée.
+Ligne 37589 : étudiant introuvable RAHARILALAINA Hasina Nantenaina Hanitry Ny Ala Sitrakaraka
+Ligne 37590 : étudiant introuvable RAHARILALAINA Hasina Nantenaina Hanitry Ny Ala Sitrakaraka
+Ligne 37635 : étudiant introuvable RASOARIMANANA Noronantenaina Alidä Rodolpe
+Ligne 37636 : étudiant introuvable RASOARIMANANA Noronantenaina Alidä Rodolpe
+Ligne 37730 : étudiant introuvable
+Ligne 37776 : étudiant introuvable RAVELONJATOVO Fiononantsoa Francis Roméo
+Ligne 37789 : étudiant introuvable
+Ligne 37812 : étudiant introuvable RAHARILALAINA Hasina Nantenaina Hanitry Ny Ala Sitrakaraka
+Ligne 37851 : étudiant introuvable RAHARILALAINA Hasina Nantenaina Hanitry Ny Ala Sitrakaraka
+Ligne 37860 : étudiant introuvable RANDRIANANDRASANA
+Ligne 37862 : étudiant introuvable RANDRIANANDRASANA
+Ligne 37892 : étudiant introuvable RAHARILALAINA Hasina Nantenaina Hanitry Ny Ala Sitrakaraka
+Ligne 37956 : étudiant introuvable RAHARILALAINA Hasina Nantenaina Hanitry Ny Ala Sitrakaraka
+Ligne 37972 : étudiant introuvable RAHARILALAINA Hasina Nantenaina Hanitry Ny Ala Sitrakaraka
+Ligne 37979 : étudiant introuvable RANDRIANANDRASANA
+Ligne 37980 : étudiant introuvable RANDRIANANDRASANA
+Ligne 38009 : étudiant introuvable RAHARILALAINA Hasina Nantenaina Hanitry Ny Ala Sitrakaraka
+Ligne 38690 : étudiant introuvable RANDRIAMANAMPISOA Hanitra Tovosolo Mickaëla
+Ligne 38815 : étudiant introuvable RANDRIAMANAMPISOA Hanitra Tovosolo Mickaëla
+Ligne 39010 : étudiant introuvable RANDRIAMANAMPISOA Hanitra Tovosolo Mickaëla
+Ligne 39134 : étudiant introuvable
+Ligne 39671 : étudiant introuvable RAVO Andriamboninahitrarivo John Michaél R
+Ligne 40212 : étudiant introuvable RAHARILALAINA Hasina Nantenaina Hanitry Ny Ala Sitrakaraka
+Ligne 40268 : étudiant introuvable RANDRIAMANAMPISOA Hanitra Tovosolo Mickaëla
+Ligne 40532 : étudiant introuvable RAHARILALAINA Hasina Nantenaina Hanitry Ny Ala Sitrakaraka
+Ligne 40632 : étudiant introuvable RANDRIAMANAMPISOA Hanitra Tovosolo Mickaëla
+Ligne 40811 : étudiant introuvable RANDRIAMANAMPISOA Hanitra Tovosolo Mickaëla
+Ligne 40986 : étudiant introuvable ANDRIANOMENJANAHARY Jean Lucien Sitraka Hery Kanto
+Ligne 40987 : étudiant introuvable ANDRIANOMENJANAHARY Jean Lucien Sitraka Hery Kanto
+Ligne 41073 : étudiant introuvable RANDRIAMANAMPISOA Hanitra Tovosolo Mickaëla
+Ligne 41274 : étudiant introuvable RAVO Andriamboninahitrarivo John Michaél R
+Ligne 41400 : étudiant introuvable RAHARILALAINA Hasina Nantenaina Hanitry Ny Ala Sitrakaraka
+Ligne 41482 : étudiant introuvable ANDRIANOMENJANAHARY Jean Lucien Sitraka Hery Kanto
+Ligne 41666 : étudiant introuvable RAHARILALAINA Hasina Nantenaina Hanitry Ny Ala Sitrakaraka
+Ligne 41893 : étudiant introuvable RANDRIAMANAMPISOA Hanitra Tovosolo Mickaëla
+Ligne 42125 : étudiant introuvable
+Ligne 42866 : étudiant introuvable RAHARILALAINA Hasina Nantenaina Hanitry Ny Ala Sitrakaraka
+Ligne 42890 : étudiant introuvable RANDRIAMANAMPISOA Hanitra Tovosolo Mickaëla
+Ligne 42925 : étudiant introuvable
+Ligne 43041 : étudiant introuvable RANDRIAMANAMPISOA Hanitra Tovosolo Mickaëla
+Ligne 43060 : étudiant introuvable RAHARILALAINA Hasina Nantenaina Hanitry Ny Ala Sitrakaraka
+Ligne 43674 : étudiant introuvable RAHARILALAINA Hasina Nantenaina Hanitry Ny Ala Sitrakaraka
+Ligne 43716 : étudiant introuvable
+Ligne 43740 : montant invalide (2379-02-17 00:00:00), ligne ignorée.
+Ligne 43742 : montant invalide (2379-02-17 00:00:00), ligne ignorée.
+Ligne 43785 : étudiant introuvable ANDRIAMANALINA Andry Niaina Michael
+Ligne 43786 : étudiant introuvable ANDRIAMANALINA Andry Niaina Michael
+Ligne 44205 : étudiant introuvable ANDRIAMANALINA Andry Niaina Michael
+Ligne 44206 : étudiant introuvable ANDRIAMANALINA Andry Niaina Michael
+Ligne 44237 : étudiant introuvable ANDRIAMANALINA Andry Niaina Michael
+Ligne 44264 : étudiant introuvable ANDRIAMANALINA Andry Niaina Michael
+Ligne 44419 : étudiant introuvable RANDRIANIZAHANA Yvan Micka
+Ligne 44674 : étudiant introuvable RAKOTOARIJAONA Prénoms Zo Hariniaina Gaël
+Ligne 44675 : étudiant introuvable RAKOTOARIJAONA Prénoms Zo Hariniaina Gaël
+Ligne 44829 : étudiant introuvable ANDRIAMANALINA Andry Niaina Michael
+Ligne 44835 : étudiant introuvable ANDRIAMANALINA Andry Niaina Michael
+Ligne 44836 : étudiant introuvable ANDRIAMANALINA Andry Niaina Michael
+Ligne 45406 : étudiant introuvable RAKOTOVELO Tsikiniela Gracianarivo Rene Yvon
+Ligne 45407 : étudiant introuvable RAKOTOVELO Tsikiniela Gracianarivo Rene Yvon
+Ligne 45408 : étudiant introuvable RAKOTOVELO Tsikiniela Gracianarivo Rene Yvon
+Ligne 45471 : étudiant introuvable RAKOTONANAHARY Avotriniaina Tsilavina Tsilavina
+Ligne 45472 : étudiant introuvable RAKOTONANAHARY Avotriniaina Tsilavina Tsilavina
+Ligne 45576 : étudiant introuvable ANDRIAMANALINA Andry Niaina Michael
+Ligne 45577 : étudiant introuvable ANDRIAMANALINA Andry Niaina Michael
+Ligne 45578 : étudiant introuvable ANDRIAMANALINA Andry Niaina Michael
+Ligne 45705 : niveau introuvable
+Ligne 46011 : niveau introuvable
+Ligne 46012 : niveau introuvable
+Ligne 46091 : niveau introuvable
+Ligne 46092 : niveau introuvable
+Ligne 46192 : niveau introuvable
+Ligne 46193 : niveau introuvable
+Ligne 46436 : étudiant introuvable RAKOTONANAHARY Avotriniaina Tsilavina Tsilavina
+Ligne 46637 : étudiant introuvable RAKOTONDRAMBOLA Faneva Brice Nombã Na
+Ligne 46638 : étudiant introuvable RAKOTONDRAMBOLA Faneva Brice Nombã Na
+Ligne 46983 : étudiant introuvable RAHOLIFANJA Miel Arisoa Eliorahh
+Ligne 46984 : étudiant introuvable RAHOLIFANJA Miel Arisoa Eliorahh
+Ligne 46985 : étudiant introuvable RAHOLIFANJA Miel Arisoa Eliorahh
+Ligne 47133 : étudiant introuvable RANDRIANARIJAONA
+Ligne 47134 : étudiant introuvable RANDRIANARIJAONA
+Ligne 47431 : étudiant introuvable RANAIVOARISON Mirindra Tsilaivina
+Ligne 47432 : étudiant introuvable RANAIVOARISON Mirindra Tsilaivina
+Ligne 47560 : étudiant introuvable RAHOLIFANJA Miel Arisoa Eliorahh
+Ligne 47570 : étudiant introuvable RAHOLIFANJA Miel Arisoa Eliorahh
+Ligne 47571 : étudiant introuvable RAHOLIFANJA Miel Arisoa Eliorahh
+Ligne 47572 : étudiant introuvable RAHOLIFANJA Miel Arisoa Eliorahh
+Ligne 47573 : étudiant introuvable RAHOLIFANJA Miel Arisoa Eliorahh
+Ligne 47599 : étudiant introuvable RAHOLIFANJA Miel Arisoa Eliorahh
+Ligne 47600 : étudiant introuvable RAHOLIFANJA Miel Arisoa Eliorahh
+Ligne 47601 : étudiant introuvable RAHOLIFANJA Miel Arisoa Eliorahh
+Ligne 48049 : étudiant introuvable RAHOLIFANJA Miel Arisoa Eliorahh
+Ligne 48386 : niveau introuvable
+Ligne 48387 : niveau introuvable
+Ligne 48517 : étudiant introuvable RAHOLIFANJA Miel Arisoa Eliorahh
+Ligne 48518 : étudiant introuvable RAHOLIFANJA Miel Arisoa Eliorahh
+Ligne 48519 : étudiant introuvable RAHOLIFANJA Miel Arisoa Eliorahh
+Ligne 48776 : étudiant introuvable RAHOLIFANJA Miel Arisoa Eliorahh
+Ligne 49288 : étudiant introuvable ANTSAMAMPIONONA Prénoms Andry Lala Fanasina Andry Lala Fanasina
+Ligne 49289 : étudiant introuvable ANTSAMAMPIONONA Prénoms Andry Lala Fanasina Andry Lala Fanasina
+Ligne 49312 : étudiant introuvable RAFAMANTANANTSOA Rijatiana Mickael
+Ligne 49313 : étudiant introuvable RAFAMANTANANTSOA Rijatiana Mickael
+Ligne 49513 : étudiant introuvable ANTSAMAMPIONONA Prénoms Andry Lala Fanasina Andry Lala Fanasina
+Ligne 49514 : étudiant introuvable ANTSAMAMPIONONA Prénoms Andry Lala Fanasina Andry Lala Fanasina
+Ligne 49515 : étudiant introuvable ANTSAMAMPIONONA Prénoms Andry Lala Fanasina Andry Lala Fanasina
+Ligne 49535 : étudiant introuvable ANDRIAMAMPIADANA Tiana Princy Tiana Princy
+Ligne 49536 : étudiant introuvable ANDRIAMAMPIADANA Tiana Princy Tiana Princy
+Ligne 49560 : étudiant introuvable RANDRIANIRINA
+Ligne 49561 : étudiant introuvable RANDRIANIRINA
+Ligne 49586 : étudiant introuvable RAHERISOA
+Ligne 49587 : étudiant introuvable RAHERISOA
+Ligne 49588 : étudiant introuvable RAHERINIAINA
+Ligne 49589 : étudiant introuvable RAHERINIAINA
+Ligne 49590 : étudiant introuvable RABARIJAONA
+Ligne 49591 : étudiant introuvable RABARIJAONA
+Ligne 49616 : étudiant introuvable RANDRIANANDRASANA
+Ligne 49617 : étudiant introuvable RANDRIANANDRASANA
+Ligne 49641 : étudiant introuvable RAZAFIMANARIVO
+Ligne 49642 : étudiant introuvable RAZAFIMANARIVO
+Ligne 49657 : étudiant introuvable ANTSAMAMPIONONA Prénoms Andry Lala Fanasina
+Ligne 49658 : étudiant introuvable ANTSAMAMPIONONA Prénoms Andry Lala Fanasina
+Ligne 49663 : étudiant introuvable RAKOTONDRASOA
+Ligne 49664 : étudiant introuvable RAKOTONDRASOA
+Ligne 49667 : étudiant introuvable RANDRIAMANAMPISOA
+Ligne 49673 : étudiant introuvable RAZANABOLOLONA
+Ligne 49678 : étudiant introuvable ANTSAMAMPIONONA Prénoms Andry Lala Fanasina
+Ligne 49679 : étudiant introuvable ANTSAMAMPIONONA Prénoms Andry Lala Fanasina
+Ligne 49690 : étudiant introuvable RANDRIAMORASATA
+Ligne 49691 : étudiant introuvable RANDRIAMORASATA
+Ligne 49692 : étudiant introuvable RANDRIAMORASATA
+Ligne 49693 : étudiant introuvable RANDRIAMORASATA
+Ligne 49795 : étudiant introuvable RAVALINIAINA Prénoms Kantonierana Miravo Finaritra Tafitasoa
+Ligne 49796 : étudiant introuvable RAVALINIAINA Prénoms Kantonierana Miravo Finaritra Tafitasoa
+Ligne 49940 : étudiant introuvable
+Ligne 49941 : étudiant introuvable
+Ligne 49942 : étudiant introuvable
+Ligne 50022 : étudiant introuvable ANDRIAMAMPIADANA Tiana Princy Tiana Princy
+Ligne 50062 : montant invalide ( -    ), ligne ignorée.
+Ligne 50066 : montant invalide ( -    ), ligne ignorée.
+Ligne 50067 : montant invalide ( -    ), ligne ignorée.
+Ligne 50068 : montant invalide ( -    ), ligne ignorée.
+Ligne 50069 : montant invalide ( -    ), ligne ignorée.
+Ligne 50070 : montant invalide ( -    ), ligne ignorée.
+Ligne 50071 : montant invalide ( -    ), ligne ignorée.
+Ligne 50072 : montant invalide ( -    ), ligne ignorée.
+Ligne 50073 : montant invalide ( -    ), ligne ignorée.
+Ligne 50074 : montant invalide ( -    ), ligne ignorée.
+Ligne 50076 : montant invalide ( -    ), ligne ignorée.
+Ligne 50077 : montant invalide ( -    ), ligne ignorée.
+Ligne 50078 : montant invalide ( -    ), ligne ignorée.
+Ligne 50079 : montant invalide ( -    ), ligne ignorée.
+Ligne 50080 : montant invalide ( -    ), ligne ignorée.
+Ligne 50081 : montant invalide ( -    ), ligne ignorée.
+Ligne 50082 : montant invalide ( -    ), ligne ignorée.
+Ligne 50083 : montant invalide ( -    ), ligne ignorée.
+Ligne 50084 : montant invalide ( -    ), ligne ignorée.
+Ligne 50085 : montant invalide ( -    ), ligne ignorée.
+Ligne 50086 : montant invalide ( -    ), ligne ignorée.
+Ligne 50087 : montant invalide ( -    ), ligne ignorée.
+Ligne 50088 : montant invalide ( -    ), ligne ignorée.
+Ligne 50089 : montant invalide ( -    ), ligne ignorée.
+Ligne 50090 : montant invalide ( -    ), ligne ignorée.
+Ligne 50091 : montant invalide ( -    ), ligne ignorée.
+Ligne 50092 : montant invalide ( -    ), ligne ignorée.
+Ligne 50093 : montant invalide ( -    ), ligne ignorée.
+Ligne 50094 : montant invalide ( -    ), ligne ignorée.
+Ligne 50250 : étudiant introuvable ANTSAMAMPIONONA Prénoms Andry Lala Fanasina Andry Lala Fanasina
+Ligne 50274 : étudiant introuvable
+Ligne 50275 : étudiant introuvable
+Ligne 50276 : étudiant introuvable
+Ligne 50307 : étudiant introuvable ANDRIAMAMPIADANA Tiana Princy Tiana Princy
+Ligne 50363 : montant invalide (2379-02-17 00:00:00), ligne ignorée.
+Ligne 51244 : étudiant introuvable RALAIARISON Rivofanaminantsoa Mayor Grâcia
+Ligne 51245 : étudiant introuvable RALAIARISON Rivofanaminantsoa Mayor Grâcia
+Ligne 52050 : étudiant introuvable
+Ligne 52051 : étudiant introuvable
+Ligne 52104 : étudiant introuvable RANJAKATIANA Gervais Roland
+Ligne 52105 : étudiant introuvable RANJAKATIANA Gervais Roland
+Ligne 52934 : étudiant introuvable RAHARISOA Joeline Luciano Zo Andry
+Ligne 52935 : étudiant introuvable RAHARISOA Joeline Luciano Zo Andry
+Ligne 53188 : étudiant introuvable RANDRIANATOANDRO Francois Xavier
+Ligne 53191 : étudiant introuvable RANDRIANATOANDRO Francois Xavier
+Ligne 53312 : étudiant introuvable RANDRIANATOANDRO Francois Xavier
+Ligne 54054 : étudiant introuvable RANDRIANATOANDRO Francois Xavier
+Ligne 54249 : étudiant introuvable RANDRIANATOANDRO Francois Xavier
+Ligne 54250 : étudiant introuvable RANDRIANATOANDRO Francois Xavier
+Ligne 54251 : étudiant introuvable RANDRIANATOANDRO Francois Xavier
+Ligne 54252 : étudiant introuvable RANDRIANATOANDRO Francois Xavier
+Ligne 54542 : étudiant introuvable RANDRIANATOANDRO Francois Xavier
+Ligne 54718 : étudiant introuvable DRESENA
+Ligne 54719 : étudiant introuvable DRESENA
+Ligne 54720 : étudiant introuvable DRESENA
+Ligne 54775 : étudiant introuvable JAOBELINA Mananjara Jôelà Luicette
+Ligne 54776 : étudiant introuvable JAOBELINA Mananjara Jôelà Luicette
+Ligne 54777 : étudiant introuvable JAOBELINA Mananjara Jôelà Luicette
+Ligne 54881 : étudiant introuvable RAKOTOARIVELO Tinamarc
+Ligne 54882 : étudiant introuvable RAKOTOARIVELO Tinamarc
+Ligne 55313 : étudiant introuvable RANDRIANATOANDRO François Xavierr
+Ligne 55314 : étudiant introuvable RANDRIANATOANDRO François Xavierr
+Ligne 55315 : étudiant introuvable RANDRIANATOANDRO François Xavierr
+Ligne 55366 : étudiant introuvable JAOBELINA Mananjara Jãielã Luicette
+Ligne 55367 : étudiant introuvable JAOBELINA Mananjara Jãielã Luicette
+Ligne 55654 : étudiant introuvable ANDRIANARIMALALA Rajaonimanana Fitahiana Henintsoa Daniel
+Ligne 55655 : étudiant introuvable ANDRIANARIMALALA Rajaonimanana Fitahiana Henintsoa Daniel
+Ligne 55757 : étudiant introuvable ANDRIANIVONIAINA
+Ligne 56295 : étudiant introuvable ANDRIANARIMALALA Rajaonimanana Fitahiana Henintsoa Daniel
+Ligne 56296 : étudiant introuvable ANDRIANARIMALALA Rajaonimanana Fitahiana Henintsoa Daniel
+Ligne 56398 : étudiant introuvable
+Ligne 56399 : étudiant introuvable
+Ligne 57026 : étudiant introuvable ANDRIANARIMALALA Rajaonimanana Fitahiana Henintsoa Daniel
+Ligne 57027 : étudiant introuvable ANDRIANARIMALALA Rajaonimanana Fitahiana Henintsoa Daniel
+Ligne 57059 : étudiant introuvable
+Ligne 57061 : étudiant introuvable
+Ligne 57571 : étudiant introuvable
+Ligne 57986 : étudiant introuvable ANDRIAMIHAJAMALALA Hasin Ny Fitiavana Tsiorimanja
+Ligne 58127 : étudiant introuvable FITAHIANTSOA Arilisy Stéphan
+Ligne 58128 : étudiant introuvable FITAHIANTSOA Arilisy Stéphan
+Ligne 58194 : étudiant introuvable ANDRIAMIHAJAMALALA Hasin Ny Fitiavana Tsiorimanja
+Ligne 58250 : étudiant introuvable ANDRIAMIHAJAMALALA Hasin Ny Fitiavana Tsiorimanja
+Ligne 58251 : étudiant introuvable ANDRIAMIHAJAMALALA Hasin Ny Fitiavana Tsiorimanja
+Ligne 58252 : étudiant introuvable FITAHIANTSOA Arilisy Stéphan
+Ligne 58976 : étudiant introuvable ANDRIAMIHAJAMALALA Hasin Ny Fitiavana Tsiorimanja
+Ligne 58977 : étudiant introuvable ANDRIAMIHAJAMALALA Hasin Ny Fitiavana Tsiorimanja
+Ligne 59028 : étudiant introuvable ANDRIAMIHAJAMALALA Hasin Ny Fitiavana Tsiorimanja
+Ligne 59287 : étudiant introuvable ANDRIAMIHAJAMALALA Hasin Ny Fitiavana Tsiorimanja
+Ligne 59416 : étudiant introuvable ANDRIAMIHAJAMALALA Hasin Ny Fitiavana Tsiorimanja
+Ligne 59419 : étudiant introuvable ANDRIAMIHAJAMALALA Hasin Ny Fitiavana Tsiorimanja
+Ligne 59420 : étudiant introuvable ANDRIAMIHAJAMALALA Hasin Ny Fitiavana Tsiorimanja
+Ligne 59544 : étudiant introuvable RAVOLOLONARIVOARISOA Vetsoina F Gilbertina
+Ligne 59545 : étudiant introuvable RAVOLOLONARIVOARISOA Vetsoina F Gilbertina
+Ligne 59886 : niveau introuvable
+Ligne 59887 : niveau introuvable
+Ligne 59888 : niveau introuvable
+Ligne 61960 : étudiant introuvable
+Ligne 63179 : montant invalide ( -    ), ligne ignorée.
+Ligne 63181 : montant invalide ( -    ), ligne ignorée.
+Ligne 63759 : type introuvable None
+Ligne 63869 : montant invalide (2721-05-15 00:00:00), ligne ignorée.
+Ligne 63897 : étudiant introuvable
+Ligne 63908 : étudiant introuvable M%
+Ligne 64883 : étudiant introuvable
+Ligne 64884 : étudiant introuvable
+Nombre de noms trouvés: 0

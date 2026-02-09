@@ -1,6 +1,19 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { Identite, Formation, PaiementData, Inscription } from '@/lib/db';
+const formatAr = (value: number | string | null | undefined): string => {
+  const number = Number(value) || 0;
+
+  return (
+    new Intl.NumberFormat('fr-FR', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    })
+      .format(number)
+      .replace(/\s/g, ' ') // 🔥 CRUCIAL
+      + ' Ar'
+  );
+};
 
 export const generateReceiptPDF = async (
   identite: Identite,
@@ -145,9 +158,9 @@ export const generateReceiptPDF = async (
     startY: (doc as any).lastAutoTable.finalY + 5,
     head: [['DESIGNATION', 'REFERENCE', 'MONTANT']],
     body: [
-      ['Droit Administratif', paiement.refAdmin || '-', `${formatMontant(paiement.montantAdmin || 0)} Ar`],
-      ['Droit Pédagogique', paiement.refPedag || '-', `${formatMontant(paiement.montantPedag || 0)} Ar`],
-      ['Écolage', paiement.refEcolage || '-', `${formatMontant(paiement.montantEcolage || 0)} Ar`],
+      ['Droit Administratif', paiement.refAdmin || '-', formatAr(paiement.montantAdmin)],
+      ['Droit Pédagogique', paiement.refPedag || '-', formatAr(paiement.montantPedag)],
+      ['Écolage', paiement.refEcolage || '-', formatAr(paiement.montantEcolage)],
     ],
     theme: 'grid',
     headStyles: { fillColor: [230, 230, 230], textColor: 0 }
