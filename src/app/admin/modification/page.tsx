@@ -477,8 +477,8 @@ export default function ModificationPage() {
                     <div className="space-y-1.5">
                       <Label className="text-sm font-semibold">Nationalité</Label>
                       <select
-                        value={formData.sexeId}
-                        onChange={(e) => setFormData({ ...formData, sexeId: Number(e.target.value) })}
+                        value={formData.nationaliteId}
+                        onChange={(e) => setFormData({ ...formData, nationaliteId: Number(e.target.value) })}
                         className="h-9 w-full text-sm border-slate-200 focus:border-blue-400 bg-slate-50/50 rounded-md px-3"
                         required
                       >
