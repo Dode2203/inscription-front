@@ -39,16 +39,10 @@ export function StudentTable({ students, nbPagination = 5 }: StudentTableProps) 
         `/api/etudiants/details-par-annee?idEtudiant=${student.id}&annee=${currentYear}`
       );
       const login = process.env.NEXT_PUBLIC_LOGIN_URL || '/login';
-      toast.error("Session expirée. Redirection... ");
+      
+
       if (response.status === 401 || response.status === 403) {
-            
-            await fetch("/api/auth/logout", { method: "POST" })
-            router.push(login); 
-            return; 
-      }
-      toast.error("Session expirée. Redirection... ");
-      if (response.status === 401 || response.status === 403) {
-            
+            toast.error("Session expirée. Redirection... ");
             await fetch("/api/auth/logout", { method: "POST" })
             router.push(login); 
             return; 

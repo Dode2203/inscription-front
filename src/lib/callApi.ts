@@ -99,8 +99,8 @@ export async function callApiPost(
   } catch (err: unknown) {
     if (axios.isAxiosError(err)) {
       const msg =
-        err.response?.data?.message ||
         err.response?.data?.error ||
+        err.response?.data?.message ||
         err.message;
 
       return NextResponse.json(
@@ -163,8 +163,8 @@ export async function callApiPut(
   } catch (err: unknown) {
     if (axios.isAxiosError(err)) {
       const msg =
+      err.response?.data?.error ||
         err.response?.data?.message ||
-        err.response?.data?.error ||
         err.message;
 
       return NextResponse.json(

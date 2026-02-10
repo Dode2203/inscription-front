@@ -128,7 +128,6 @@ export default function ModificationPage() {
         body: JSON.stringify({ nom: nomSearch, prenom: prenomSearch })
       });
       const response = await res.json();
-      toast.error("Session expirée. Redirection... ");
       if (res.status === 401 || res.status === 403) {
         toast.error("Session expirée. Redirection...");
         await fetch("/api/auth/logout", { method: "POST" });
