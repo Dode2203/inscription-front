@@ -14,38 +14,83 @@ import {
 import { Spinner } from '@/components/ui/spinner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
+import { Trash2, AlertCircle, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
+import { useRouter } from 'next/navigation';
+
 interface EcolageHistoryTableProps {
     idEtudiant: string | number;
     lastUpdated?: number;
     mention?: string;
+    onAnnulerSuccess?: () => void;
 }
 
-export function EcolageHistoryTable({ idEtudiant, lastUpdated, mention }: EcolageHistoryTableProps) {
+export function EcolageHistoryTable({ idEtudiant, lastUpdated, mention, onAnnulerSuccess }: EcolageHistoryTableProps) {
+    const router = useRouter();
+    const login = process.env.NEXT_PUBLIC_LOGIN_URL || '/login';
     const [data, setData] = useState<EcolageHistoryResponse | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
+    const [cancellingId, setCancellingId] = useState<number | null>(null);
+
+    const fetchHistory = async () => {
+        if (!idEtudiant) return;
+
+        setLoading(true);
+        setError(null);
+        try {
+            const result = await ecolageService.fetchEcolageHistory(idEtudiant);
+            setData(result);
+        } catch (err: any) {
+            console.error("Error fetching ecolage history:", err);
+            setError("Une erreur est survenue lors de la récupération de l'historique.");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const fetchHistory = async () => {
-            if (!idEtudiant) return;
-
-            setLoading(true);
-            setError(null);
-            try {
-                const result = await ecolageService.fetchEcolageHistory(idEtudiant);
-                setData(result);
-            } catch (err: any) {
-                console.error("Error fetching ecolage history:", err);
-                setError("Une erreur est survenue lors de la récupération de l'historique.");
-            } finally {
-                setLoading(false);
-            }
-        };
-
         fetchHistory();
     }, [idEtudiant, lastUpdated]);
 
-    if (loading) {
+    const handleAnnuler = async (paymentId: number) => {
+        if (!window.confirm("Voulez-vous vraiment annuler ce paiement ?")) {
+            return;
+        }
+
+        setCancellingId(paymentId);
+        try {
+            // Check auth first (as requested by user pattern)
+            const authCheck = await fetch(`/api/etudiants?idEtudiant=${encodeURIComponent(idEtudiant)}`);
+            if (authCheck.status === 401 || authCheck.status === 403) {
+                await fetch("/api/auth/logout", { method: "POST" });
+                router.push(login);
+                return;
+            }
+
+            // Actual cancellation call
+            await ecolageService.annulerPaiement(paymentId);
+
+            toast.success("Le paiement a été annulé avec succès.");
+
+            // Refresh local data
+            await fetchHistory();
+
+            // Notify parent to refresh balances
+            if (onAnnulerSuccess) {
+                onAnnulerSuccess();
+            }
+        } catch (error: any) {
+            toast.error(error.message || "Erreur lors de l'annulation du paiement");
+        } finally {
+            setCancellingId(null);
+        }
+    };
+
+    if (loading && !data) {
         return (
             <div className="flex justify-center items-center p-8">
                 <Spinner className="size-8" />
@@ -103,6 +148,7 @@ export function EcolageHistoryTable({ idEtudiant, lastUpdated, mention }: Ecolag
                             <TableHead className="font-bold text-slate-700">Année</TableHead>
                             <TableHead className="font-bold text-slate-700">Niveau</TableHead>
                             <TableHead className="font-bold text-slate-700">Montant</TableHead>
+                            <TableHead className="font-bold text-slate-700 text-right">Actions</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -116,15 +162,41 @@ export function EcolageHistoryTable({ idEtudiant, lastUpdated, mention }: Ecolag
                             const displayDate = item.date_paiement || item.date || "";
 
                             return (
-                                <TableRow key={item.id_paiement} className="hover:bg-slate-50/50">
-                                    <TableCell className="font-medium">{item.reference || item.ref_bordereau || 'N/A'}</TableCell>
+                                <TableRow key={item.id_paiement} className={cn("hover:bg-slate-50/50", item.annule && "opacity-60 bg-slate-50")}>
+                                    <TableCell className="font-medium">
+                                        <div className="flex flex-col">
+                                            <span>{item.reference || item.ref_bordereau || 'N/A'}</span>
+                                            {item.annule && <span className="text-[10px] text-red-500 font-bold uppercase">Annulé</span>}
+                                        </div>
+                                    </TableCell>
                                     <TableCell>
                                         {displayDate ? new Date(displayDate).toLocaleDateString('fr-FR') : 'N/A'}
                                     </TableCell>
                                     <TableCell>{item.annee || item.annee_universitaire || 'N/A'}</TableCell>
                                     <TableCell>{renderField(item.niveau)}</TableCell>
-                                    <TableCell className="font-bold text-blue-900">
+                                    <TableCell className={cn("font-bold", item.annule ? "text-slate-400 line-through" : "text-blue-900")}>
                                         {item.montant.toLocaleString('fr-FR')} Ar
+                                    </TableCell>
+                                    <TableCell className="text-right">
+                                        {!item.annule ? (
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="text-red-500 hover:text-red-700 hover:bg-red-50 h-8 w-8"
+                                                onClick={() => handleAnnuler(item.id_paiement)}
+                                                disabled={cancellingId === item.id_paiement}
+                                            >
+                                                {cancellingId === item.id_paiement ? (
+                                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                                ) : (
+                                                    <Trash2 className="h-4 w-4" />
+                                                )}
+                                            </Button>
+                                        ) : (
+                                            <Badge variant="outline" className="text-red-500 border-red-200 bg-red-50">
+                                                Annulé
+                                            </Badge>
+                                        )}
                                     </TableCell>
                                 </TableRow>
                             );

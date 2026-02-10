@@ -67,5 +67,19 @@ export const ecolageService = {
         }
         const result = await response.json();
         return result.data || [];
+    },
+
+    async annulerPaiement(id: number | string): Promise<any> {
+        const response = await fetch(`/api/ecolage/payment/annuler?id=${id}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({}) // Envoi d'un body vide pour callApiPost
+        });
+
+        const result = await response.json();
+        if (!response.ok) {
+            throw new Error(result.error || "Erreur lors de l'annulation du paiement");
+        }
+        return result;
     }
 };

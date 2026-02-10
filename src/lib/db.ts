@@ -117,26 +117,15 @@ export interface PaiementData {
   dateEcolage?: string;
   idNiveau: string | number;
   idFormation: string | number;
-  estBoursier: number;
+  passant?: boolean;
+  estBoursier?: number;
 }
 export interface EtudiantRecherche {
   id: number | string;
   nom: string;
   prenom: string;
 }
-export interface PaiementData {
-  refAdmin: string;
-  dateAdmin: string;
-  montantAdmin: string;
-  refPedag: string;
-  datePedag: string;
-  montantPedag: string;
-  montantEcolage?: string;
-  refEcolage?: string;
-  dateEcolage?: string;
-  passant?: boolean;
-  estBoursier: number;
-}
+
 export interface InscriptionData {
   refAdmin: string;
   dateAdmin: string;
@@ -255,6 +244,7 @@ export interface Student {
     anneeUniversitaire?: string;
   };
   dateInscription?: string;
+  estBoursier?: number;
   cin?: Cin
 }
 export interface Parent {
