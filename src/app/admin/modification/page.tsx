@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { User, EtudiantRecherche, Nationalite } from "@/lib/db";
 import Header from "@/components/static/Header";
 import Menu from "@/components/static/Menu";
@@ -26,20 +26,33 @@ export default function ModificationPage() {
   
   // État de sélection
   const [selectedEtudiantId, setSelectedEtudiantId] = useState<number | string | null>(null);
-
-  useEffect(() => {
+  const searchParams = useSearchParams(); // 2. Initialisez searchParams
+useEffect(() => {
     const init = async () => {
       try {
+        // --- AJOUT : Récupération des valeurs depuis l'URL ---
+        const n = searchParams.get("nom");
+        const p = searchParams.get("prenom");
+        if (n) setNomSearch(n);
+        if (p) setPrenomSearch(p);
+        // ----------------------------------------------------
+
         const [authRes, initialData] = await Promise.all([fetch(`/api/auth/me`), getInitialData()]);
         if (!authRes.ok) { router.push('/login'); return; }
         const data = await authRes.json();
         setUser(data.user);
         setNationalites(initialData.nationalites || []);
+
+        // OPTIONNEL : Lancer la recherche automatiquement si les paramètres existent
+        if (n || p) {
+           // Vous pouvez appeler rechercheEtudiants() ici si nécessaire
+        }
+
       } catch { router.push('/login'); }
       finally { setLoading(false); }
     };
     init();
-  }, [router]);
+  }, [router, searchParams]); // Ajoutez searchParams aux dépendances
 
   const rechercheEtudiants = async () => {
     if (!nomSearch && !prenomSearch) return toast.error("Entrez un critère");
@@ -105,8 +118,8 @@ export default function ModificationPage() {
             onClose={() => setSelectedEtudiantId(null)}
             onSuccess={() => {
                 setSelectedEtudiantId(null);
-                setNomSearch("");
-                setPrenomSearch("");
+                // setNomSearch("");
+                // setPrenomSearch("");
             }}
           />
         )}

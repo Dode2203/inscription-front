@@ -213,14 +213,14 @@ export function InscriptionForm() {
               ecolage: response.data.ecolage || null
             };
             
-      downloadReceipt(fullStudent);
-
+      // downloadReceipt(fullStudent);
+          
       const successAudio = new Audio("/sounds/success-221935.mp3");
       successAudio.play();
       toast.success("Inscription réussie pour " + identite.nom);
 
       setTimeout(() => {
-        router.push('/utilisateur/dashboard');
+        router.push(`/admin/modification?nom=${identite.nom}&prenom=${identite.prenom}`);
       }, 2000);
 
     } catch (err: any) {

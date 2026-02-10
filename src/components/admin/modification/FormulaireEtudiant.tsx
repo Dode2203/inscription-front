@@ -182,13 +182,6 @@ export default function FormulaireEtudiant({ idEtudiant, nationalites, onClose, 
                 <CompactField label="Date" type="date" value={formData.dateCin} onChange={(v: string) => setFormData({ ...formData, dateCin: v })} required />
               </div>
               <div className="space-y-4">
-                <h4 className="text-[10px] font-black text-blue-900 uppercase tracking-widest border-b pb-1 flex items-center gap-1">
-                  <GraduationCap size={12} /> Baccalauréat
-                </h4>
-                <CompactField label="Numéro BACC" value={formData.baccNumero} onChange={(v: string) => setFormData({ ...formData, baccNumero: v })} required />
-                <CompactField label="Année" type="number" value={formData.baccAnnee} onChange={(v: string) => setFormData({ ...formData, baccAnnee: v })} required />
-              </div>
-              <div className="space-y-4">
                     <h4 className="text-[10px] font-black text-blue-900 uppercase tracking-widest border-b pb-1 flex items-center gap-1">
                         <GraduationCap size={12} /> Baccalauréat
                     </h4>
