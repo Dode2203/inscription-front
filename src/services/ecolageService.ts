@@ -70,9 +70,10 @@ export const ecolageService = {
     },
 
     async annulerPaiement(id: number | string): Promise<any> {
-        const response = await fetch(`/api/paiements/annuler/${id}`, {
+        const response = await fetch(`/api/ecolage/payment/annuler?id=${id}`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" }
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({}) // Envoi d'un body vide pour callApiPost
         });
 
         const result = await response.json();

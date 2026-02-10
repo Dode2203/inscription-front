@@ -19,6 +19,7 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { useRouter } from 'next/navigation';
 
 interface EcolageHistoryTableProps {
     idEtudiant: string | number;
@@ -28,6 +29,8 @@ interface EcolageHistoryTableProps {
 }
 
 export function EcolageHistoryTable({ idEtudiant, lastUpdated, mention, onAnnulerSuccess }: EcolageHistoryTableProps) {
+    const router = useRouter();
+    const login = process.env.NEXT_PUBLIC_LOGIN_URL || '/login';
     const [data, setData] = useState<EcolageHistoryResponse | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
@@ -60,7 +63,17 @@ export function EcolageHistoryTable({ idEtudiant, lastUpdated, mention, onAnnule
 
         setCancellingId(paymentId);
         try {
+            // Check auth first (as requested by user pattern)
+            const authCheck = await fetch(`/api/etudiants?idEtudiant=${encodeURIComponent(idEtudiant)}`);
+            if (authCheck.status === 401 || authCheck.status === 403) {
+                await fetch("/api/auth/logout", { method: "POST" });
+                router.push(login);
+                return;
+            }
+
+            // Actual cancellation call
             await ecolageService.annulerPaiement(paymentId);
+
             toast.success("Le paiement a été annulé avec succès.");
 
             // Refresh local data
