@@ -50,7 +50,7 @@ export function InsertionEcolageForm() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ nom: nomSearch, prenom: prenomSearch })
             });
-            
+
             if (res.status === 401 || res.status === 403) {
 
                 toast.error("Session expirée. Redirection...");
@@ -370,6 +370,7 @@ export function InsertionEcolageForm() {
                                 idEtudiant={selectedStudent.id}
                                 lastUpdated={lastUpdatedHistory}
                                 mention={formation?.mention}
+                                onAnnulerSuccess={() => fetchEtudiant(selectedStudent.id)}
                             />
                         </div>
                     )}

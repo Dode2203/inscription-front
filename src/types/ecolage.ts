@@ -61,6 +61,7 @@ export interface EcolageHistoryItem {
     niveau: string | { nom: string };
     mention: string | { nom: string };
     reste_global: number;
+    annule: boolean;
 }
 
 export interface EcolageHistoryResponse {

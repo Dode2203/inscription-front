@@ -112,6 +112,28 @@ export const useEcolage = () => {
         }
     }, [toast, fetchHistory]);
 
+    const handleAnnulerPaiement = useCallback(async (paymentId: number | string) => {
+        if (!window.confirm("Voulez-vous vraiment annuler ce paiement ?")) {
+            return false;
+        }
+
+        try {
+            await ecolageService.annulerPaiement(paymentId);
+            toast({
+                title: "Succès",
+                description: "Le paiement a été annulé avec succès.",
+            });
+            return true;
+        } catch (error: any) {
+            toast({
+                title: "Erreur",
+                description: error.message || "Erreur lors de l'annulation du paiement",
+                variant: "destructive"
+            });
+            return false;
+        }
+    }, [toast]);
+
     return {
         loadingSearch,
         loadingDetails,
@@ -124,6 +146,7 @@ export const useEcolage = () => {
         selectEtudiant,
         savePaiement,
         fetchHistory,
+        handleAnnulerPaiement,
         setSelectedStudent
     };
 };
