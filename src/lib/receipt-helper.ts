@@ -1,6 +1,6 @@
 // src/lib/receipt-helper.ts
 import { generateReceiptPDF } from '@/lib/generateReceipt';
-import { Student, Identite, Formation, PaiementData, Inscription } from '@/lib/db';
+import { Student, Identite, Formation, PaiementData, Inscription, PaiementEtudiant } from '@/lib/db';
 
 /**
  * Prépare les données pour le PDF à partir des données de l'API
@@ -64,7 +64,7 @@ export function prepareReceiptData(student: Student) {
     : null;
 
   // 4. PAIEMENTS - Utilise l'interface PaiementData de db.ts
-  const paiementData: PaiementData = extractPaiementData(student);
+  const paiementData: PaiementEtudiant[] = extractPaiementData(student);
 
   return { identite, formation, paiementData, inscription };
 }
@@ -72,62 +72,68 @@ export function prepareReceiptData(student: Student) {
 /**
  * Extrait les données de paiement depuis l'API
  */
-function extractPaiementData(student: Student): PaiementData {
-  // Initialiser avec des valeurs par défaut
-  let refAdmin = '';
-  let dateAdmin = '';
-  let montantAdmin = '0';
-  let refPedag = '';
-  let datePedag = '';
-  let montantPedag = '0';
-  let refEcolage = '';
-  let dateEcolage = '';
-  let montantEcolage = '0';
+// function extractPaiementData(student: Student): PaiementData {
+//   // Initialiser avec des valeurs par défaut
+//   let refAdmin = '';
+//   let dateAdmin = '';
+//   let montantAdmin = '0';
+//   let refPedag = '';
+//   let datePedag = '';
+//   let montantPedag = '0';
+//   let refEcolage = '';
+//   let dateEcolage = '';
+//   let montantEcolage = '0';
 
-  // On utilise student.payments (la nouvelle clé du JSON)
-  if (student.payments && Array.isArray(student.payments)) {
-    student.payments.forEach(paiement => {
-      const montant = paiement.montant.toString();
-      const date = paiement.datePaiement 
-        ? new Date(paiement.datePaiement).toLocaleDateString('fr-FR') 
-        : '';
-      const ref = paiement.reference || '';
+//   // On utilise student.payments (la nouvelle clé du JSON)
+//   if (student.payments && Array.isArray(student.payments)) {
+//     student.payments.forEach(paiement => {
+//       const montant = paiement.montant.toString();
+//       const date = paiement.datePaiement 
+//         ? new Date(paiement.datePaiement).toLocaleDateString('fr-FR') 
+//         : '';
+//       const ref = paiement.reference || '';
 
-      // On filtre par le nom du typeDroit
-      if (paiement.typeDroit === 'Administratif') {
-        refAdmin = ref;
-        dateAdmin = date;
-        montantAdmin = montant;
-      } else if (paiement.typeDroit === 'P‚dagogique' || paiement.typeDroit === 'Pédagogique') {
-        refPedag = ref;
-        datePedag = date;
-        montantPedag = montant;
-      } else if (paiement.typeDroit === 'Ecolage') { 
-        // Au cas où l'écolage est aussi dans ce tableau
-        refEcolage = ref;
-        dateEcolage = date;
-        montantEcolage = montant;
-      }
-    });
-  }
+//       // On filtre par le nom du typeDroit
+//       if (paiement.typeDroit === 'Administratif') {
+//         refAdmin = ref;
+//         dateAdmin = date;
+//         montantAdmin = montant;
+//       } else if (paiement.typeDroit === 'P‚dagogique' || paiement.typeDroit === 'Pédagogique') {
+//         refPedag = ref;
+//         datePedag = date;
+//         montantPedag = montant;
+//       } else if (paiement.typeDroit === 'Ecolage') { 
+//         // Au cas où l'écolage est aussi dans ce tableau
+//         refEcolage = ref;
+//         dateEcolage = date;
+//         montantEcolage = montant;
+//       }
+//     });
+//   }
 
-  // Retourner selon l'interface PaiementData
-  return {
-    refAdmin,
-    dateAdmin,
-    montantAdmin,
-    refPedag,
-    datePedag,
-    montantPedag,
-    refEcolage,
-    dateEcolage,
-    montantEcolage,
-    idNiveau: (student.niveau?.id || 0).toString(),
-    idFormation: (student.formation?.id || 0).toString(),
-    passant: false, // À adapter selon votre logique métier,
-    estBoursier: student.estBoursier ? 1 : 0
-  };
+//   // Retourner selon l'interface PaiementData
+//   return {
+//     refAdmin,
+//     dateAdmin,
+//     montantAdmin,
+//     refPedag,
+//     datePedag,
+//     montantPedag,
+//     refEcolage,
+//     dateEcolage,
+//     montantEcolage,
+//     idNiveau: (student.niveau?.id || 0).toString(),
+//     idFormation: (student.formation?.id || 0).toString(),
+//     passant: false, // À adapter selon votre logique métier,
+//     estBoursier: student.estBoursier ? 1 : 0
+//   };
+// }
+function extractPaiementData(student: Student): PaiementEtudiant[] {
+  // On retourne le tableau s'il existe, sinon un tableau vide pour éviter les erreurs
+  return student.payments || [];
 }
+
+
 
 export async function downloadReceipt(student: Student) {
   try {

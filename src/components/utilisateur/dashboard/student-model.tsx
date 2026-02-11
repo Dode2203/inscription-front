@@ -160,7 +160,7 @@ export function StudentDetailsModal({ student, onClose }: StudentDetailsModalPro
                     >
                       <div className="flex items-center justify-between mb-2">
                         <span className="font-semibold text-gray-900">
-                          {paiement.typeDroit}
+                          {paiement.typeDroit === 'P‚dagogique' ? 'Pédagogique' : paiement.typeDroit}
                         </span>
                         <span className="text-lg font-bold text-blue-600">
                           {formatMontant(paiement.montant)}

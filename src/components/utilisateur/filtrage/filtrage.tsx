@@ -7,12 +7,11 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Search, Users, Filter, Loader2, FileText, Hash } from "lucide-react";
 import { getInitialData } from "@/lib/appConfig";
-import { Mention, Niveau,Student } from "@/lib/db";
+import { Mention, Niveau, Student } from "@/lib/db";
 import { toast } from "sonner";
 import { generateStudentPDF } from "@/lib/generateliste";
-import { downloadReceipt } from "@/lib/receipt-helper";
 import { StudentDetailsModal } from "../dashboard/student-model";
-import router from "next/router";
+import { useRouter } from "next/navigation";
 
 interface EtudiantFiltre {
   id: number;
@@ -27,18 +26,24 @@ interface EtudiantFiltre {
 }
 
 export function FiltrageEtudiants() {
-  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
-  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+  
+  // États pour les données
   const [mentions, setMentions] = useState<Mention[]>([]);
   const [niveaux, setNiveaux] = useState<Niveau[]>([]);
-
+  const [resultats, setResultats] = useState<EtudiantFiltre[]>([]);
+  
+  // États pour la sélection et le filtrage
+  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [selectedMention, setSelectedMention] = useState("");
   const [selectedNiveau, setSelectedNiveau] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  const [resultats, setResultats] = useState<EtudiantFiltre[]>([]);
-  const [chargementRecipisse,setChangementRecipisse] = useState(false)
+  
+  // États de chargement
+  const [loading, setLoading] = useState(false); // Chargement de la liste
+  const [loadingId, setLoadingId] = useState<number | null>(null); // Chargement spécifique d'un étudiant
 
-  // Chargement des mentions/niveaux pour les menus déroulants
+  // Chargement initial des mentions et niveaux
   useEffect(() => {
     getInitialData().then((data) => {
       setMentions(data.mentions || []);
@@ -46,6 +51,7 @@ export function FiltrageEtudiants() {
     });
   }, []);
 
+  // Récupération de la liste des étudiants
   const fetchEtudiants = useCallback(async () => {
     setLoading(true);
     const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
@@ -62,37 +68,30 @@ export function FiltrageEtudiants() {
       if (selectedNiveau) params.append("idNiveau", selectedNiveau);
 
       const response = await fetch(`${baseUrl}/filtres/etudiant?${params.toString()}`);
-      const login = process.env.NEXT_PUBLIC_LOGIN_URL || '/login';
+      
       if (response.status === 401 || response.status === 403) {
-            setLoading(false); 
-            
-            // Redirection immédiate
-            await fetch("/api/auth/logout", { method: "POST" })
-            router.push(login); 
-            return; // ⬅️ Arrêter l'exécution de la fonction ici
+        await fetch("/api/auth/logout", { method: "POST" });
+        router.push('/login'); 
+        return;
       }
 
       if (!response.ok) throw new Error("Erreur réseau");
 
       const result = await response.json();
-      if (result.status === 'success') {
-        setResultats(result.data);
-      } else {
-        setResultats([]);
-      }
+      setResultats(result.status === 'success' ? result.data : []);
     } catch (error) {
       console.error(error);
-      toast.error("Impossible de joindre le serveur Symfony");
+      toast.error("Impossible de joindre le serveur");
     } finally {
       setLoading(false);
     }
-  }, [selectedMention, selectedNiveau]);
+  }, [selectedMention, selectedNiveau, router]);
 
   useEffect(() => {
     fetchEtudiants();
   }, [fetchEtudiants]);
 
-  // Filtrage local pour la recherche
+  // Filtrage local pour la recherche par nom/matricule
   const filteredData = resultats.filter(et =>
     et.nom.toLowerCase().includes(searchQuery.toLowerCase()) ||
     et.prenom.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -104,37 +103,45 @@ export function FiltrageEtudiants() {
     const niveauLabel = niveaux.find(n => n.id.toString() === selectedNiveau)?.nom || "";
     generateStudentPDF(filteredData, mentionLabel, niveauLabel);
   };
-    const handleViewDetails = async (idEtudiant: number) => {
-      try {
-        setChangementRecipisse(true);
-        const currentYear = new Date().getFullYear();
-        const response = await fetch(
-          `/api/etudiants/details-par-annee?idEtudiant=${idEtudiant}&annee=${currentYear}`
-        );
-        
-        if (!response.ok) throw new Error('Erreur lors de la récupération des détails');
-        
-        const result = await response.json();
-        if (result.status !== 'success' || !result.data) throw new Error('Données non disponibles');
-        // console.log(result.data);
-        const fullStudent: Student = {
-          ...result.data,
-          typeFormation: result.data.formation?.type || result.data.typeFormation,
-          droitsPayes: result.data.droitsPayes || [],
-          ecolage: result.data.ecolage || null
-        };
-        downloadReceipt(fullStudent);
-        
-      } catch (error) {
-        // console.error('Erreur:', error);
-        alert('Impossible de charger les détails de l\'étudiant');
-      } finally {
-        setChangementRecipisse(false);
-      }
-    };
+
+  /**
+   * CHARGEMENT DES DÉTAILS D'UN ÉTUDIANT
+   * Correction : Utilise loadingId pour cibler le bouton cliqué
+   */
+  const handleViewDetails = async (idEtudiant: number) => {
+    try {
+      setLoadingId(idEtudiant); // On active le chargement pour CET ID uniquement
+      const currentYear = new Date().getFullYear();
+      
+      const response = await fetch(
+        `/api/etudiants/details-par-annee?idEtudiant=${idEtudiant}&annee=${currentYear}`
+      );
+      
+      if (!response.ok) throw new Error('Erreur lors de la récupération');
+      
+      const result = await response.json();
+      if (result.status !== 'success' || !result.data) throw new Error('Données non disponibles');
+
+      const fullStudent: Student = {
+        ...result.data,
+        typeFormation: result.data.formation?.type || result.data.typeFormation,
+        droitsPayes: result.data.droitsPayes || [],
+        ecolage: result.data.ecolage || null
+      };
+
+      // Ouvre la modal en injectant les données
+      setSelectedStudent(fullStudent);
+      
+    } catch (error) {
+      toast.error("Impossible de charger les détails de l'étudiant");
+    } finally {
+      setLoadingId(null); // On remet à zéro pour libérer le bouton
+    }
+  };
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto p-4">
+      {/* Header */}
       <div className="flex items-center gap-3">
         <div className="p-2 bg-blue-900 rounded-lg">
           <Filter className="w-6 h-6 text-amber-400" />
@@ -142,6 +149,7 @@ export function FiltrageEtudiants() {
         <h1 className="text-2xl font-bold text-blue-900">Gestion des Étudiants</h1>
       </div>
 
+      {/* Barre de Filtres */}
       <Card className="p-6 border-t-4 border-blue-900 shadow-md">
         <div className="grid md:grid-cols-3 gap-6">
           <div className="space-y-2">
@@ -183,25 +191,20 @@ export function FiltrageEtudiants() {
         </div>
       </Card>
 
+      {/* Liste des résultats */}
       <Card className="overflow-hidden shadow-xl">
         <div className="bg-slate-50 px-6 py-4 border-b flex justify-between items-center">
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <Users className="w-5 h-5 text-blue-900" />
-              <span className="font-bold text-blue-900">{filteredData.length} Étudiants</span>
-            </div>
+          <div className="flex items-center gap-2">
+            <Users className="w-5 h-5 text-blue-900" />
+            <span className="font-bold text-blue-900">{filteredData.length} Étudiants</span>
           </div>
-
-          <div className="flex items-center gap-3">
-            <Button
-              onClick={handleExportPDF}
-              variant="outline"
-              className="border-blue-900 text-blue-900 hover:bg-blue-900 hover:text-white flex gap-2"
-            >
-              <FileText className="w-4 h-4" /> Imprimer Liste
-            </Button>
-            {loading && <Loader2 className="w-5 h-5 animate-spin text-blue-900" />}
-          </div>
+          <Button
+            onClick={handleExportPDF}
+            variant="outline"
+            className="border-blue-900 text-blue-900 hover:bg-blue-900 hover:text-white flex gap-2"
+          >
+            <FileText className="w-4 h-4" /> Imprimer Liste
+          </Button>
         </div>
 
         <div className="overflow-x-auto">
@@ -216,38 +219,58 @@ export function FiltrageEtudiants() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {filteredData.length > 0 ? (
+              {loading ? (
+                <tr>
+                  <td colSpan={5} className="px-6 py-10 text-center">
+                    <Loader2 className="w-8 h-8 animate-spin mx-auto text-blue-900" />
+                  </td>
+                </tr>
+              ) : filteredData.length > 0 ? (
                 filteredData.map((et) => (
                   <tr key={et.id} className="hover:bg-blue-50/50 transition-colors">
                     <td className="px-6 py-4 font-mono font-bold text-blue-800">{et.matricule || "-"}</td>
                     <td className="px-6 py-4 font-semibold">{et.nom.toUpperCase()} {et.prenom}</td>
-                    <td className="px-6 py-4"><span className="bg-blue-100 text-blue-700 px-2 py-1 rounded font-bold">{et.mentionAbr}</span></td>
-                    <td className="px-6 py-4"><span className="bg-amber-100 text-amber-700 px-2 py-1 rounded font-bold">{et.niveau}</span></td>
+                    <td className="px-6 py-4">
+                      <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded font-bold text-xs">{et.mentionAbr}</span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="bg-amber-100 text-amber-700 px-2 py-1 rounded font-bold text-xs">{et.niveau}</span>
+                    </td>
                     <td className="px-6 py-4">
                       <Button
                         onClick={() => handleViewDetails(et.id)}
                         variant="outline"
+                        size="sm"
                         className="border-blue-900 text-blue-900 hover:bg-blue-900 hover:text-white flex gap-2"
-                        disabled={chargementRecipisse}
+                        // Désactivation uniquement si CET étudiant est en cours de chargement
+                        disabled={loadingId === et.id}
                       >
-                        <FileText className="w-4 h-4" /> Voir Détails
+                        {loadingId === et.id ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <FileText className="w-4 h-4" />
+                        )}
+                        Voir Détails
                       </Button>
-                      
                     </td>
                   </tr>
                 ))
               ) : (
-                <tr><td colSpan={5} className="px-6 py-10 text-center text-slate-400">Aucun résultat.</td></tr>
+                <tr>
+                  <td colSpan={5} className="px-6 py-10 text-center text-slate-400">Aucun résultat.</td>
+                </tr>
               )}
             </tbody>
           </table>
         </div>
+
+        {/* Modal : Ne s'affiche que si selectedStudent est défini */}
         {selectedStudent && (
-                <StudentDetailsModal
-                  student={selectedStudent}
-                  onClose={() => setSelectedStudent(null)}
-                />
-              )}
+          <StudentDetailsModal
+            student={selectedStudent}
+            onClose={() => setSelectedStudent(null)}
+          />
+        )}
       </Card>
     </div>
   );

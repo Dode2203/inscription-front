@@ -1,6 +1,6 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import { Identite, Formation, PaiementData, Inscription } from '@/lib/db';
+import { Identite, Formation, PaiementEtudiant } from '@/lib/db';
 const formatAr = (value: number | string | null | undefined): string => {
   const number = Number(value) || 0;
 
@@ -18,7 +18,7 @@ const formatAr = (value: number | string | null | undefined): string => {
 export const generateReceiptPDF = async (
   identite: Identite,
   formation: Formation,
-  paiement: PaiementData,
+  paiements: PaiementEtudiant[],  
 ) => {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
@@ -154,18 +154,37 @@ export const generateReceiptPDF = async (
     columnStyles: { 0: { fontStyle: 'bold', cellWidth: 40 } }
   });
 
+  // 1. On prépare les données dynamiquement avec une boucle (map)
+// 1. Transformer les données avec correction automatique du texte
+  const tableBody = paiements.map((p) => {
+    // Correction du problème d'encodage (P‚dagogique -> Pédagogique)
+    let designation = p.typeDroit;
+    if (designation === 'P‚dagogique') {
+      designation = 'Pédagogique';
+    }
+
+    return [
+      designation || '-',
+      p.reference || '-',
+      formatAr(p.montant || 0)
+    ];
+  });
+
+  // 2. Générer le tableau avec les données nettoyées
   autoTable(doc, {
     startY: (doc as any).lastAutoTable.finalY + 5,
     head: [['DESIGNATION', 'REFERENCE', 'MONTANT']],
-    body: [
-      ['Droit Administratif', paiement.refAdmin || '-', formatAr(paiement.montantAdmin)],
-      ['Droit Pédagogique', paiement.refPedag || '-', formatAr(paiement.montantPedag)],
-      ['Écolage', paiement.refEcolage || '-', formatAr(paiement.montantEcolage)],
-    ],
+    body: tableBody,
     theme: 'grid',
-    headStyles: { fillColor: [230, 230, 230], textColor: 0 }
+    headStyles: { 
+      fillColor: [230, 230, 230], 
+      textColor: 0,
+      fontStyle: 'bold' 
+    },
+    columnStyles: {
+      2: { halign: 'right' } // Aligne les montants à droite pour plus de lisibilité
+    }
   });
-
   // ==========================================
   // BLOC SIGNATURE RESPONSABLE (TOUT EN BAS)
   // ==========================================

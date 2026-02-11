@@ -3,14 +3,8 @@
 import React, { useEffect, useState } from 'react';
 import { ecolageService } from '@/services/ecolageService';
 import { EcolageHistoryResponse, EcolageHistoryItem } from '@/types/ecolage';
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table';
+import {Table,TableBody,TableCell,TableHead,TableHeader,TableRow} from '@/components/ui/table';
+import {AlertDialog,AlertDialogAction,AlertDialogCancel,AlertDialogContent,AlertDialogDescription,AlertDialogFooter,AlertDialogHeader,AlertDialogTitle,AlertDialogTrigger,} from "@/components/ui/alert-dialog"
 import { Spinner } from '@/components/ui/spinner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 

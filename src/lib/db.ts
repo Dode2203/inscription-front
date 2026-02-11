@@ -40,11 +40,12 @@ export interface News {
 }
 export interface Contact {
   id?: number | string;
-  adresse: string;
-  email: string;
+  adresse?: string;
+  email?: string;
   telephone?: string; // "?" signifie optionnel
   nomPere?: string;
   nomMere?: string;
+  
 }
 export interface Nationalite {
   id?: number | string;
@@ -102,7 +103,7 @@ export interface Formation {
 export interface Mention {
   id: number;
   nom: string;
-  abr: string;
+  abr?: string;
 }
 
 export interface PaiementData {
@@ -150,8 +151,8 @@ export interface Inscription {
 export interface Niveau {
   id: number | string;
   nom: string;
-  grade: number;
-  type: number;
+  grade?: number;
+  type?: number;
 }
 
 // Refactorisation Liste etudiant 
@@ -191,13 +192,7 @@ export interface Student {
   nomMere?: string;
   matricule?: string;
   estBoursier?: number | string;
-  contact?: {
-    adresse?: string;
-    email?: string;
-    telephone?: string;
-    nomMere?: string;
-    nomPere?: string;
-  };
+  contact?: Contact
 
   formation?: {
     id: number;
@@ -214,25 +209,12 @@ export interface Student {
 
   };
 
-  niveau?: {
-    id: number;
-    nom: string;
-    type?: number;
-    grade?: number;
-  };
+  niveau?: Niveau
 
-  mention?: {
-    id: number;
-    nom: string;
-  };
+  mention?: Mention
 
   // Changement ici : correspond à la clé "payments" du JSON
-  payments?: Array<{
-    montant: number;
-    datePaiement: string;
-    typeDroit: string;
-    reference: string;
-  }>;
+  payments?: Array<PaiementEtudiant>;
 
   // Optionnel : Garder les anciennes propriétés si vous faites 
   // une transformation de données après la réception
@@ -244,7 +226,6 @@ export interface Student {
     anneeUniversitaire?: string;
   };
   dateInscription?: string;
-  estBoursier?: number;
   cin?: Cin
 }
 export interface Parent {
