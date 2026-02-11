@@ -107,6 +107,7 @@ export function FiltrageEtudiants() {
   /**
    * CHARGEMENT DES DÉTAILS D'UN ÉTUDIANT
    * Correction : Utilise loadingId pour cibler le bouton cliqué
+   * Synchronisation : Rafraîchit également la liste du dashboard après mise à jour
    */
   const handleViewDetails = async (idEtudiant: number | string) => {
     try {
@@ -131,6 +132,9 @@ export function FiltrageEtudiants() {
 
       // Ouvre la modal en injectant les données
       setSelectedStudent(fullStudent);
+
+      // Rafraîchit la liste du dashboard pour synchroniser les modifications
+      await fetchEtudiants();
 
     } catch (error) {
       toast.error("Impossible de charger les détails de l'étudiant");

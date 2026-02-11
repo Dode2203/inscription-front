@@ -20,53 +20,57 @@ export function StudentTable({ students, nbPagination = 5 }: StudentTableProps) 
   // --- Logique de Pagination ---
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = nbPagination;
-  
+
   const totalPages = Math.ceil(students.length / itemsPerPage);
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentStudents = students.slice(indexOfFirstItem, indexOfLastItem);
 
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber)
-  ;
+    ;
   // ----------------------------
 
 
-  const handleViewDetails = async (student: Student) => {
+  /**
+   * CHARGEMENT DES DÉTAILS D'UN ÉTUDIANT
+   * Synchronisation : Rafraîchit également la liste du dashboard après mise à jour
+   */
+  const handleViewDetails = async (idEtudiant: number | string) => {
     try {
-      setLoadingStudentId(student.id);
+      setLoadingStudentId(Number(idEtudiant));
       const currentYear = new Date().getFullYear();
       const response = await fetch(
-        `/api/etudiants/details-par-annee?idEtudiant=${student.id}&annee=${currentYear}`
+        `/api/etudiants/details-par-annee?idEtudiant=${idEtudiant}&annee=${currentYear}`
       );
       const login = process.env.NEXT_PUBLIC_LOGIN_URL || '/login';
-      
+
 
       if (response.status === 401 || response.status === 403) {
-            toast.error("Session expirée. Redirection... ");
-            await fetch("/api/auth/logout", { method: "POST" })
-            router.push(login); 
-            return; 
+        toast.error("Session expirée. Redirection... ");
+        await fetch("/api/auth/logout", { method: "POST" })
+        router.push(login);
+        return;
       }
       if (!response.ok) {
         toast.error("Erreur lors de la récupération des détails");
         return;
       }
-      
+
       const result = await response.json();
       if (result.status !== 'success' || !result.data) {
         toast.error("Données non disponibles");
         return;
       }
-      // console.log(result.data);
+
       const fullStudent: Student = {
-        ...student,
         ...result.data,
-        typeFormation: result.data.formation?.type || student.typeFormation,
+        typeFormation: result.data.formation?.type || result.data.typeFormation,
         droitsPayes: result.data.droitsPayes || [],
         ecolage: result.data.ecolage || null
       };
-      
-      setSelectedStudent(fullStudent);  
+
+      // Met à jour la modal avec les nouvelles données
+      setSelectedStudent(fullStudent);
     } catch (error) {
       toast.error("Impossible de charger les détails de l'étudiant");
     } finally {
@@ -101,7 +105,7 @@ export function StudentTable({ students, nbPagination = 5 }: StudentTableProps) 
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
                       <button
-                        onClick={() => handleViewDetails(student)}
+                        onClick={() => handleViewDetails(student.id)}
                         disabled={loadingStudentId === student.id}
                         className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                       >
@@ -138,17 +142,16 @@ export function StudentTable({ students, nbPagination = 5 }: StudentTableProps) 
               >
                 <ChevronLeft className="h-4 w-4" />
               </button>
-              
+
               {/* Affichage simple des numéros de page */}
               {Array.from({ length: totalPages }, (_, i) => i + 1).map((number) => (
                 <button
                   key={number}
                   onClick={() => paginate(number)}
-                  className={`px-3 py-1 rounded-md text-sm font-medium border ${
-                    currentPage === number
-                      ? 'bg-blue-600 text-white border-blue-600'
-                      : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'
-                  }`}
+                  className={`px-3 py-1 rounded-md text-sm font-medium border ${currentPage === number
+                    ? 'bg-blue-600 text-white border-blue-600'
+                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'
+                    }`}
                 >
                   {number}
                 </button>
@@ -170,6 +173,7 @@ export function StudentTable({ students, nbPagination = 5 }: StudentTableProps) 
         <StudentDetailsModal
           student={selectedStudent}
           onClose={() => setSelectedStudent(null)}
+          onUpdateSuccess={handleViewDetails}
         />
       )}
     </div>
