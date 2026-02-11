@@ -2,17 +2,20 @@
 'use client';
 
 import { useState } from 'react';
-import { Download, Loader2, X, User, Calendar, MapPin, Mail, GraduationCap, CreditCard } from 'lucide-react';
+import { Download, Loader2, X, User, Calendar, MapPin, Mail, GraduationCap, CreditCard, Pencil } from 'lucide-react';
 import { Student } from '@/lib/db';
 import { downloadReceipt } from '@/lib/receipt-helper';
+import ModifierPaiementForm from '@/components/admin/modification/ModifierPaiementForm';
 
 interface StudentDetailsModalProps {
   student: Student;
   onClose: () => void;
+  onUpdateSuccess?: (idEtudiant: number | string) => void;
 }
 
-export function StudentDetailsModal({ student, onClose }: StudentDetailsModalProps) {
+export function StudentDetailsModal({ student, onClose, onUpdateSuccess }: StudentDetailsModalProps) {
   const [isDownloading, setIsDownloading] = useState(false);
+  const [selectedPaymentForEdit, setSelectedPaymentForEdit] = useState<any>(null);
 
   const formatDate = (dateString: string) => {
     if (!dateString) return 'Non spécifié';
@@ -165,6 +168,17 @@ export function StudentDetailsModal({ student, onClose }: StudentDetailsModalPro
                         <span className="text-lg font-bold text-blue-600">
                           {formatMontant(paiement.montant)}
                         </span>
+                        <button
+                          onClick={() => setSelectedPaymentForEdit({
+                            ...paiement,
+                            idEtudiant: student.id,
+                            idNiveau: (student as any).niveau?.id || student.niveau?.id
+                          })}
+                          className="p-1 hover:bg-gray-200 rounded-full transition-colors text-gray-500"
+                          title="Modifier ce paiement"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </button>
                       </div>
                       <div className="grid grid-cols-2 gap-4 text-sm">
                         <div>
@@ -202,6 +216,17 @@ export function StudentDetailsModal({ student, onClose }: StudentDetailsModalPro
                         <span className="text-lg font-bold text-green-600">
                           {formatMontant(paiement.montant)}
                         </span>
+                        <button
+                          onClick={() => setSelectedPaymentForEdit({
+                            ...paiement,
+                            idEtudiant: student.id,
+                            idNiveau: (student as any).niveau?.id || student.niveau?.id
+                          })}
+                          className="p-1 hover:bg-gray-200 rounded-full transition-colors text-gray-400 hover:text-green-600"
+                          title="Modifier ce paiement"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </button>
                       </div>
                       <div className="grid grid-cols-2 gap-4 text-sm">
                         <div>
@@ -217,6 +242,20 @@ export function StudentDetailsModal({ student, onClose }: StudentDetailsModalPro
                   ))}
               </div>
             </section>
+          )}
+
+          {/* Formulaire de modification (superposé) */}
+          {selectedPaymentForEdit && (
+            <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[60] p-4">
+              <div className="w-full max-w-lg">
+                <ModifierPaiementForm
+                  payment={selectedPaymentForEdit}
+                  onClose={() => setSelectedPaymentForEdit(null)}
+                  onSuccess={() => setSelectedPaymentForEdit(null)}
+                  onUpdateSuccess={onUpdateSuccess}
+                />
+              </div>
+            </div>
           )}
         </div>
 

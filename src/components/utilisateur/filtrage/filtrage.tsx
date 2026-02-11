@@ -27,18 +27,18 @@ interface EtudiantFiltre {
 
 export function FiltrageEtudiants() {
   const router = useRouter();
-  
+
   // États pour les données
   const [mentions, setMentions] = useState<Mention[]>([]);
   const [niveaux, setNiveaux] = useState<Niveau[]>([]);
   const [resultats, setResultats] = useState<EtudiantFiltre[]>([]);
-  
+
   // États pour la sélection et le filtrage
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [selectedMention, setSelectedMention] = useState("");
   const [selectedNiveau, setSelectedNiveau] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  
+
   // États de chargement
   const [loading, setLoading] = useState(false); // Chargement de la liste
   const [loadingId, setLoadingId] = useState<number | null>(null); // Chargement spécifique d'un étudiant
@@ -68,10 +68,10 @@ export function FiltrageEtudiants() {
       if (selectedNiveau) params.append("idNiveau", selectedNiveau);
 
       const response = await fetch(`${baseUrl}/filtres/etudiant?${params.toString()}`);
-      
+
       if (response.status === 401 || response.status === 403) {
         await fetch("/api/auth/logout", { method: "POST" });
-        router.push('/login'); 
+        router.push('/login');
         return;
       }
 
@@ -108,17 +108,17 @@ export function FiltrageEtudiants() {
    * CHARGEMENT DES DÉTAILS D'UN ÉTUDIANT
    * Correction : Utilise loadingId pour cibler le bouton cliqué
    */
-  const handleViewDetails = async (idEtudiant: number) => {
+  const handleViewDetails = async (idEtudiant: number | string) => {
     try {
-      setLoadingId(idEtudiant); // On active le chargement pour CET ID uniquement
+      setLoadingId(Number(idEtudiant)); // On active le chargement pour CET ID uniquement
       const currentYear = new Date().getFullYear();
-      
+
       const response = await fetch(
         `/api/etudiants/details-par-annee?idEtudiant=${idEtudiant}&annee=${currentYear}`
       );
-      
+
       if (!response.ok) throw new Error('Erreur lors de la récupération');
-      
+
       const result = await response.json();
       if (result.status !== 'success' || !result.data) throw new Error('Données non disponibles');
 
@@ -131,7 +131,7 @@ export function FiltrageEtudiants() {
 
       // Ouvre la modal en injectant les données
       setSelectedStudent(fullStudent);
-      
+
     } catch (error) {
       toast.error("Impossible de charger les détails de l'étudiant");
     } finally {
@@ -269,6 +269,7 @@ export function FiltrageEtudiants() {
           <StudentDetailsModal
             student={selectedStudent}
             onClose={() => setSelectedStudent(null)}
+            onUpdateSuccess={handleViewDetails}
           />
         )}
       </Card>
