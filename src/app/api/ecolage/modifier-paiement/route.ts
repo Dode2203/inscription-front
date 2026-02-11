@@ -5,11 +5,8 @@ export async function POST(request: NextRequest) {
     // Champs requis pour la modification d'un paiement
     const requiredFields = [
         "id",
-        "idEtudiant",
-        "idNiveau",
         "montant",
-        "datePaiement",
-        "typeDroit",
+        "datePayment",
         "reference"
     ];
 

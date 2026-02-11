@@ -12,10 +12,9 @@ interface PaymentData {
     id: number | string;
     montant: number;
     datePaiement: string;
-    typeDroit: string;
     reference: string;
     idEtudiant: number | string;
-    idNiveau: number | string;
+    typeDroit: string;
 }
 
 interface ModifierPaiementFormProps {
@@ -29,7 +28,7 @@ export default function ModifierPaiementForm({ payment, onClose, onSuccess, onUp
     const [loadingSave, setLoadingSave] = useState(false);
     const [montant, setMontant] = useState(payment.montant.toString());
     const [formData, setFormData] = useState({
-        datePaiement: payment.datePaiement.split('T')[0],
+        datePayment: payment.datePaiement.split('T')[0],
         reference: payment.reference || "",
     });
 
@@ -40,12 +39,9 @@ export default function ModifierPaiementForm({ payment, onClose, onSuccess, onUp
         try {
             // Préparation des données selon le format attendu par l'API Symfony
             const dataToSend = {
-                id: payment.id,
-                idEtudiant: payment.idEtudiant,
-                idNiveau: payment.idNiveau,
+                id: payment.id, 
                 montant: Number(montant), // Conversion string -> number
-                datePaiement: formData.datePaiement,
-                typeDroit: payment.typeDroit, // Envoyé en chaîne de caractères
+                datePayment: formData.datePayment,
                 reference: formData.reference,
             };
 
@@ -65,10 +61,10 @@ export default function ModifierPaiementForm({ payment, onClose, onSuccess, onUp
                 }
                 onSuccess(); // Ferme le formulaire
             } else {
-                throw new Error(result.message || 'Erreur lors de la modification');
+                toast.error(result.message || result.error || 'Erreur lors de la modification');
             }
         } catch (error: any) {
-            toast.error(error.message || 'Erreur lors de la modification du paiement');
+            toast.error(error.message|| error.error || 'Erreur lors de la modification du paiement');
         } finally {
             setLoadingSave(false);
         }
@@ -105,8 +101,8 @@ export default function ModifierPaiementForm({ payment, onClose, onSuccess, onUp
                             <Label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Date de paiement</Label>
                             <Input
                                 type="date"
-                                value={formData.datePaiement}
-                                onChange={(e) => setFormData({ ...formData, datePaiement: e.target.value })}
+                                value={formData.datePayment}
+                                onChange={(e) => setFormData({ ...formData, datePayment: e.target.value })}
                                 className="h-9 text-sm border-slate-200 bg-slate-50/50"
                                 required
                             />
