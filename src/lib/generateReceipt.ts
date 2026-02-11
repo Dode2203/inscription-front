@@ -99,7 +99,7 @@ export const generateReceiptPDF = async (
   doc.text("ETAT CIVIL", margin, currentY);
   doc.line(margin, currentY + 1, margin + 22, currentY + 1);
   
-  currentY += 8;
+  currentY += 8;// currentY = currentY + 8; c'est la même chose 
   doc.setFont("helvetica", "normal");
   doc.text(`Nom : ${identite.nom.toUpperCase()}`, margin, currentY);
   currentY += 7;
