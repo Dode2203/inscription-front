@@ -95,7 +95,7 @@ const PaiementForm: React.FC<PaiementFormProps> = ({
           <Label htmlFor="idNiveau">Niveau actuel</Label>
           <select id="idNiveau" value={formData.idNiveau || ""} onChange={handleChange} className="block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm sm:text-sm">
             <option value=""  disabled>Sélectionnez un niveau</option>
-            {niveaux.filter((n: Niveau) => Number(formData.idFormation) === n.type && n.grade >= niveauActuelGrade).slice(0, 2).map((f: Niveau) => (
+            {niveaux.filter((n: Niveau) => Number(formData.idFormation) === n.type && (n.grade ?? 0) >= niveauActuelGrade).slice(0, 2).map((f: Niveau) => (
               <option key={f.id} value={f.id}>{f.nom} ({f.grade})</option>
             ))}
           </select>
