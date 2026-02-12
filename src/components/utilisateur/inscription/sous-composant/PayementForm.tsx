@@ -11,6 +11,7 @@ import {
   SelectValue
 } from "@/components/ui/select";
 import { getByIdNiveau } from '@/lib/utils/grade-utils';
+import { useSelectedLayoutSegment } from 'next/navigation';
 
 interface PaiementFormProps {
   formData: PaiementData;
@@ -40,10 +41,35 @@ const PaiementForm: React.FC<PaiementFormProps> = ({
 
   useEffect(() => {
     if (!formData.idFormation && formation.idFormation) {
-      updateData({ idFormation: formation.idFormation });
+      updateData({ idFormation: formation.idFormation , idNiveau: formation.idNiveau});
     }
   }, [formation.idFormation, updateData, formData.idFormation]);
+  
+  useEffect(() => {
+    const montantDefautPedag = isExonere ? "0" : "50000";
+    const montantDefaultAdmin = isExonere ? "2500" : "";
+    updateData({ montantPedag: montantDefautPedag, montantAdmin: montantDefaultAdmin });
+  }, [isExonere]);
 
+    useEffect(() => {
+    const niveauActuel = getByIdNiveau(niveaux, Number(formData.idNiveau));
+    let montantAdmin = "61875";
+    const grade = niveauActuel?.grade ?? 0;
+    if (grade < 4) {
+      montantAdmin = "41000";
+    }
+
+    const montantDefaultAdmin = isExonere ? "2500" : montantAdmin;
+    updateData({ montantAdmin: montantDefaultAdmin });
+  }, [formData.idNiveau]);
+    useEffect(() => {
+    let montantEcolage = "525000";
+    if (formData.idFormation == 3) {
+      montantEcolage = "900000";
+    }
+    updateData({ montantEcolage : montantEcolage });
+  }, [formData.idFormation]);
+  
   return (
     <div className="space-y-6 mt-6">
       <h3 className="text-lg font-semibold text-foreground border-b pb-2">Bordereaux de versement</h3>
@@ -68,7 +94,7 @@ const PaiementForm: React.FC<PaiementFormProps> = ({
         <div className="flex flex-col gap-2">
           <Label htmlFor="idNiveau">Niveau actuel</Label>
           <select id="idNiveau" value={formData.idNiveau || ""} onChange={handleChange} className="block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm sm:text-sm">
-            <option value="" disabled>Sélectionnez un niveau</option>
+            <option value=""  disabled>Sélectionnez un niveau</option>
             {niveaux.filter((n: Niveau) => Number(formData.idFormation) === n.type && n.grade >= niveauActuelGrade).slice(0, 2).map((f: Niveau) => (
               <option key={f.id} value={f.id}>{f.nom} ({f.grade})</option>
             ))}
