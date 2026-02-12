@@ -158,6 +158,7 @@ export function InsertionEcolageForm() {
             montant: Number(montant),
             date_paiement: datePaiement, // Already YYYY-MM-DD from 'date' input
             ref_bordereau: refBordereau
+
         }
 
         try {

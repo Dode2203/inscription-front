@@ -85,7 +85,7 @@ const PaiementForm: React.FC<PaiementFormProps> = ({
           <Label htmlFor="idFormation">Type de formation</Label>
           <select id="idFormation" onChange={handleChange} value={formData.idFormation || ""} className="block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm sm:text-sm">
             <option value="" disabled>Sélectionnez une formation</option>
-            {formations.filter(f => [1, 2, 3, 4].includes(Number(f.id))).map((f: Formation) => (
+            {formations.filter(f => [1, 2, 3, 4,6].includes(Number(f.id))).map((f: Formation) => (
               <option key={f.id} value={f.id}>{f.nom}</option>
             ))}
           </select>
