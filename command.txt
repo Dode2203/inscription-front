@@ -11,3 +11,5 @@ npm install @radix-ui/react-dialog
 npm install @emailjs/browser
 
 #Commit samedi 31 janvier 2026
+
+npm install @react-pdf/renderer

@@ -14,6 +14,7 @@ import { EtudiantEcolageDetail } from "@/types/ecolage"
 import { EtudiantRecherche } from "@/lib/db"
 import { cn } from "@/lib/utils"
 import { useRouter } from "next/navigation"
+import { ScolariteLoader } from "./sousComponent/ScolariteLoader"
 
 export function InsertionEcolageForm() {
     const router = useRouter()
@@ -268,6 +269,7 @@ export function InsertionEcolageForm() {
                             <History className="w-4 h-4 mr-2" />
                             {showHistory ? "Masquer historiques" : "Consulter historiques"}
                         </Button>
+                        
                     </div>
 
                     {/* Payment Form */}
@@ -366,6 +368,7 @@ export function InsertionEcolageForm() {
                     </Card>
 
                     {showHistory && (
+                        
                         <div className="animate-in slide-in-from-bottom-6 duration-500">
                             <EcolageHistoryTable
                                 idEtudiant={selectedStudent.id}
@@ -373,7 +376,9 @@ export function InsertionEcolageForm() {
                                 mention={formation?.mention}
                                 onAnnulerSuccess={() => fetchEtudiant(selectedStudent.id)}
                             />
+                            <ScolariteLoader idEtudiant={selectedStudent.id} />
                         </div>
+                        
                     )}
                 </div>
             )}
