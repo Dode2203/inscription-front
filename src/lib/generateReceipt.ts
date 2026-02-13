@@ -203,7 +203,7 @@ export const generateReceiptPDF = async (
 
   // Nom du responsable
   doc.setFontSize(10);
-  doc.text("RAZAFINTSALAMA Hantanirina Tahinasoa", signatureX - 5, finalY + 32);
+//  doc.text("RAZAFINTSALAMA Hantanirina Tahinasoa", signatureX - 5, finalY + 32);
 
   doc.save(`Fiche_ESPA_${identite.nom.replace(/\s+/g, '_')}.pdf`);
 };

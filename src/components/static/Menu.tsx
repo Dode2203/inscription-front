@@ -47,7 +47,12 @@ export default function Menu({ user, activeTab, setActiveTab }: MenuProps) {
         key: "/admin/modification",
         label: "Modification",
         icon: <Filter size={18} />,
-      }
+      },
+      {
+        key: "/admin/inscription",
+        label: "Ajout Etudiant",
+        icon: <BarChart3 size={18} />,
+      },
     );
   }
 
