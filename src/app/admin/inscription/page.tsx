@@ -61,11 +61,11 @@ export default function InscriptionPage() {
 
         const data = await authRes.json();
         setUser(data.user);
-        if (data.user.role !== "Admin") {
-          await fetch("/api/auth/logout", { method: "POST" })
+        if (data.user.role !== "Admin" && data.user.role !== "Utilisateur") {
+          await fetch("/api/auth/logout", { method: "POST" });
           router.push(login); 
         }
-
+      
         if (initialData.formations) setFormations(initialData.formations);
         if (initialData.mentions) setMentions(initialData.mentions);
         if (initialData.nationalites) setNationalites(initialData.nationalites);
