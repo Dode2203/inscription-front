@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { BarChart3, Filter, Users, PlusCircle, Search, ShieldCheck } from "lucide-react";
+import { BarChart3, Filter, Users, PlusCircle, Search, ShieldCheck, UserPlus } from "lucide-react";
 import { User } from "@/lib/db";
 import { usePathname } from "next/navigation";
 import React from "react";
@@ -78,8 +78,13 @@ export default function Menu({ user, activeTab, setActiveTab }: MenuProps) {
         key: "/admin/modification",
         label: "Modification",
         icon: <Filter size={18} />,
-      }
-      
+      },
+      {
+        key: "/admin/pre-inscription",
+        label: "Pré-inscription",
+        icon: <UserPlus size={18} />,
+      },
+
     );
   }
 
