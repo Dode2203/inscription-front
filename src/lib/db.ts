@@ -90,13 +90,16 @@ export interface Formation {
   typeNiveau: number;
   gradeNiveau: number
   niveau: string;
-  mention: string;
+  idMention?: string | number;
+  mention?: string;
+  idStatusEtudiant?: string | number;
   statusEtudiant?: string;
   id?: string | number;
   nom?: string;
   typeFormation?: string;
   matricule?: string;
   estBoursier?: number;
+  
 
 }
 
@@ -231,6 +234,10 @@ export interface Student {
 export interface Parent {
   nomPere: string;
   nomMere: string;
+}
+export interface StatusEtudiant {
+  id: number;
+  nom: string;
 }
 
 // In-memory storage (replace with database)

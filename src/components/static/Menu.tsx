@@ -47,7 +47,12 @@ export default function Menu({ user, activeTab, setActiveTab }: MenuProps) {
         key: "/admin/modification",
         label: "Modification",
         icon: <Filter size={18} />,
-      }
+      },
+      {
+        key: "/admin/inscription",
+        label: "Inscription",
+        icon: <BarChart3 size={18} />,
+      },
     );
   }
 
@@ -78,7 +83,13 @@ export default function Menu({ user, activeTab, setActiveTab }: MenuProps) {
         key: "/admin/modification",
         label: "Modification",
         icon: <Filter size={18} />,
+      },
+      {
+        key: "/admin/changerNiveauEtudiant",
+        label: "Changer Niveau",
+        icon: <Filter size={18} />,
       }
+      
       
     );
   }
