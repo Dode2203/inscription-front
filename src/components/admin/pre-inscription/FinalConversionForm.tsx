@@ -207,8 +207,7 @@ export default function FinalConversionForm({
                                     ))}
                                 </select>
                             </div>
-
-                            <div className="space-y-1.5">
+                            <div className="space-y-1.5 md:col-span-2">
                                 <Label className="text-sm font-semibold">Mention *</Label>
                                 <select
                                     name="mentionId"
