@@ -31,6 +31,7 @@ export function ChangerNiveauEtudiant() {
   const [identite, setIdentite] = useState<Identite | null>(null)
   const [formation, setFormation] = useState<Formation | null>(null);
   const [mentions, setMentions] = useState<Mention[]>([]);
+  const[loadingSauvegarde, setLoadingSauvegarde] = useState(false);
 
   const resetForm = () => {
     setEtudiantsTrouves([]);
@@ -121,6 +122,7 @@ export function ChangerNiveauEtudiant() {
   try {
     // 2. Appel Fetch
     // console.log(data)
+    setLoadingSauvegarde(true);
     const dataToSend = {
                 idEtudiant: Number(data.idEtudiant), 
                 idNiveau: Number(data.idNiveau),
@@ -134,11 +136,21 @@ export function ChangerNiveauEtudiant() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(dataToSend)
       });
-
+      if (response.status === 401 || response.status === 403) {
+        toast.error("Session expirée. Redirection...");
+        await fetch("/api/auth/logout", { method: "POST" });
+        router.push(login);
+        return;
+      }
     // 3. Vérification du statut HTTP (200-299)
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.message||errorData.error || `Erreur serveur : ${response.status}`);
+        
+      const erreurMessage = errorData.error||errorData.message || "Une erreur inattendue s'est produite.";
+      toast.error(erreurMessage);
+      const errorAudio = new Audio("/sounds/error-011-352286.mp3");
+      errorAudio.play();
+      // throw new Error(errorData.message||errorData.error || `Erreur serveur : ${response.status}`);
     }
 
     // 4. Lecture du résultat
@@ -160,6 +172,9 @@ export function ChangerNiveauEtudiant() {
     toast.error(erreurMessage);
     const errorAudio = new Audio("/sounds/error-011-352286.mp3");
     errorAudio.play();
+    
+  } finally {
+    setLoadingSauvegarde(false);
   }
 };
 
@@ -213,6 +228,7 @@ export function ChangerNiveauEtudiant() {
         niveaux={niveaux}       // Doit être peuplé par une API
         formations={formations} // Doit être peuplé par une API
         mentions={mentions}
+        loading={loadingSauvegarde}
         onSave={handleUpdateNiveau}
       />
       ) : null}

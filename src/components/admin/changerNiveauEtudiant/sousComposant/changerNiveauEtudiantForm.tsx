@@ -12,6 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Loader2 } from 'lucide-react';
 
 interface Props {
   identite: Identite;
@@ -20,6 +21,7 @@ interface Props {
   mentions: Mention[];
   formations: Formation[];
   onSave: (data: any) => void;
+  loading: boolean;
 }
 
 const ChangerNiveauEtudiantForm: React.FC<Props> = ({ 
@@ -28,7 +30,8 @@ const ChangerNiveauEtudiantForm: React.FC<Props> = ({
   niveaux, 
   mentions,
   formations, 
-  onSave 
+  onSave,
+  loading
 }) => {
   const [formData, setFormData] = useState({
     idFormation: formation.idFormation?.toString() || "",
@@ -167,8 +170,8 @@ const ChangerNiveauEtudiantForm: React.FC<Props> = ({
 
 
         <div className="pt-4">
-          <Button type="submit" className="w-full">
-            Enregistrer les modifications
+          <Button type="submit" className="w-full" disabled={loading}>
+            {loading ? <Loader2 className="animate-spin" /> : "Enregistrer les modifications"}
           </Button>
         </div>
       </form>
