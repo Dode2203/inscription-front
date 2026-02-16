@@ -11,7 +11,17 @@ import {
   SelectValue
 } from "@/components/ui/select";
 import { getByIdNiveau } from '@/lib/utils/grade-utils';
-import { useSelectedLayoutSegment } from 'next/navigation';
+function getMontantEcolage(idFormation: number): string {
+  const montants: Record<number, string> = {
+    2: "525000",
+    3: "900000",
+    7: "1125000",
+    8:"525000"
+  };
+
+  return montants[idFormation] ?? "0";
+}
+
 
 interface PaiementFormProps {
   formData: PaiementData;
@@ -45,31 +55,39 @@ const PaiementForm: React.FC<PaiementFormProps> = ({
     }
   }, [formation.idFormation, updateData, formData.idFormation]);
   
-  useEffect(() => {
-    const montantDefautPedag = isExonere ? "0" : "50000";
-    const montantDefaultAdmin = isExonere ? "2500" : "";
-    updateData({ montantPedag: montantDefautPedag, montantAdmin: montantDefaultAdmin });
-  }, [isExonere]);
-
-    useEffect(() => {
-    const niveauActuel = getByIdNiveau(niveaux, Number(formData.idNiveau));
-    let montantAdmin = "61875";
-    const grade = niveauActuel?.grade ?? 0;
-    if (grade < 4) {
-      montantAdmin = "41000";
-    }
-
-    const montantDefaultAdmin = isExonere ? "2500" : montantAdmin;
-    updateData({ montantAdmin: montantDefaultAdmin });
-  }, [formData.idNiveau]);
-    useEffect(() => {
-    let montantEcolage = "525000";
-    if (formData.idFormation == 3) {
-      montantEcolage = "900000";
-    }
-    updateData({ montantEcolage : montantEcolage });
-  }, [formData.idFormation]);
   
+    useEffect(() => {
+    // 1. Déterminer les bases
+    const idForm = Number(formData.idFormation);
+    const niveauActuel = getByIdNiveau(niveaux, Number(formData.idNiveau));
+    const grade = niveauActuel?.grade ?? 0;
+    const montantEcolageBase = getMontantEcolage(idForm);
+
+    // 2. Calculer le montant Admin de base selon le grade
+    let montantAdminCalc = (grade < 4) ? "41000" : "61875";
+
+    // 3. Appliquer les exceptions selon l'idFormation
+    let montantPedagCalc = isExonere ? "0" : "50000";
+    
+    if (idForm === 6) {
+      montantAdminCalc = "0";
+      montantPedagCalc = "0";
+    } else if (idForm === 7 || idForm === 8) {
+      montantAdminCalc = "110000";
+      montantPedagCalc = "0";
+    }
+
+    // 4. Appliquer la règle d'exonération (prioritaire sur l'admin)
+    const finalAdmin = isExonere ? "2500" : montantAdminCalc;
+
+    // 5. Une seule mise à jour groupée pour éviter les rendus multiples
+    updateData({
+      montantPedag: montantPedagCalc,
+      montantAdmin: finalAdmin,
+      montantEcolage: montantEcolageBase
+    });
+
+  }, [formData.idFormation, formData.idNiveau, isExonere, niveaux]);
   return (
     <div className="space-y-6 mt-6">
       <h3 className="text-lg font-semibold text-foreground border-b pb-2">Bordereaux de versement</h3>
@@ -85,7 +103,7 @@ const PaiementForm: React.FC<PaiementFormProps> = ({
           <Label htmlFor="idFormation">Type de formation</Label>
           <select id="idFormation" onChange={handleChange} value={formData.idFormation || ""} className="block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm sm:text-sm">
             <option value="" disabled>Sélectionnez une formation</option>
-            {formations.filter(f => [1, 2, 3, 4,6].includes(Number(f.id))).map((f: Formation) => (
+            {formations.map((f: Formation) => (
               <option key={f.id} value={f.id}>{f.nom}</option>
             ))}
           </select>
