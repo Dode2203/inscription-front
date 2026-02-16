@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
+import { useRouter } from "next/navigation"
 interface QuickPreFormProps {
     formations: Formation[];
     mentions: Mention[];
@@ -16,6 +17,9 @@ interface QuickPreFormProps {
 }
 
 export default function QuickPreForm({ formations, mentions, onSuccess }: QuickPreFormProps) {
+    
+  const router = useRouter();
+  const login = process.env.NEXT_PUBLIC_LOGIN_URL || '/login';
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [niveaux, setNiveaux] = useState<Niveau[]>([]);
     const [loadingNiveaux, setLoadingNiveaux] = useState(true);
@@ -70,7 +74,12 @@ export default function QuickPreForm({ formations, mentions, onSuccess }: QuickP
             });
 
             const result = await response.json();
-
+            if (response.status === 401 || response.status === 403) {
+                toast.error("Session expirée. Redirection...");
+                await fetch("/api/auth/logout", { method: "POST" });
+                router.push(login);
+                return;
+            }
             if (response.ok && result.status === "success") {
                 toast.success("Pré-inscription enregistrée avec succès !");
                 // Réinitialisation du formulaire
@@ -134,7 +143,8 @@ export default function QuickPreForm({ formations, mentions, onSuccess }: QuickP
                                 required
                             >
                                 <option value="">Sélectionner une formation</option>
-                                {formations.map((f) => (
+                                {formations
+                                .map((f) => (
                                     <option key={f.id} value={f.id}>{f.nom}</option>
                                 ))}
                             </select>
@@ -151,7 +161,11 @@ export default function QuickPreForm({ formations, mentions, onSuccess }: QuickP
                                 disabled={loadingNiveaux}
                             >
                                 <option value="">{loadingNiveaux ? "Chargement..." : "Sélectionner un niveau"}</option>
-                                {niveaux.map((n) => (
+                                {niveaux
+                                .filter((n: Niveau) =>
+                                                Number(formData.formationId) === n.type 
+                                              )
+                                .map((n) => (
                                     <option key={n.id} value={n.id}>{n.nom}</option>
                                 ))}
                             </select>

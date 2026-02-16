@@ -47,7 +47,12 @@ export default function Menu({ user, activeTab, setActiveTab }: MenuProps) {
         key: "/admin/modification",
         label: "Modification",
         icon: <Filter size={18} />,
-      }
+      },
+      {
+        key: "/admin/pre-inscription",
+        label: "Pré-inscription",
+        icon: <UserPlus size={18} />,
+      },
     );
   }
 
@@ -80,11 +85,15 @@ export default function Menu({ user, activeTab, setActiveTab }: MenuProps) {
         icon: <Filter size={18} />,
       },
       {
+        key: "/admin/changerNiveauEtudiant",
+        label: "Changer Niveau",
+        icon: <Filter size={18} />,
+      },
+      {
         key: "/admin/pre-inscription",
         label: "Pré-inscription",
         icon: <UserPlus size={18} />,
       },
-
     );
   }
 

@@ -52,7 +52,7 @@ export default function PreInscriptionPage() {
 
                 const data = await authRes.json();
                 setUser(data.user);
-                if (data.user.role !== "Admin") {
+                if (data.user.role !== "Admin" && data.user.role !== "Utilisateur") {
                     await fetch("/api/auth/logout", { method: "POST" });
                     router.push(login);
                 }

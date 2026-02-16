@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, X } from "lucide-react";
 import { toast } from "sonner";
-
+import { useRouter } from "next/navigation"
 interface PreInscrit {
     id: number;
     nom: string;
@@ -55,6 +55,9 @@ export default function FinalConversionForm({
         nationaliteId: 0,
         proposTelephone: ''
     });
+    
+  const router = useRouter();
+  const login = process.env.NEXT_PUBLIC_LOGIN_URL || '/login';
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
@@ -96,6 +99,12 @@ export default function FinalConversionForm({
             });
 
             const result = await response.json();
+            if (response.status === 401 || response.status === 403) {
+                toast.error("Session expirée. Redirection...");
+                await fetch("/api/auth/logout", { method: "POST" });
+                router.push(login);
+                return;
+            }
 
             if (response.ok && result.status === "success") {
                 toast.success("Conversion réussie ! Étudiant inscrit avec succès.");

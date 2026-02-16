@@ -7,6 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Search, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
+import { useRouter } from "next/navigation"
+
 interface PreInscrit {
     id: number;
     nom: string;
@@ -22,6 +24,9 @@ interface PreSearchListProps {
 }
 
 export default function PreSearchList({ onSelectCandidate }: PreSearchListProps) {
+    
+  const router = useRouter();
+  const login = process.env.NEXT_PUBLIC_LOGIN_URL || '/login';
     const [searchTerm, setSearchTerm] = useState("");
     const [isSearching, setIsSearching] = useState(false);
     const [results, setResults] = useState<PreInscrit[]>([]);
@@ -38,7 +43,12 @@ export default function PreSearchList({ onSelectCandidate }: PreSearchListProps)
             });
 
             const result = await response.json();
-
+            if (response.status === 401 || response.status === 403) {
+                toast.error("Session expirée. Redirection...");
+                await fetch("/api/auth/logout", { method: "POST" });
+                router.push(login);
+                return;
+            }
             if (response.ok) {
                 setResults(result.data || result.results || []);
                 if ((result.data || result.results || []).length === 0) {

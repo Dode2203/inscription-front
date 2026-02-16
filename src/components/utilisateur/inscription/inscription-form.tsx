@@ -239,7 +239,10 @@ export function InscriptionForm() {
     }).finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <p className="text-center py-10">Chargement...</p>;
+  if (loading) return <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-accent"></div>
+          <p className="mt-4 text-muted-foreground">Chargement...</p>
+        </div>;
 
   return (
     <Card className="max-w-4xl mx-auto p-6 shadow-lg border-t-4 border-blue-900">
