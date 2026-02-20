@@ -1,10 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
-import { useSearchParams } from "next/navigation";
+import { ArrowLeft, Save, Loader2 } from "lucide-react";
 import { User } from "@/lib/db"; 
 
 type UserUpdatePayload = User & { password?: string };
@@ -60,7 +59,7 @@ export default function EditUserContent() {
                 });
 
             } catch (err) {
-                setError(err instanceof Error ? err.message : "Erreur inconnue lors du chargement");
+                setError(err instanceof Error ? err.message : "Erreur inconnue");
             } finally {
                 setLoading(false);
             }
@@ -71,10 +70,7 @@ export default function EditUserContent() {
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
-        setFormData({
-            ...formData,
-            [name]: value,
-        });
+        setFormData(prev => ({ ...prev, [name]: value }));
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -109,145 +105,162 @@ export default function EditUserContent() {
 
             if (!res.ok) {
                 const data = await res.json();
-                throw new Error(data.error || "Impossible de modifier l'utilisateur");
+                throw new Error(data.error || "Erreur lors de la modification");
             }
 
             router.push("/admin/users");
         } catch (err) {
-            setError(err instanceof Error ? err.message : "Erreur inconnue lors de la sauvegarde");
+            setError(err instanceof Error ? err.message : "Erreur lors de la sauvegarde");
         } finally {
             setSaving(false);
         }
     };
 
     if (loading) {
-    return (
-      <main className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-accent"></div>
-          <p className="mt-4 text-muted-foreground">Chargement...</p>
-        </div>
-      </main>
-    )
-  }
+        return (
+            <main className="min-h-screen bg-slate-50 flex items-center justify-center">
+                <div className="flex flex-col items-center">
+                    <Loader2 className="animate-spin text-blue-600 mb-4" size={40} />
+                    <p className="text-slate-600 font-medium">Chargement des données...</p>
+                </div>
+            </main>
+        );
+    }
 
     return (
-        <main className="min-h-screen bg-background">
-            <header className="bg-primary text-primary-foreground shadow-lg">
+        <main className="min-h-screen bg-slate-50">
+            {/* Header Harmonisé */}
+            <header className="bg-primary text-primary-foreground shadow-lg sticky top-0 z-40">
                 <div className="max-w-4xl mx-auto px-4 py-6 flex items-center gap-4">
-                    <Link href="/admin/users" className="hover:opacity-80 transition-opacity">
-                        <ArrowLeft size={20} />
+                    <Link 
+                        href="/admin/users" 
+                        className="p-2 hover:bg-white/10 rounded-full transition-colors text-white"
+                    >
+                        <ArrowLeft size={22} />
                     </Link>
-                    <h1 className="text-2xl font-bold">Modifier l&apos;utilisateur</h1>
+                    <div>
+                        <h1 className="text-2xl font-bold">Modifier le profil</h1>
+
+                    </div>
                 </div>
             </header>
 
-            <div className="max-w-4xl mx-auto px-4 py-8">
+            <div className="max-w-3xl mx-auto px-4 py-10">
                 {error && (
-                    <div className="mb-6 p-4 bg-red-100 border border-red-200 rounded-lg text-red-700">
+                    <div className="mb-6 p-4 bg-rose-50 border border-rose-100 rounded-xl text-rose-600 text-sm font-medium flex items-center gap-3">
+                        <span className="w-2 h-2 bg-rose-600 rounded-full animate-pulse"></span>
                         {error}
                     </div>
                 )}
 
-                <form onSubmit={handleSubmit} className="space-y-6 bg-card p-8 rounded-lg border">
-                    
-                    <div>
-                        <label htmlFor="nom" className="block text-sm font-medium mb-2">Nom</label>
-                        <input
-                            id="nom"
-                            type="text"
-                            required
-                            name="nom"
-                            value={formData.nom}
-                            onChange={handleChange}
-                            className="w-full px-4 py-2 border rounded-lg bg-input focus:ring-2"
-                        />
-                    </div>
+                <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+                    <form onSubmit={handleSubmit} className="p-6 md:p-10 space-y-6">
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {/* Nom */}
+                            <div className="space-y-2">
+                                <label className="text-sm font-semibold text-slate-700 ml-1">Nom</label>
+                                <input
+                                    name="nom"
+                                    type="text"
+                                    required
+                                    value={formData.nom}
+                                    onChange={handleChange}
+                                    className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none"
+                                />
+                            </div>
 
-                    <div>
-                        <label htmlFor="prenom" className="block text-sm font-medium mb-2">Prénom</label>
-                        <input
-                            id="prenom"
-                            type="text"
-                            required
-                            name="prenom"
-                            value={formData.prenom}
-                            onChange={handleChange}
-                            className="w-full px-4 py-2 border rounded-lg bg-input focus:ring-2"
-                        />
-                    </div>
+                            {/* Prénom */}
+                            <div className="space-y-2">
+                                <label className="text-sm font-semibold text-slate-700 ml-1">Prénom</label>
+                                <input
+                                    name="prenom"
+                                    type="text"
+                                    required
+                                    value={formData.prenom}
+                                    onChange={handleChange}
+                                    className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none"
+                                />
+                            </div>
+                        </div>
 
-                    <div>
-                        <label htmlFor="email" className="block text-sm font-medium mb-2">Email</label>
-                        <input
-                            id="email"
-                            type="email"
-                            required
-                            name="email"
-                            value={formData.email}
-                            onChange={handleChange}
-                            className="w-full px-4 py-2 border rounded-lg bg-input focus:ring-2"
-                        />
-                    </div>
+                        {/* Email */}
+                        <div className="space-y-2">
+                            <label className="text-sm font-semibold text-slate-700 ml-1">Adresse Email</label>
+                            <input
+                                name="email"
+                                type="email"
+                                required
+                                value={formData.email}
+                                onChange={handleChange}
+                                className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none"
+                            />
+                        </div>
 
-                    <div>
-                        <label htmlFor="password" className="block text-sm font-medium mb-2">Mot de passe (optionnel)</label>
-                        <input
-                            id="password"
-                            type="password"
-                            name="password"
-                            value={formData.password}
-                            placeholder="Laissez vide pour garder l'ancien"
-                            onChange={handleChange}
-                            className="w-full px-4 py-2 border rounded-lg bg-input focus:ring-2"
-                        />
-                    </div>
+                        {/* Password */}
+                        <div className="space-y-2">
+                            <label className="text-sm font-semibold text-slate-700 ml-1">Nouveau mot de passe</label>
+                            <input
+                                name="password"
+                                type="password"
+                                value={formData.password}
+                                placeholder="Laisser vide pour ne pas modifier"
+                                onChange={handleChange}
+                                className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none"
+                            />
+                        </div>
 
-                    <div>
-                        <label htmlFor="status" className="block text-sm font-medium mb-2">Status</label>
-                        <select
-                            id="status"
-                            name="status"
-                            value={formData.status}
-                            onChange={handleChange}
-                            className="w-full px-4 py-2 border rounded-lg bg-input focus:ring-2"
-                        >
-                            <option value="Actif">Actif</option>
-                            <option value="Inactif">Inactif</option>
-                        </select>
-                    </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                            {/* Status */}
+                            <div className="space-y-2">
+                                <label className="text-sm font-semibold text-slate-700 ml-1">Statut du compte</label>
+                                <select
+                                    name="status"
+                                    value={formData.status}
+                                    onChange={handleChange}
+                                    className={`w-full px-4 py-3 rounded-xl border border-slate-200 font-bold transition-all outline-none appearance-none cursor-pointer ${
+                                        formData.status === 'Actif' ? 'text-emerald-600 bg-emerald-50' : 'text-rose-600 bg-rose-50'
+                                    }`}
+                                >
+                                    <option value="Actif">Actif</option>
+                                    <option value="Inactif">Inactif</option>
+                                </select>
+                            </div>
 
-                    <div>
-                        <label htmlFor="role" className="block text-sm font-medium mb-2">Rôle</label>
-                        <select
-                            id="role"
-                            name="role"
-                            value={formData.role}
-                            onChange={handleChange}
-                            className="w-full px-4 py-2 border rounded-lg bg-input focus:ring-2"
-                        >
-                            <option value="Utilisateur">Utilisateur</option>
-                            <option value="Admin">Administrateur</option>
-                        </select>
-                    </div>
+                            {/* Role */}
+                            <div className="space-y-2">
+                                <label className="text-sm font-semibold text-slate-700 ml-1">Rôle</label>
+                                <select
+                                    name="role"
+                                    value={formData.role}
+                                    onChange={handleChange}
+                                    className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white transition-all outline-none appearance-none cursor-pointer font-medium"
+                                >
+                                    <option value="Utilisateur">Utilisateur</option>
+                                    <option value="Admin">Administrateur</option>
+                                </select>
+                            </div>
+                        </div>
 
-                    <div className="flex gap-4 pt-6">
-                        <button
-                            type="submit"
-                            disabled={saving}
-                            className="flex-1 bg-accent text-accent-foreground py-3 rounded-lg font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
-                        >
-                            {saving ? "Sauvegarde..." : "Modifier"}
-                        </button>
+                        <div className="flex flex-col sm:flex-row gap-4 pt-10">
+                            <button
+                                type="submit"
+                                disabled={saving}
+                                className="flex-1 bg-blue-600 text-white py-3.5 rounded-xl font-bold hover:bg-blue-700 shadow-md shadow-blue-200 transition-all disabled:opacity-70 flex items-center justify-center gap-2"
+                            >
+                                {saving ? <Loader2 className="animate-spin" size={20} /> : <Save size={20} />}
+                                {saving ? "Sauvegarde..." : "Enregistrer les modifications"}
+                            </button>
 
-                        <Link
-                            href="/admin/users"
-                            className="flex-1 bg-gray-200 text-black py-3 rounded-lg text-center hover:bg-gray-300"
-                        >
-                            Annuler
-                        </Link>
-                    </div>
-                </form>
+                            <Link
+                                href="/admin/users"
+                                className="flex-1 bg-slate-100 text-slate-700 py-3.5 rounded-xl font-bold hover:bg-slate-200 transition-all text-center"
+                            >
+                                Annuler
+                            </Link>
+                        </div>
+                    </form>
+                </div>
             </div>
         </main>
     );
