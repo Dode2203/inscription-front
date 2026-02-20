@@ -228,8 +228,8 @@ export function ChangerNiveauEtudiant() {
         niveaux={niveaux}       // Doit être peuplé par une API
         formations={formations} // Doit être peuplé par une API
         mentions={mentions}
-        loading={loadingSauvegarde}
         onSave={handleUpdateNiveau}
+        loading={loadingSauvegarde}
       />
       ) : null}
     </Card>

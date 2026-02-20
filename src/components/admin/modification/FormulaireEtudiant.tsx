@@ -27,9 +27,9 @@ interface FormDataState {
   proposTelephone: string;
   proposAdresse: string;
   nationaliteId: number | string;
-  baccSerie: string; // <-- AJOUTER CECI
-  nomPere: string; // <-- AJOUTÉ
-  nomMere: string; // <-- AJOUTÉ
+  baccSerie: string;
+  nomPere: string;
+  nomMere: string;
 }
 
 interface FormulaireEtudiantProps {
@@ -39,13 +39,13 @@ interface FormulaireEtudiantProps {
   onSuccess: () => void;
 }
 
-// 2. Interface pour le sous-composant CompactField
 interface CompactFieldProps {
   label: string;
   value: string | number;
   onChange: (v: string) => void;
   type?: string;
   required?: boolean;
+  disabled?: boolean;
 }
 
 export default function FormulaireEtudiant({ idEtudiant, nationalites, onClose, onSuccess }: FormulaireEtudiantProps) {
@@ -61,6 +61,33 @@ export default function FormulaireEtudiant({ idEtudiant, nationalites, onClose, 
     return `${dateStr}T00:00:00+00:00`;
   };
 
+  // --- LOGIQUE POUR LA DATE DE NAISSANCE ET MINORITÉ ---
+  const handleDateNaissanceChange = (dateNais: string) => {
+    if (!formData) return;
+
+    const today = new Date();
+    const birthDate = new Date(dateNais);
+    
+    // Calcul de l'âge précis
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+
+    const isMineur = age < 18;
+    const dateAujourdhui = today.toISOString().split('T')[0];
+
+    setFormData({
+      ...formData,
+      dateNaissance: dateNais,
+      // Mise à jour automatique si mineur
+      cinNumero: isMineur ? "-" : formData.cinNumero, // Valeur par défaut
+      cinLieu: isMineur ? "-" : (formData.cinLieu === "-" ? "" : formData.cinLieu),
+      dateCin: isMineur ? dateAujourdhui : formData.dateCin,
+    });
+  };
+
   useEffect(() => {
     const fetchEtudiant = async () => {
       setLoading(true);
@@ -69,11 +96,10 @@ export default function FormulaireEtudiant({ idEtudiant, nationalites, onClose, 
         const result = await response.json();
         if (result.status === "success") {
           const d = result.data;
-
           setFormData({
             ...d,
             nationaliteId: d.nationaliteId,
-            baccSerie: d.baccSerie || "", // <
+            baccSerie: d.baccSerie || "",
             dateNaissance: d.dateNaissance?.split('T')[0] || "",
             dateCin: d.dateCin?.split('T')[0] || "",
           });
@@ -115,28 +141,15 @@ export default function FormulaireEtudiant({ idEtudiant, nationalites, onClose, 
       const result = await response.json();
       if (response.ok && result.status === 'success') {
         const etudiantId = result.etudiantId || result.data?.id || formData.id;
-        console.log("ID reçu pour rafraîchissement:", etudiantId);
-
-        // Appel pour récupérer les données complètes (nécessaire pour le PDF)
         const currentYear = new Date().getFullYear();
         const detailsRes = await fetch(`/api/etudiants/details-par-annee?idEtudiant=${etudiantId}&annee=${currentYear}`);
         const detailsResult = await detailsRes.json();
 
         if (detailsRes.ok && detailsResult.status === 'success') {
-          const studentData = detailsResult.data;
-          console.log("Données complètes reçues pour le PDF:", studentData);
-          setUpdatedStudentData(studentData);
+          setUpdatedStudentData(detailsResult.data);
           setIsSuccess(true);
-
-          toast.success('Modifications enregistrées !', {
-            action: {
-              label: "Imprimer le document",
-              onClick: () => handleViewPDF(studentData)
-            },
-            duration: 5000,
-          });
+          toast.success('Modifications enregistrées !');
         } else {
-          toast.warning("Modifications enregistrées, mais impossible de générer l'aperçu PDF immédiatement.");
           setIsSuccess(true);
         }
       } else {
@@ -152,12 +165,10 @@ export default function FormulaireEtudiant({ idEtudiant, nationalites, onClose, 
   const handleViewPDF = async (data?: Student) => {
     const studentToView = data || updatedStudentData;
     if (!studentToView) return;
-
     try {
       setIsViewing(true);
       await viewReceipt(studentToView);
     } catch (error) {
-      console.error('Erreur:', error);
       toast.error('Erreur lors de la visualisation du PDF');
     } finally {
       setIsViewing(false);
@@ -182,59 +193,51 @@ export default function FormulaireEtudiant({ idEtudiant, nationalites, onClose, 
 
       <CardContent className="p-0 bg-white">
         {isSuccess && (
-          <div className="bg-green-50 border-b border-green-100 p-3 flex items-center justify-between animate-in slide-in-from-top duration-300">
+          <div className="bg-green-50 border-b border-green-100 p-3 flex items-center justify-between">
             <div className="flex items-center gap-2 text-green-800 text-sm font-medium">
               <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
               Modifications enregistrées avec succès
             </div>
             <div className="flex gap-2">
-              <Button
-                size="sm"
-                variant="outline"
-                className="bg-white border-green-200 text-green-700 hover:bg-green-100 h-8"
-                onClick={() => handleViewPDF()}
-                disabled={isViewing}
-              >
+              <Button size="sm" variant="outline" className="bg-white" onClick={() => handleViewPDF()} disabled={isViewing}>
                 {isViewing ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : <Eye size={14} className="mr-1" />}
                 Voir le PDF
               </Button>
-              <Button
-                size="sm"
-                variant="ghost"
-                className="text-slate-500 hover:text-slate-700 h-8"
-                onClick={onSuccess}
-              >
-                Fermer
-              </Button>
+              <Button size="sm" variant="ghost" onClick={onSuccess}>Fermer</Button>
             </div>
           </div>
         )}
 
         <div className="p-6">
-
           <form onSubmit={handleUpdate} className="space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {/* Colonne 1 : État Civil */}
               <div className="space-y-4">
-                <div className="space-y-4">
-                  <h4 className="text-[10px] font-black text-blue-900 uppercase tracking-widest border-b pb-1">Etat Civil</h4>
-                  <div className="bg-slate-50 p-2 rounded border">
-                    <p className="text-xs text-slate-500">ID Étudiant</p>
-                    <p className="font-medium">{formData.id}</p>
-                  </div>
-                </div>
                 <h4 className="text-[10px] font-black text-blue-900 uppercase tracking-widest border-b pb-1">Etat Civil</h4>
-                <CompactField label="Nom" value={formData.nom} onChange={(v: string) => setFormData({ ...formData, nom: v })} required />
-                <CompactField label="Prénom" value={formData.prenom} onChange={(v: string) => setFormData({ ...formData, prenom: v })} />
-                <CompactField label="Date de naissance" type="date" value={formData.dateNaissance} onChange={(v: string) => setFormData({ ...formData, dateNaissance: v })} required />
-                <CompactField label="Lieu de naissance" value={formData.lieuNaissance} onChange={(v: string) => setFormData({ ...formData, lieuNaissance: v })} required />
+                <div className="bg-slate-50 p-2 rounded border">
+                  <p className="text-xs text-slate-500">ID Étudiant</p>
+                  <p className="font-medium">{formData.id}</p>
+                </div>
+                <CompactField label="Nom" value={formData.nom} onChange={(v) => setFormData({ ...formData, nom: v })} required />
+                <CompactField label="Prénom" value={formData.prenom} onChange={(v) => setFormData({ ...formData, prenom: v })} />
+                
+                {/* Champ Date de Naissance modifié */}
+                <CompactField 
+                  label="Date de naissance" 
+                  type="date" 
+                  value={formData.dateNaissance} 
+                  onChange={(v) => handleDateNaissanceChange(v)} 
+                  required 
+                />
+                
+                <CompactField label="Lieu de naissance" value={formData.lieuNaissance} onChange={(v) => setFormData({ ...formData, lieuNaissance: v })} required />
                 <CompactField label="Nom du Père" value={formData.nomPere} onChange={(v) => setFormData({ ...formData, nomPere: v })} />
                 <CompactField label="Nom de la Mère" value={formData.nomMere} onChange={(v) => setFormData({ ...formData, nomMere: v })} />
                 <div className="space-y-1">
                   <Label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Sexe</Label>
                   <select
                     value={formData.sexeId}
-                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFormData({ ...formData, sexeId: e.target.value })}
+                    onChange={(e) => setFormData({ ...formData, sexeId: e.target.value })}
                     className="h-9 w-full text-sm border-slate-200 bg-slate-50/50 rounded-md px-3"
                   >
                     <option value="1">Masculin</option>
@@ -249,48 +252,39 @@ export default function FormulaireEtudiant({ idEtudiant, nationalites, onClose, 
                   <h4 className="text-[10px] font-black text-blue-900 uppercase tracking-widest border-b pb-1 flex items-center gap-1">
                     <Fingerprint size={12} /> CIN
                   </h4>
-                  <CompactField label="Numéro CIN" value={formData.cinNumero} onChange={(v: string) => setFormData({ ...formData, cinNumero: v })} required />
-                  <CompactField label="Lieu de délivrance" value={formData.cinLieu} onChange={(v: string) => setFormData({ ...formData, cinLieu: v })} required />
-                  <CompactField label="Date" type="date" value={formData.dateCin} onChange={(v: string) => setFormData({ ...formData, dateCin: v })} required />
+                  <CompactField label="Numéro CIN" value={formData.cinNumero} onChange={(v) => setFormData({ ...formData, cinNumero: v })} required />
+                  <CompactField label="Lieu de délivrance" value={formData.cinLieu} onChange={(v) => setFormData({ ...formData, cinLieu: v })} required />
+                  <CompactField label="Date" type="date" value={formData.dateCin} onChange={(v) => setFormData({ ...formData, dateCin: v })} required />
                 </div>
                 <div className="space-y-4">
                   <h4 className="text-[10px] font-black text-blue-900 uppercase tracking-widest border-b pb-1 flex items-center gap-1">
                     <GraduationCap size={12} /> Baccalauréat
                   </h4>
-                  <CompactField label="Numéro BACC" value={formData.baccNumero} onChange={(v: string) => setFormData({ ...formData, baccNumero: v })} required />
-                  <CompactField label="Année" type="number" value={formData.baccAnnee} onChange={(v: string) => setFormData({ ...formData, baccAnnee: v })} required />
-
-                  {/* AJOUTER LE CHAMP SÉRIE ICI */}
-                  <CompactField
-                    label="Série"
-                    value={formData.baccSerie}
-                    onChange={(v: string) => setFormData({ ...formData, baccSerie: v })}
-                    required
-                  />
+                  <CompactField label="Numéro BACC" value={formData.baccNumero} onChange={(v) => setFormData({ ...formData, baccNumero: v })} required />
+                  <CompactField label="Année" type="number" value={formData.baccAnnee} onChange={(v) => setFormData({ ...formData, baccAnnee: v })} required />
+                  <CompactField label="Série" value={formData.baccSerie} onChange={(v) => setFormData({ ...formData, baccSerie: v })} required />
                 </div>
               </div>
 
               {/* Colonne 3 : Contact */}
               <div className="space-y-4">
                 <h4 className="text-[10px] font-black text-blue-900 uppercase tracking-widest border-b pb-1">Coordonnées</h4>
-                <CompactField label="Email" type="email" value={formData.proposEmail} onChange={(v: string) => setFormData({ ...formData, proposEmail: v })} required />
-                <CompactField label="Téléphone" value={formData.proposTelephone} onChange={(v: string) => setFormData({ ...formData, proposTelephone: v })} required />
-
+                <CompactField label="Email" type="email" value={formData.proposEmail} onChange={(v) => setFormData({ ...formData, proposEmail: v })} required />
+                <CompactField label="Téléphone" value={formData.proposTelephone} onChange={(v) => setFormData({ ...formData, proposTelephone: v })} required />
                 <div className="space-y-1">
                   <Label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Adresse</Label>
                   <textarea
                     value={formData.proposAdresse ?? ""}
-                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({ ...formData, proposAdresse: e.target.value })}
+                    onChange={(e) => setFormData({ ...formData, proposAdresse: e.target.value })}
                     className="min-h-[80px] w-full text-sm border-slate-200 bg-slate-50/50 rounded-md p-2"
                     required
                   />
                 </div>
-
                 <div className="space-y-1">
                   <Label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Nationalité</Label>
                   <select
                     value={formData.nationaliteId ?? ""}
-                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFormData({ ...formData, nationaliteId: e.target.value })}
+                    onChange={(e) => setFormData({ ...formData, nationaliteId: e.target.value })}
                     className="h-9 w-full text-sm border-slate-200 bg-slate-50/50 rounded-md px-3"
                   >
                     <option value="" disabled>Sélectionnez une nationalité</option>
@@ -315,8 +309,7 @@ export default function FormulaireEtudiant({ idEtudiant, nationalites, onClose, 
   );
 }
 
-// 3. Typage strict du sous-composant CompactField
-function CompactField({ label, value, onChange, type = "text", required = false }: CompactFieldProps) {
+function CompactField({ label, value, onChange, type = "text", required = false, disabled = false }: CompactFieldProps) {
   return (
     <div className="space-y-1">
       <Label className="text-[10px] font-bold text-slate-400 uppercase ml-1">
@@ -325,9 +318,10 @@ function CompactField({ label, value, onChange, type = "text", required = false 
       <Input
         type={type}
         value={value ?? ""}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange(e.target.value)}
+        onChange={(e) => onChange(e.target.value)}
         className="h-9 text-sm border-slate-200 bg-slate-50/50"
         required={required}
+        disabled={disabled}
       />
     </div>
   );

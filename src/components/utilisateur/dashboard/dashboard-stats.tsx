@@ -9,6 +9,7 @@ interface DashboardStatsProps {
   statsData?: StatsData;
   isLoading?: boolean;
   error?: string | null;
+  nbJours: number;
 }
 
 const defaultStats: StatsData = {
@@ -17,7 +18,7 @@ const defaultStats: StatsData = {
   nouvelles_inscriptions: 0
 };
 
-export function DashboardStats({ statsData = defaultStats, isLoading = false, error = null }: DashboardStatsProps) {
+export function DashboardStats({ statsData = defaultStats, isLoading = false, error = null ,nbJours}: DashboardStatsProps) {
   if (isLoading) {
     return (
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -61,7 +62,7 @@ export function DashboardStats({ statsData = defaultStats, isLoading = false, er
     {
       title: "Nouvelles Inscriptions",
       value: nouvelles_inscriptions,
-      change: "7 derniers jours",
+      change: `${nbJours} derniers jours`,
       icon: FileText,
       color: "text-primary",
       bgColor: "bg-primary/10",

@@ -61,7 +61,7 @@ export default function InscriptionPage() {
 
         const data = await authRes.json();
         setUser(data.user);
-        if (data.user.role !== "Admin") {
+        if (data.user.role !== "Admin" ) {
           await fetch("/api/auth/logout", { method: "POST" })
           router.push(login); 
         }
