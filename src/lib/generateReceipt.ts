@@ -11,14 +11,15 @@ const formatAr = (value: number | string | null | undefined): string => {
     })
       .format(number)
       .replace(/\s/g, ' ') // 🔥 CRUCIAL
-      + ' Ar'
+    + ' Ar'
   );
 };
 
 export const generateReceiptPDF = async (
   identite: Identite,
   formation: Formation,
-  paiements: PaiementEtudiant[],  
+  paiements: PaiementEtudiant[],
+  shouldSave: boolean = true
 ) => {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
@@ -103,7 +104,7 @@ export const generateReceiptPDF = async (
   doc.text(`Niveau : ${formation.niveau}`, margin, currentY);
   doc.text(`Type de formation : ${formation.formationType}`, 110, currentY);
   currentY += 7;
-  doc.text(`IM : ${ numDossier }`, margin, currentY);
+  doc.text(`IM : ${numDossier}`, margin, currentY);
 
   // --- ETAT CIVIL ---
   currentY += 12;
@@ -155,7 +156,7 @@ export const generateReceiptPDF = async (
   });
 
   // 1. On prépare les données dynamiquement avec une boucle (map)
-// 1. Transformer les données avec correction automatique du texte
+  // 1. Transformer les données avec correction automatique du texte
   const tableBody = paiements.map((p) => {
     // Correction du problème d'encodage (P‚dagogique -> Pédagogique)
     let designation = p.typeDroit;
@@ -176,10 +177,10 @@ export const generateReceiptPDF = async (
     head: [['DESIGNATION', 'REFERENCE', 'MONTANT']],
     body: tableBody,
     theme: 'grid',
-    headStyles: { 
-      fillColor: [230, 230, 230], 
+    headStyles: {
+      fillColor: [230, 230, 230],
       textColor: 0,
-      fontStyle: 'bold' 
+      fontStyle: 'bold'
     },
     columnStyles: {
       2: { halign: 'right' } // Aligne les montants à droite pour plus de lisibilité
@@ -205,7 +206,10 @@ export const generateReceiptPDF = async (
   doc.setFontSize(10);
   doc.text("RAZAFINTSALAMA Hantanirina Tahinasoa", signatureX - 5, finalY + 32);
 
-  doc.save(`Fiche_ESPA_${identite.nom.replace(/\s+/g, '_')}.pdf`);
+  if (shouldSave) {
+    doc.save(`Fiche_ESPA_${identite.nom.replace(/\s+/g, '_')}.pdf`);
+  }
+  return doc;
 };
 
 function formatMontant(m: any) {

@@ -9,15 +9,15 @@ export function prepareReceiptData(student: Student) {
   if (!student) {
     throw new Error("Données de l'étudiant manquantes");
   }
-  const elanelana= '                           '
+  const elanelana = '                           '
 
   // 1. IDENTITÉ - Utilise l'interface Identite de db.ts
   const identite: Identite = {
     id: student.id,
     nom: student.nom || elanelana,
     prenom: student.prenom || elanelana,
-    dateNaissance: student.dateNaissance 
-      ? new Date(student.dateNaissance).toLocaleDateString('fr-FR') 
+    dateNaissance: student.dateNaissance
+      ? new Date(student.dateNaissance).toLocaleDateString('fr-FR')
       : elanelana,
     lieuNaissance: student.lieuNaissance || elanelana,
     sexe: student.sexe || elanelana,
@@ -38,29 +38,29 @@ export function prepareReceiptData(student: Student) {
   // 2. FORMATION - Utilise l'interface Formation de db.ts
   const formation: Formation = {
     // On s'assure que l'ID est bien traité selon le type string | number
-    idFormation: student.formation?.id ?? 0, 
+    idFormation: student.formation?.id ?? 0,
     formation: student.formation?.nom || elanelana,
     formationType: student.formation?.type?.nom || elanelana,
-    
+
     // Attention ici : si l'interface attend des strings, ajoute .toString()
     idNiveau: (student.niveau?.id ?? 0).toString(),
-    
+
     // Vérifie si ces champs doivent être des strings dans l'interface :
-    typeNiveau: student.niveau?.type || 0, 
+    typeNiveau: student.niveau?.type || 0,
     gradeNiveau: student.niveau?.grade || 0,
-    
+
     niveau: student.niveau?.nom || elanelana,
     mention: student.mention?.nom || elanelana,
     matricule: student.matricule || elanelana
   };
   // 3. INSCRIPTION - Utilise l'interface Inscription de db.ts
-  const inscription: Inscription | null = student.inscription 
+  const inscription: Inscription | null = student.inscription
     ? {
-        id: student.id,
-        matricule: student.inscription.matricule || `MAT-${student.id}`,
-        dateInscription: student.inscription.anneeUniversitaire || new Date().toISOString(),
-        description: `Inscription ${student.inscription.anneeUniversitaire || ''}`
-      }
+      id: student.id,
+      matricule: student.inscription.matricule || `MAT-${student.id}`,
+      dateInscription: student.inscription.anneeUniversitaire || new Date().toISOString(),
+      description: `Inscription ${student.inscription.anneeUniversitaire || ''}`
+    }
     : null;
 
   // 4. PAIEMENTS - Utilise l'interface PaiementData de db.ts
@@ -138,22 +138,40 @@ function extractPaiementData(student: Student): PaiementEtudiant[] {
 export async function downloadReceipt(student: Student) {
   try {
     // console.log('📥 Récupération des détails de l\'étudiant...');
-    
+
     // Récupérer les détails complets
     // const fullStudentData = await fetchStudentDetails(student.id);
-    
+
     // console.log('📄 Préparation des données PDF...');
     // console.log('Données de l\'étudiant:', student);
-    
+
     // Préparer les données avec les interfaces de db.ts
     // console.log(student);
     // console.log(student)
-    const { identite, formation, paiementData} = prepareReceiptData(student);
+    const { identite, formation, paiementData } = prepareReceiptData(student);
     // console.log(paiementData)
     generateReceiptPDF(identite, formation, paiementData);
-    
+
   } catch (error) {
     console.error('❌ Erreur lors de la génération du reçu:', error);
+    throw error;
+  }
+}
+
+export async function viewReceipt(student: Student) {
+  try {
+    const { identite, formation, paiementData } = prepareReceiptData(student);
+    const doc = await generateReceiptPDF(identite, formation, paiementData, false);
+    const blob = doc.output('blob');
+    const pdfUrl = URL.createObjectURL(blob);
+    window.open(pdfUrl, '_blank');
+
+    // On révoque l'URL après un délai pour laisser le temps au navigateur de l'ouvrir
+    setTimeout(() => {
+      URL.revokeObjectURL(pdfUrl);
+    }, 100);
+  } catch (error) {
+    console.error('❌ Erreur lors de la visualisation du reçu:', error);
     throw error;
   }
 }

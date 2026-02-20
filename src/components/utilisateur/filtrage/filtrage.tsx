@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Search, Users, Filter, Loader2, FileText, Hash } from "lucide-react";
+import { Search, Users, Filter, Loader2, FileText, Hash, Eye } from "lucide-react";
 import { getInitialData } from "@/lib/appConfig";
 import { Mention, Niveau, Student } from "@/lib/db";
 import { toast } from "sonner";
@@ -202,13 +202,29 @@ export function FiltrageEtudiants() {
             <Users className="w-5 h-5 text-blue-900" />
             <span className="font-bold text-blue-900">{filteredData.length} Étudiants</span>
           </div>
-          <Button
-            onClick={handleExportPDF}
-            variant="outline"
-            className="border-blue-900 text-blue-900 hover:bg-blue-900 hover:text-white flex gap-2"
-          >
-            <FileText className="w-4 h-4" /> Imprimer Liste
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              onClick={handleExportPDF}
+              variant="outline"
+              className="border-slate-300 text-slate-700 hover:bg-slate-100 flex gap-2"
+            >
+              <FileText className="w-4 h-4" /> Exporter Liste
+            </Button>
+            <Button
+              onClick={() => {
+                const mentionLabel = mentions.find(m => m.id.toString() === selectedMention)?.nom || "";
+                const niveauLabel = niveaux.find(n => n.id.toString() === selectedNiveau)?.nom || "";
+                const doc = generateStudentPDF(filteredData, mentionLabel, niveauLabel, false);
+                const blob = doc.output('blob');
+                const url = URL.createObjectURL(blob);
+                window.open(url, '_blank');
+                setTimeout(() => URL.revokeObjectURL(url), 100);
+              }}
+              className="bg-blue-600 text-white hover:bg-blue-700 flex gap-2 font-bold shadow-sm"
+            >
+              <Eye className="w-4 h-4" /> Visualiser / Imprimer
+            </Button>
+          </div>
         </div>
 
         <div className="overflow-x-auto">
