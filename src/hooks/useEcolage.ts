@@ -59,7 +59,7 @@ export const useEcolage = () => {
                     reste_a_payer: reg.reste_a_payer,
                     resteAPayer: reg.reste_a_payer,
                 }))
-            });
+            }   as EtudiantEcolageDetail );
             return response;
         } catch (error: any) {
             toast({
