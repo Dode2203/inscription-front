@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { User } from "@/lib/db";
 import Header from "@/components/static/Header";
 import Menu from "@/components/static/Menu";
-import {FiltrageEtudiants} from "@/components/utilisateur/filtrage/filtrage";
+import { FiltrageEtudiants } from "@/components/utilisateur/filtrage/filtrage";
 
 export default function FiltragePage() {
   const [user, setUser] = useState<User | null>(null);

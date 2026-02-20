@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { generateStudentPDF } from "@/lib/generateliste";
 import { StudentDetailsModal } from "../dashboard/student-model";
 import { useRouter } from "next/navigation";
+import { sortStudentsAlphabetically } from "@/lib/utils";
 
 interface EtudiantFiltre {
   id: number;
