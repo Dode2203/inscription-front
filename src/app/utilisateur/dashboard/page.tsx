@@ -18,6 +18,7 @@ export default function UtilisateurDashboard() {
   const [statsError, setStatsError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const nbJours = Number(process.env.NEXT_PUBLIC_NB_JOURS) || 2;
   
   // Correction ici : On initialise activeTab avec useState pour pouvoir passer setActiveTab
   const [activeTab, setActiveTab] = useState("/utilisateur/dashboard");
@@ -30,7 +31,8 @@ export default function UtilisateurDashboard() {
       try {
         const authResponse = await fetch('/api/auth/me');
         if (!authResponse.ok) {
-          window.location.href = login;
+          await fetch("/api/auth/logout", { method: "POST" })
+          router.push(login); 
           return;
         }
         
@@ -72,7 +74,8 @@ export default function UtilisateurDashboard() {
         setStatsLoading(true);
         setStatsError(null);
 
-        const response = await fetch('/api/etudiants/statistiques');
+        const currentYear = new Date().getFullYear();
+        const response = await fetch(`/api/etudiants/statistiques?nbJours=${nbJours}`);
         if (response.status === 401 || response.status === 403) {
             setLoading(false); 
             
@@ -129,6 +132,7 @@ export default function UtilisateurDashboard() {
             statsData={statsData}
             isLoading={statsLoading}
             error={statsError}
+            nbJours={nbJours}
           />
         </div>
 

@@ -18,6 +18,7 @@ import { generateReceiptPDF } from "@/lib/generateReceipt"
 import { getInitialData } from '@/lib/appConfig';
 import { Student } from '@/lib/db';
 import { downloadReceipt } from '@/lib/receipt-helper';
+import { sortStudentsAlphabetically } from '@/lib/utils';
 
 export function InscriptionForm() {
   const [step, setStep] = useState("identite");
@@ -120,14 +121,8 @@ export function InscriptionForm() {
       // 1. On vérifie si data existe, sinon on utilise un tableau vide par défaut []
       const etudiants = response.data || [];
 
-      // 2. On trie le tableau (qui est maintenant garanti d'exister, même s'il est vide)
-      const sortedStudents = [...etudiants].sort((a: EtudiantRecherche, b: EtudiantRecherche) => {
-        const nomA = a.nom ?? "";
-        const nomB = b.nom ?? "";
-        const compareNom = nomA.localeCompare(nomB);
-        if (compareNom !== 0) return compareNom;
-        return (a.prenom ?? "").localeCompare(b.prenom ?? "");
-      });
+      // 2. On trie le tableau via l'utilitaire centralisé
+      const sortedStudents = sortStudentsAlphabetically<EtudiantRecherche>(etudiants);
 
       setEtudiantsTrouves(sortedStudents);
       setAfficherListeEtudiants(true);
@@ -160,7 +155,7 @@ export function InscriptionForm() {
       const response = await res.json();
       // console.log(response.data)
       if (!res.ok) throw new Error(response.error || "Erreur");
-      
+
 
       setIdentite(response.data.identite);
       setFormation(response.data.formation);
@@ -207,14 +202,14 @@ export function InscriptionForm() {
 
       setSuccessMessageInscription("Inscription réussie !");
       const fullStudent: Student = {
-              ...response.data,
-              typeFormation: response.data.formation?.type || "",
-              droitsPayes: response.data.droitsPayes || [],
-              ecolage: response.data.ecolage || null
-            };
-            
+        ...response.data,
+        typeFormation: response.data.formation?.type || "",
+        droitsPayes: response.data.droitsPayes || [],
+        ecolage: response.data.ecolage || null
+      };
+
       // downloadReceipt(fullStudent);
-          
+
       const successAudio = new Audio("/sounds/success-221935.mp3");
       successAudio.play();
       toast.success("Inscription réussie pour " + identite.nom);
@@ -240,9 +235,9 @@ export function InscriptionForm() {
   }, []);
 
   if (loading) return <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-accent"></div>
-          <p className="mt-4 text-muted-foreground">Chargement...</p>
-        </div>;
+    <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-accent"></div>
+    <p className="mt-4 text-muted-foreground">Chargement...</p>
+  </div>;
 
   return (
     <Card className="max-w-4xl mx-auto p-6 shadow-lg border-t-4 border-blue-900">

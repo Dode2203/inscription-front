@@ -1,14 +1,10 @@
 import { type NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
+import { User } from "@/types/login/login";
 
 const JWT_SECRET = process.env.JWT_SECRET || "ma_cle_secrete";
 
-interface JWTPayload {
-  id: string;
-  email: string;
-  name: string;
-  role: string;
-}
+
 
 export async function GET(request: NextRequest) {
   try {
@@ -18,9 +14,9 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ message: "Not authenticated" }, { status: 401 });
     }
 
-    let payload: JWTPayload;
+    let payload: User;
     try {
-      payload = jwt.verify(token, JWT_SECRET) as JWTPayload;
+      payload = jwt.verify(token, JWT_SECRET) as User;
     } catch {
       return NextResponse.json({ message: "Invalid token" }, { status: 401 });
     }

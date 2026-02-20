@@ -11,7 +11,7 @@ import { twMerge } from 'tailwind-merge'
 export function cn(...inputs: ClassValue[]) {
   // L'instruction retourne directement le résultat de la fusion
   // en utilisant clsx et twMerge.
-  return twMerge(clsx(inputs)) 
+  return twMerge(clsx(inputs))
 }
 
 /**
@@ -76,3 +76,23 @@ export const formatToSql = (date: Date | null | undefined): string => {
 // Assurez-vous d'utiliser `export` devant les deux fonctions.
 // De cette façon, vous pourrez les importer nommément dans n'importe quel composant :
 // import { cn, formatDate } from "@/lib/utils";
+
+/**
+ * Trie une liste d'étudiants par nom, puis par prénom, par ordre alphabétique (A-Z).
+ * Gère les cas où le nom ou le prénom sont manquants (null/undefined).
+ */
+export const sortStudentsAlphabetically = <T extends { nom?: string | null; prenom?: string | null }>(
+  students: T[]
+): T[] => {
+  return [...students].sort((a, b) => {
+    const nomA = (a.nom ?? "").toLowerCase();
+    const nomB = (b.nom ?? "").toLowerCase();
+    const compareNom = nomA.localeCompare(nomB);
+
+    if (compareNom !== 0) return compareNom;
+
+    const prenomA = (a.prenom ?? "").toLowerCase();
+    const prenomB = (b.prenom ?? "").toLowerCase();
+    return prenomA.localeCompare(prenomB);
+  });
+};

@@ -4,13 +4,13 @@ import autoTable from "jspdf-autotable";
 // Remplacez cette chaîne par le Base64 réel de votre logo
 const LOGO_BASE64 = "/espa-logo.png";
 
-export const generateStudentPDF = (data: any[], mention: string, niveau: string) => {
+export const generateStudentPDF = (data: any[], mention: string, niveau: string, shouldSave: boolean = true) => {
   const doc = new jsPDF();
   const dateGeneration = new Date().toLocaleDateString('fr-FR');
 
   // --- 1. LOGO ET EN-TÊTE ---
   try {
-      doc.addImage(LOGO_BASE64, 'PNG', 15, 10, 25, 25);
+    doc.addImage(LOGO_BASE64, 'PNG', 15, 10, 25, 25);
   } catch (e) {
     console.error("Erreur lors de l'ajout du logo au PDF", e);
   }
@@ -19,13 +19,13 @@ export const generateStudentPDF = (data: any[], mention: string, niveau: string)
   doc.setFontSize(9);
   doc.setFont("helvetica", "normal");
   doc.setTextColor(0, 0, 0);
-  
-  const textX = 45; 
+
+  const textX = 45;
   doc.text("UNIVERSITE D'ANTANANARIVO", textX, 15);
   doc.text("ECOLE SUPERIEURE POLYTECHNIQUE", textX, 20);
   doc.text("D'ANTANANARIVO", textX, 25);
   doc.text("--------------ooOoo--------------", textX, 30);
-  
+
   doc.setFontSize(10);
   doc.text("Année Universitaire 2025/2026", 140, 15);
 
@@ -33,7 +33,7 @@ export const generateStudentPDF = (data: any[], mention: string, niveau: string)
   doc.setFontSize(12);
   doc.setFont("helvetica", "bold");
   doc.text("FICHE DE PRÉSENCE / LISTE D'ÉMARGEMENT", 105, 48, { align: "center" });
-  
+
   doc.setFontSize(10);
   doc.text(`MENTION : ${mention.toUpperCase() || "TOUTES"}`, 105, 56, { align: "center" });
   if (niveau) {
@@ -54,14 +54,14 @@ export const generateStudentPDF = (data: any[], mention: string, niveau: string)
     head: [['MATRICULE', 'NOM ET PRENOMS', 'MENTION', 'DATE', 'SIGNATURE']],
     body: tableRows,
     theme: 'grid',
-    headStyles: { 
-      fillColor: [240, 240, 240], 
-      textColor: [0, 0, 0], 
+    headStyles: {
+      fillColor: [240, 240, 240],
+      textColor: [0, 0, 0],
       fontStyle: 'bold',
       halign: 'center',
       lineWidth: 0.1
     },
-    bodyStyles: { 
+    bodyStyles: {
       fontSize: 8, // Légère réduction pour l'espace
       textColor: [0, 0, 0],
       lineWidth: 0.1,
@@ -83,7 +83,7 @@ export const generateStudentPDF = (data: any[], mention: string, niveau: string)
 
   // --- 5. BAS DE PAGE ET SIGNATURE ---
   const finalY = (doc as any).lastAutoTable.finalY + 10;
-  
+
   doc.setFontSize(9);
   doc.setFont("helvetica", "bold");
   doc.text(`TOTAL : ${data.length} ÉTUDIANT(S) INSCRIT(S).`, 15, finalY);
@@ -94,9 +94,12 @@ export const generateStudentPDF = (data: any[], mention: string, niveau: string)
 
   doc.setFont("helvetica", "bold");
   doc.text("Le Responsable,", 145, signatureY + 8);
-  
+
   doc.setLineWidth(0.2);
   doc.line(135, signatureY + 25, 185, signatureY + 25);
 
-  doc.save(`Fiche_Presence_${mention.replace(/\s+/g, '_')}.pdf`);
+  if (shouldSave) {
+    doc.save(`Fiche_Presence_${mention.replace(/\s+/g, '_')}.pdf`);
+  }
+  return doc;
 };

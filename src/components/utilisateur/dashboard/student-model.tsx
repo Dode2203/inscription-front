@@ -2,9 +2,9 @@
 'use client';
 
 import { useState } from 'react';
-import { Download, Loader2, X, User, Calendar, MapPin, Mail, GraduationCap, CreditCard, Pencil } from 'lucide-react';
+import { Download, Loader2, X, User, Calendar, MapPin, Mail, GraduationCap, CreditCard, Pencil, Eye } from 'lucide-react';
 import { Student } from '@/lib/db';
-import { downloadReceipt } from '@/lib/receipt-helper';
+import { downloadReceipt, viewReceipt } from '@/lib/receipt-helper';
 import ModifierPaiementForm from '@/components/admin/modification/ModifierPaiementForm';
 
 interface StudentDetailsModalProps {
@@ -38,6 +38,19 @@ export function StudentDetailsModal({ student, onClose, onUpdateSuccess }: Stude
       alert('Erreur lors de la génération du PDF');
     } finally {
       setIsDownloading(false);
+    }
+  };
+
+  const [isViewing, setIsViewing] = useState(false);
+  const handleViewPDF = async () => {
+    try {
+      setIsViewing(true);
+      await viewReceipt(student);
+    } catch (error) {
+      console.error('Erreur:', error);
+      alert('Erreur lors de la visualisation du PDF');
+    } finally {
+      setIsViewing(false);
     }
   };
 
@@ -270,7 +283,7 @@ export function StudentDetailsModal({ student, onClose, onUpdateSuccess }: Stude
           <button
             onClick={handleDownloadPDF}
             disabled={isDownloading}
-            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors rounded-lg text-sm font-medium"
           >
             {isDownloading ? (
               <>
@@ -280,7 +293,24 @@ export function StudentDetailsModal({ student, onClose, onUpdateSuccess }: Stude
             ) : (
               <>
                 <Download className="h-4 w-4 mr-2" />
-                Télécharger le reçu PDF
+                Télécharger
+              </>
+            )}
+          </button>
+          <button
+            onClick={handleViewPDF}
+            disabled={isViewing}
+            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-bold shadow-sm"
+          >
+            {isViewing ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Préparation...
+              </>
+            ) : (
+              <>
+                <Eye className="h-4 w-4 mr-2" />
+                Visualiser / Imprimer
               </>
             )}
           </button>

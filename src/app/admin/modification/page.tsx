@@ -10,6 +10,7 @@ import { Search, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { getInitialData } from "@/lib/appConfig";
 import FormulaireEtudiant from "@/components/admin/modification/FormulaireEtudiant";
+import { sortStudentsAlphabetically } from "@/lib/utils";
 
 export default function ModificationPage() {
   const router = useRouter();
@@ -23,11 +24,11 @@ export default function ModificationPage() {
   const [etudiantsTrouves, setEtudiantsTrouves] = useState<EtudiantRecherche[]>([]);
   const [loadingRecherche, setLoadingRecherche] = useState(false);
   const [afficherListe, setAfficherListe] = useState(false);
-  
+
   // État de sélection
   const [selectedEtudiantId, setSelectedEtudiantId] = useState<number | string | null>(null);
   const searchParams = useSearchParams(); // 2. Initialisez searchParams
-useEffect(() => {
+  useEffect(() => {
     const init = async () => {
       try {
         // --- AJOUT : Récupération des valeurs depuis l'URL ---
@@ -45,7 +46,7 @@ useEffect(() => {
 
         // OPTIONNEL : Lancer la recherche automatiquement si les paramètres existent
         if (n || p) {
-           // Vous pouvez appeler rechercheEtudiants() ici si nécessaire
+          // Vous pouvez appeler rechercheEtudiants() ici si nécessaire
         }
 
       } catch { router.push('/login'); }
@@ -65,34 +66,38 @@ useEffect(() => {
       });
       const response = await res.json();
       if (res.ok && response.data.length > 0) {
-        setEtudiantsTrouves(response.data);
+        // On trie les données reçues avant de les mettre dans le state
+        const sortedResults = sortStudentsAlphabetically<EtudiantRecherche>(response.data);
+        setEtudiantsTrouves(sortedResults);
         setAfficherListe(true);
-      } else { 
-        toast.error("Aucun résultat"); 
+      } else {
+        toast.error("Aucun résultat");
         setEtudiantsTrouves([]); // On vide la liste précédente
         setAfficherListe(false);
       }
     } finally { setLoadingRecherche(false); }
   };
 
-  if (loading) return <div className="h-screen flex items-center justify-center"><Loader2 className="animate-spin text-blue-900" /></div>;
+  if (loading) return  <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>;
 
   return (
     <main className="min-h-screen bg-[#f8fafc]">
       <Header user={user} />
       <div className="max-w-7xl mx-auto px-4 py-6">
-        <Menu user={user} activeTab="" setActiveTab={() => {}} />
+        <Menu user={user} activeTab="" setActiveTab={() => { }} />
 
         {/* BARRE DE RECHERCHE */}
         <div className="relative z-20 mb-6">
           <div className="bg-white p-2 rounded-lg shadow-sm border flex items-center gap-3">
             <Search size={18} className="text-slate-400 ml-2" />
             <input className="flex-1 bg-transparent border-none focus:ring-0 text-sm h-9" placeholder="Nom..." value={nomSearch} onChange={(e) => setNomSearch(e.target.value)} />
-            <input 
-              className="flex-1 bg-transparent border-none focus:ring-0 text-sm h-9 border-l pl-3" 
-              placeholder="Prénom..." 
-              value={prenomSearch} 
-              onChange={(e) => setPrenomSearch(e.target.value)} 
+            <input
+              className="flex-1 bg-transparent border-none focus:ring-0 text-sm h-9 border-l pl-3"
+              placeholder="Prénom..."
+              value={prenomSearch}
+              onChange={(e) => setPrenomSearch(e.target.value)}
             />
             <Button onClick={rechercheEtudiants} disabled={loadingRecherche} size="sm" className="bg-blue-900">
               {loadingRecherche ? <Loader2 className="animate-spin" /> : "Rechercher"}
@@ -112,14 +117,14 @@ useEffect(() => {
 
         {/* AFFICHAGE CONDITIONNEL DU SOUS-COMPOSANT */}
         {selectedEtudiantId && (
-          <FormulaireEtudiant 
-            idEtudiant={selectedEtudiantId} 
+          <FormulaireEtudiant
+            idEtudiant={selectedEtudiantId}
             nationalites={nationalites}
             onClose={() => setSelectedEtudiantId(null)}
             onSuccess={() => {
-                setSelectedEtudiantId(null);
-                // setNomSearch("");
-                // setPrenomSearch("");
+              setSelectedEtudiantId(null);
+              // setNomSearch("");
+              // setPrenomSearch("");
             }}
           />
         )}
