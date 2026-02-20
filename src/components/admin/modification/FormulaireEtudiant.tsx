@@ -115,30 +115,17 @@ export default function FormulaireEtudiant({ idEtudiant, nationalites, onClose, 
       const result = await response.json();
       if (response.ok && result.status === 'success') {
         const etudiantId = result.etudiantId || result.data?.id || formData.id;
-        console.log("ID reçu pour rafraîchissement:", etudiantId);
 
-        // Appel pour récupérer les données complètes (nécessaire pour le PDF)
-        const currentYear = new Date().getFullYear();
-        const detailsRes = await fetch(`/api/etudiants/details-par-annee?idEtudiant=${etudiantId}&annee=${currentYear}`);
-        const detailsResult = await detailsRes.json();
+        setIsSuccess(true);
+        // On ne fetch plus les détails ici, on attend le clic sur "Voir le PDF"
 
-        if (detailsRes.ok && detailsResult.status === 'success') {
-          const studentData = detailsResult.data;
-          console.log("Données complètes reçues pour le PDF:", studentData);
-          setUpdatedStudentData(studentData);
-          setIsSuccess(true);
-
-          toast.success('Modifications enregistrées !', {
-            action: {
-              label: "Imprimer le document",
-              onClick: () => handleViewPDF(studentData)
-            },
-            duration: 5000,
-          });
-        } else {
-          toast.warning("Modifications enregistrées, mais impossible de générer l'aperçu PDF immédiatement.");
-          setIsSuccess(true);
-        }
+        toast.success('Modifications enregistrées !', {
+          action: {
+            label: "Imprimer le document",
+            onClick: () => handleViewPDF(etudiantId)
+          },
+          duration: 5000,
+        });
       } else {
         throw new Error(result.message || 'Erreur lors de la sauvegarde');
       }
@@ -149,16 +136,44 @@ export default function FormulaireEtudiant({ idEtudiant, nationalites, onClose, 
     }
   };
 
-  const handleViewPDF = async (data?: Student) => {
-    const studentToView = data || updatedStudentData;
-    if (!studentToView) return;
+  const handleViewPDF = async (idFromToast?: number | string) => {
+    // Si on a déjà les données fraîches, on les utilise
+    if (updatedStudentData) {
+      try {
+        setIsViewing(true);
+        await viewReceipt(updatedStudentData);
+      } catch (error) {
+        console.error('Erreur:', error);
+        toast.error('Erreur lors de la visualisation du PDF');
+      } finally {
+        setIsViewing(false);
+      }
+      return;
+    }
+
+    // Sinon, on charge les données (Lazy Loading)
+    const etudiantId = idFromToast || formData?.id;
+    if (!etudiantId) {
+      toast.error("Impossible de récupérer l'ID de l'étudiant");
+      return;
+    }
 
     try {
       setIsViewing(true);
-      await viewReceipt(studentToView);
-    } catch (error) {
+      const currentYear = new Date().getFullYear();
+      const response = await fetch(`/api/etudiants/details-par-annee?idEtudiant=${etudiantId}&annee=${currentYear}`);
+      const result = await response.json();
+
+      if (response.ok && result.status === 'success') {
+        const fullData = result.data;
+        setUpdatedStudentData(fullData);
+        await viewReceipt(fullData);
+      } else {
+        throw new Error(result.message || "Erreur lors de la récupération des détails");
+      }
+    } catch (error: any) {
       console.error('Erreur:', error);
-      toast.error('Erreur lors de la visualisation du PDF');
+      toast.error(error.message || 'Erreur lors de la préparation du PDF');
     } finally {
       setIsViewing(false);
     }
