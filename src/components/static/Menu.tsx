@@ -60,6 +60,11 @@ export default function Menu({ user, activeTab, setActiveTab }: MenuProps) {
   if (user?.role === "Admin") {
     tabs.push(
       {
+        key: "/utilisateur/dashboard",
+        label: "Dashboard",
+        icon: <BarChart3 size={18} />,
+      },
+      {
         key: "/admin/inscription",
         label: "Inscription",
         icon: <BarChart3 size={18} />,

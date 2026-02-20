@@ -38,13 +38,13 @@ export default function AdminLoginPage() {
       // ✅ récupération du token et du membre
       const { token, membre } = data;
 
-      // ✅ stockage côté client
-      if (token) localStorage.setItem("token", token);
-      if (membre) localStorage.setItem("membre", JSON.stringify(membre));
+      // // ✅ stockage côté client
+      // if (token) localStorage.setItem("token", token);
+      // if (membre) localStorage.setItem("membre", JSON.stringify(membre));
 
         // ✅ redirection selon le rôle
           if (membre?.role === "Admin") {
-            window.location.href = "/admin/inscription";
+            window.location.href = "/utilisateur/dashboard";
           } else if (membre?.role === "Utilisateur") {
             window.location.href = "utilisateur/dashboard";
           }  else if (membre?.role === "Ecolage") {
