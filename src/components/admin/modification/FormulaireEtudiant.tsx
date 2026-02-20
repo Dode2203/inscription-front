@@ -178,6 +178,31 @@ export default function FormulaireEtudiant({ idEtudiant, nationalites, onClose, 
       setIsViewing(false);
     }
   };
+  const handleDateNaissanceChange = (dateNais: string) => {
+    if (!formData) return;
+
+    const today = new Date();
+    const birthDate = new Date(dateNais);
+    
+    // Calcul de l'âge précis
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+
+    const isMineur = age < 18;
+    const dateAujourdhui = today.toISOString().split('T')[0];
+
+    setFormData({
+      ...formData,
+      dateNaissance: dateNais,
+      // Mise à jour automatique si mineur
+      cinNumero: isMineur ? "-" : formData.cinNumero, // Valeur par défaut
+      cinLieu: isMineur ? "-" : (formData.cinLieu === "-" ? "" : formData.cinLieu),
+      dateCin: isMineur ? dateAujourdhui : formData.dateCin,
+    });
+  };
 
   if (loading) return <div className="p-10 flex justify-center"><Loader2 className="animate-spin" /></div>;
   if (!formData) return null;
@@ -241,7 +266,13 @@ export default function FormulaireEtudiant({ idEtudiant, nationalites, onClose, 
                 <h4 className="text-[10px] font-black text-blue-900 uppercase tracking-widest border-b pb-1">Etat Civil</h4>
                 <CompactField label="Nom" value={formData.nom} onChange={(v: string) => setFormData({ ...formData, nom: v })} required />
                 <CompactField label="Prénom" value={formData.prenom} onChange={(v: string) => setFormData({ ...formData, prenom: v })} />
-                <CompactField label="Date de naissance" type="date" value={formData.dateNaissance} onChange={(v: string) => setFormData({ ...formData, dateNaissance: v })} required />
+                <CompactField 
+                  label="Date de naissance" 
+                  type="date" 
+                  value={formData.dateNaissance} 
+                  onChange={(v) => handleDateNaissanceChange(v)} 
+                  required 
+                />
                 <CompactField label="Lieu de naissance" value={formData.lieuNaissance} onChange={(v: string) => setFormData({ ...formData, lieuNaissance: v })} required />
                 <CompactField label="Nom du Père" value={formData.nomPere} onChange={(v) => setFormData({ ...formData, nomPere: v })} />
                 <CompactField label="Nom de la Mère" value={formData.nomMere} onChange={(v) => setFormData({ ...formData, nomMere: v })} />
