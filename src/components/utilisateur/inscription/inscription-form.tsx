@@ -122,7 +122,7 @@ export function InscriptionForm() {
       const etudiants = response.data || [];
 
       // 2. On trie le tableau via l'utilitaire centralisé
-      const sortedStudents = sortStudentsAlphabetically(etudiants);
+      const sortedStudents = sortStudentsAlphabetically<EtudiantRecherche>(etudiants);
 
       setEtudiantsTrouves(sortedStudents);
       setAfficherListeEtudiants(true);

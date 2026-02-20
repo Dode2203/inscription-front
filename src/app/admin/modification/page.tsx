@@ -67,7 +67,7 @@ export default function ModificationPage() {
       const response = await res.json();
       if (res.ok && response.data.length > 0) {
         // On trie les données reçues avant de les mettre dans le state
-        const sortedResults = sortStudentsAlphabetically(response.data);
+        const sortedResults = sortStudentsAlphabetically<EtudiantRecherche>(response.data);
         setEtudiantsTrouves(sortedResults);
         setAfficherListe(true);
       } else {
@@ -78,7 +78,9 @@ export default function ModificationPage() {
     } finally { setLoadingRecherche(false); }
   };
 
-  if (loading) return <div className="h-screen flex items-center justify-center"><Loader2 className="animate-spin text-blue-900" /></div>;
+  if (loading) return  <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>;
 
   return (
     <main className="min-h-screen bg-[#f8fafc]">
