@@ -260,10 +260,16 @@ export function InscriptionForm() {
       </div>
 
       {etudiantsTrouves.length > 0 && afficherListeEtudiants && (
-        <div className="mt-4 border rounded-lg divide-y bg-white shadow-sm overflow-hidden mb-6">
+        <div className="mt-4 border rounded-lg divide-y bg-white shadow-sm mb-6 max-h-[300px] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-200">
           {etudiantsTrouves.map((etudiant) => (
-            <button key={etudiant.id} type="button" onClick={() => fetchEtudiant(etudiant.id)} className="w-full text-left px-4 py-3 hover:bg-slate-100 transition">
-              <p className="font-semibold">{etudiant.nom} {etudiant.prenom}</p>
+            <button 
+              key={etudiant.id} 
+              type="button" 
+              onClick={() => fetchEtudiant(etudiant.id)} 
+              className="w-full text-left px-4 py-3 hover:bg-slate-100 transition"
+            >
+              <p className="font-semibold text-slate-800">{etudiant.nom} {etudiant.prenom}</p>
+
             </button>
           ))}
         </div>
