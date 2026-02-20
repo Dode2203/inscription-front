@@ -217,10 +217,11 @@ export default function FormulaireEtudiant({ idEtudiant, nationalites, onClose, 
               <div className="space-y-1">
                 <Label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Nationalité</Label>
                 <select 
-                  value={formData.nationaliteId} 
+                  value={formData.nationaliteId ?? ""} 
                   onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFormData({ ...formData, nationaliteId: e.target.value })} 
                   className="h-9 w-full text-sm border-slate-200 bg-slate-50/50 rounded-md px-3"
                 >
+                  <option value="" disabled>Sélectionnez une nationalité</option>
                   {nationalites.map(n => (
                     <option key={n.id} value={n.id}>{n.nom}</option>
                   ))}
