@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { getInitialData } from "@/lib/appConfig";
+import { useInitialData } from "@/context/DataContext";
 import { useRouter } from "next/navigation"
 
 export default function InscriptionPage() {
@@ -20,10 +20,7 @@ export default function InscriptionPage() {
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  const [formations, setFormations] = useState<Formation[]>([]);
-  const [mentions, setMentions] = useState<Mention[]>([]);
-  const [nationalites, setNationalites] = useState<Nationalite[]>([]);
-
+  const { formations, mentions, nationalites } = useInitialData();
   const login = process.env.NEXT_PUBLIC_LOGIN_URL || '/login';
 
   const [formData, setFormData] = useState({
@@ -47,11 +44,10 @@ export default function InscriptionPage() {
   });
 
   useEffect(() => {
-    const checkAuthAndLoadData = async () => {
+    const checkAuth= async () => {
       try {
-        const [authRes, initialData] = await Promise.all([
-          fetch(`/api/auth/me`),
-          getInitialData()
+        const [authRes] = await Promise.all([
+          fetch(`/api/auth/me`)
         ]);
 
         if (!authRes.ok) {
@@ -66,17 +62,13 @@ export default function InscriptionPage() {
           router.push(login); 
         }
       
-        if (initialData.formations) setFormations(initialData.formations);
-        if (initialData.mentions) setMentions(initialData.mentions);
-        if (initialData.nationalites) setNationalites(initialData.nationalites);
-
       } catch (err) {
         window.location.href = login;
       } finally {
         setLoading(false);
       }
     };
-    checkAuthAndLoadData();
+    checkAuth();
   }, [login]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {

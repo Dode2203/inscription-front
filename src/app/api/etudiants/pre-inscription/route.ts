@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
     } catch (error: any) {
         return NextResponse.json({
             status: "error",
-            message: error.message || "Une erreur interne est survenue"
+            message: error.message||error.error || "Une erreur interne est survenue"
         }, { status: error.response?.status || 500 });
     }
 }

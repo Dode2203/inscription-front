@@ -2,33 +2,30 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { User, EtudiantRecherche, Nationalite } from "@/lib/db";
+import { User, EtudiantRecherche } from "@/lib/db";
 import Header from "@/components/static/Header";
 import Menu from "@/components/static/Menu";
 import { Button } from "@/components/ui/button";
 import { Search, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { getInitialData } from "@/lib/appConfig";
 import FormulaireEtudiant from "@/components/admin/modification/FormulaireEtudiant";
 import { sortStudentsAlphabetically } from "@/lib/utils";
+import { useInitialData } from "@/context/DataContext";
 
-// 1. Créez un composant interne qui contient toute votre logique actuelle
 function ModificationContent() {
   const router = useRouter();
   const searchParams = useSearchParams(); // Utilisation sécurisée car enveloppée dans Suspense
   
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [nationalites, setNationalites] = useState<Nationalite[]>([]);
 
-  // États recherche
   const [nomSearch, setNomSearch] = useState("");
   const [prenomSearch, setPrenomSearch] = useState("");
   const [etudiantsTrouves, setEtudiantsTrouves] = useState<EtudiantRecherche[]>([]);
   const [loadingRecherche, setLoadingRecherche] = useState(false);
   const [afficherListe, setAfficherListe] = useState(false);
+  const { nationalites } = useInitialData();
 
-  // État de sélection
   const [selectedEtudiantId, setSelectedEtudiantId] = useState<number | string | null>(null);
 
   useEffect(() => {
@@ -40,10 +37,7 @@ function ModificationContent() {
         if (n) setNomSearch(n);
         if (p) setPrenomSearch(p);
 
-        const [authRes, initialData] = await Promise.all([
-          fetch(`/api/auth/me`), 
-          getInitialData()
-        ]);
+        const authRes = await fetch(`/api/auth/me`);
 
         if (!authRes.ok) { 
           router.push('/login'); 
@@ -52,7 +46,6 @@ function ModificationContent() {
 
         const data = await authRes.json();
         setUser(data.user);
-        setNationalites(initialData.nationalites || []);
 
       } catch { 
         router.push('/login'); 

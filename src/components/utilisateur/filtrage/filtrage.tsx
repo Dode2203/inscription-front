@@ -7,13 +7,12 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Search, Users, Filter, Loader2, FileText, Hash, Eye } from "lucide-react";
 import { getInitialData } from "@/lib/appConfig";
-import { Mention, Niveau, Student } from "@/lib/db";
+import { Student } from "@/lib/db";
 import { toast } from "sonner";
 import { generateStudentPDF } from "@/lib/generateliste";
 import { StudentDetailsModal } from "../dashboard/student-model";
 import { useRouter } from "next/navigation";
-import { sortStudentsAlphabetically } from "@/lib/utils";
-
+import { useInitialData } from "@/context/DataContext";
 interface EtudiantFiltre {
   id: number;
   matricule?: string;
@@ -30,8 +29,6 @@ export function FiltrageEtudiants() {
   const router = useRouter();
 
   // États pour les données
-  const [mentions, setMentions] = useState<Mention[]>([]);
-  const [niveaux, setNiveaux] = useState<Niveau[]>([]);
   const [resultats, setResultats] = useState<EtudiantFiltre[]>([]);
 
   // États pour la sélection et le filtrage
@@ -45,12 +42,7 @@ export function FiltrageEtudiants() {
   const [loadingId, setLoadingId] = useState<number | null>(null); // Chargement spécifique d'un étudiant
 
   // Chargement initial des mentions et niveaux
-  useEffect(() => {
-    getInitialData().then((data) => {
-      setMentions(data.mentions || []);
-      setNiveaux(data.niveaux || []);
-    });
-  }, []);
+  const { mentions, niveaux } = useInitialData();
 
   // Récupération de la liste des étudiants
   const fetchEtudiants = useCallback(async () => {

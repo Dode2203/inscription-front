@@ -1,16 +1,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { User, Formation, Mention, Nationalite } from "@/lib/db";
+import { User } from "@/lib/db";
 import Header from "@/components/static/Header";
 import Menu from "@/components/static/Menu";
 import { Button } from "@/components/ui/button";
-import { Loader2, Plus, Search } from "lucide-react";
-import { getInitialData } from "@/lib/appConfig";
+import { Plus, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import QuickPreForm from "@/components/admin/pre-inscription/QuickPreForm";
 import PreSearchList from "@/components/admin/pre-inscription/PreSearchList";
 import FinalConversionForm from "@/components/admin/pre-inscription/FinalConversionForm";
+import { useInitialData } from "@/context/DataContext";
 
 interface PreInscrit {
     id: number;
@@ -28,9 +28,7 @@ export default function PreInscriptionPage() {
     const [activeTab, setActiveTab] = useState("/admin/pre-inscription");
     const [loading, setLoading] = useState(true);
 
-    const [formations, setFormations] = useState<Formation[]>([]);
-    const [mentions, setMentions] = useState<Mention[]>([]);
-    const [nationalites, setNationalites] = useState<Nationalite[]>([]);
+    const { formations, mentions, nationalites } = useInitialData();
 
     const [viewMode, setViewMode] = useState<ViewMode>("quick-entry");
     const [selectedCandidate, setSelectedCandidate] = useState<PreInscrit | null>(null);
@@ -40,9 +38,8 @@ export default function PreInscriptionPage() {
     useEffect(() => {
         const checkAuthAndLoadData = async () => {
             try {
-                const [authRes, initialData] = await Promise.all([
-                    fetch(`/api/auth/me`),
-                    getInitialData()
+                const [authRes] = await Promise.all([
+                    fetch(`/api/auth/me`)
                 ]);
 
                 if (!authRes.ok) {
@@ -56,10 +53,6 @@ export default function PreInscriptionPage() {
                     await fetch("/api/auth/logout", { method: "POST" });
                     router.push(login);
                 }
-
-                if (initialData.formations) setFormations(initialData.formations);
-                if (initialData.mentions) setMentions(initialData.mentions);
-                if (initialData.nationalites) setNationalites(initialData.nationalites);
 
             } catch (err) {
                 window.location.href = login;

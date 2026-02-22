@@ -239,6 +239,12 @@ export interface StatusEtudiant {
   id: number;
   nom: string;
 }
+export interface InitialData {
+  niveaux: Niveau[];
+  mentions: Mention[]; // Changé de 'formations' à 'mentions'
+  formations : Formation[];
+  nationalites : Nationalite[];
+}
 
 // In-memory storage (replace with database)
 let users: User[] = [

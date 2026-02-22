@@ -12,7 +12,7 @@ import { Search, Loader2, CheckCircle, Info } from "lucide-react"
 import { Formation, Identite, EtudiantRecherche, Niveau, Mention } from '@/lib/db'
 
 import { useRouter } from "next/navigation"
-import { getInitialData } from '@/lib/appConfig';
+import { useInitialData } from '@/context/DataContext';
 import ChangerNiveauEtudiantForm from './sousComposant/changerNiveauEtudiantForm'
 export function ChangerNiveauEtudiant() {
   const router = useRouter();
@@ -24,14 +24,12 @@ export function ChangerNiveauEtudiant() {
   const [nomSearch, setNomSearch] = useState("")
   const [prenomSearch, setPrenomSearch] = useState("")
   const [etudiantsTrouves, setEtudiantsTrouves] = useState<EtudiantRecherche[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [niveaux, setNiveaux] = useState<Niveau[]>([]);
-  const [formations, setFormations] = useState<Formation[]>([]);
-
+  
   const [identite, setIdentite] = useState<Identite | null>(null)
   const [formation, setFormation] = useState<Formation | null>(null);
-  const [mentions, setMentions] = useState<Mention[]>([]);
   const[loadingSauvegarde, setLoadingSauvegarde] = useState(false);
+
+  const { formations, mentions, niveaux } = useInitialData();
 
   const resetForm = () => {
     setEtudiantsTrouves([]);
@@ -177,19 +175,6 @@ export function ChangerNiveauEtudiant() {
     setLoadingSauvegarde(false);
   }
 };
-
-  useEffect(() => {
-    getInitialData().then((data) => {
-      setNiveaux(data.niveaux);
-      setFormations(data.formations);
-      setMentions(data.mentions);
-    }).finally(() => setLoading(false));
-  }, []);
-
-  if (loading) return <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-accent"></div>
-          <p className="mt-4 text-muted-foreground">Chargement...</p>
-        </div>;
 
   return (
     <Card className="max-w-4xl mx-auto p-6 shadow-lg border-t-4 border-blue-900">
