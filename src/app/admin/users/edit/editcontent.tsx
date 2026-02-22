@@ -23,7 +23,7 @@ export default function EditUserContent() {
         prenom: "",
         email: "",
         status: "Actif" as "Actif" | "Inactif",
-        role: "Utilisateur" as "Utilisateur" | "Admin",
+        role: "Utilisateur" as "Utilisateur" | "Admin" | "Ecolage",
         password: "",
     });
 
@@ -235,6 +235,7 @@ export default function EditUserContent() {
                                 >
                                     <option value="Utilisateur">Utilisateur</option>
                                     <option value="Admin">Administrateur</option>
+                                    <option value="Ecolage">Écolage</option>
                                 </select>
                             </div>
                         </div>
