@@ -235,7 +235,10 @@ export function FiltrageEtudiants() {
               {loading ? (
                 <tr>
                   <td colSpan={5} className="px-6 py-10 text-center">
-                    <Loader2 className="w-8 h-8 animate-spin mx-auto text-blue-900" />
+                    <div className="flex flex-col justify-center items-center py-20 bg-white rounded-2xl border border-slate-200">
+                      <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
+                      <p className="mt-4 text-slate-500">Chargement de la liste...</p>
+                    </div>
                   </td>
                 </tr>
               ) : filteredData.length > 0 ? (
