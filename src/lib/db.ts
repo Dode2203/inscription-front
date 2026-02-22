@@ -99,6 +99,7 @@ export interface Formation {
   typeFormation?: string;
   matricule?: string;
   estBoursier?: number;
+  remarque?: string;
   
 
 }

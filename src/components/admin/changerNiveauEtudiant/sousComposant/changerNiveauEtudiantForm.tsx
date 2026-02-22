@@ -39,7 +39,7 @@ const ChangerNiveauEtudiantForm: React.FC<Props> = ({
     idMention: formation.idMention?.toString() || "",
     idStatusEtudiant: formation.idStatusEtudiant?.toString() || "none",
     nouvelleNiveau: "false",
-    
+    remarque: formation.remarque || "none",
   });
 
   const status: StatusEtudiant[] = [
@@ -47,6 +47,7 @@ const ChangerNiveauEtudiantForm: React.FC<Props> = ({
     { id: 2, nom: "Redoublant" },
     { id: 3, nom: "Suspendu" }
   ];
+  const remarques = ["R","M"];
   const handleSelectChange = (name: string, value: string) => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
@@ -107,30 +108,30 @@ const ChangerNiveauEtudiantForm: React.FC<Props> = ({
 
         {/* Section Niveau */}
         <div className="space-y-2">
-        <Label htmlFor="idNiveau">Niveau (Grade)</Label>
-        <Select 
-          value={formData.idNiveau} 
-          onValueChange={(value) => handleSelectChange("idNiveau", value)}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Sélectionner un niveau" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="none">Aucun</SelectItem>
+          <Label htmlFor="idNiveau">Niveau (Grade)</Label>
+          <Select 
+            value={formData.idNiveau} 
+            onValueChange={(value) => handleSelectChange("idNiveau", value)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Sélectionner un niveau" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">Aucun</SelectItem>
 
-            {niveaux
-              .filter((n: Niveau) =>
-                Number(formData.idFormation) === n.type 
-              )
-              .map((n: Niveau) => (
-                <SelectItem key={n.id} value={n.id?.toString() || ""}>
-                  {n.nom} ({n.grade})
-                </SelectItem>
-              ))}
-              
-          </SelectContent>
-        </Select>
-      </div>
+              {niveaux
+                .filter((n: Niveau) =>
+                  Number(formData.idFormation) === n.type 
+                )
+                .map((n: Niveau) => (
+                  <SelectItem key={n.id} value={n.id?.toString() || ""}>
+                    {n.nom} ({n.grade})
+                  </SelectItem>
+                ))}
+                
+            </SelectContent>
+          </Select>
+        </div>
 
         <div className="space-y-2">
           <Label htmlFor="idStatusEtudiant">Status</Label>
@@ -152,21 +153,40 @@ const ChangerNiveauEtudiantForm: React.FC<Props> = ({
           </Select>
         </div>
         {/* Section Nouvelle Niveau */}
-      <div className="space-y-2">
-        <Label htmlFor="nouvelleNiveau">Nouvelle Niveau ?</Label>
-        <Select
-          value={formData.nouvelleNiveau}
-          onValueChange={(value) => handleSelectChange("nouvelleNiveau", value)}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Choisir une option" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="true">Oui</SelectItem>
-            <SelectItem value="false">Non</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+        <div className="space-y-2">
+          <Label htmlFor="nouvelleNiveau">Nouvelle Niveau ?</Label>
+          <Select
+            value={formData.nouvelleNiveau}
+            onValueChange={(value) => handleSelectChange("nouvelleNiveau", value)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Choisir une option" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="true">Oui</SelectItem>
+              <SelectItem value="false">Non</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="remarque">Remarque</Label>
+          <Select 
+            value={formData.remarque} 
+            onValueChange={(value) => handleSelectChange("remarque", value)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Sélectionner une remarque" />
+            </SelectTrigger>
+            <SelectContent>
+                <SelectItem value="none">Aucun</SelectItem>
+              {remarques.map((n) => (
+                <SelectItem key={n} value={n}>
+                  {n}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
 
         <div className="pt-4">

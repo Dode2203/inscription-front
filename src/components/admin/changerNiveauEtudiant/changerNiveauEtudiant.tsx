@@ -121,13 +121,17 @@ export function ChangerNiveauEtudiant() {
     // 2. Appel Fetch
     // console.log(data)
     setLoadingSauvegarde(true);
+    if (data.remarque === "none") {
+        data.remarque = null;
+    }
     const dataToSend = {
                 idEtudiant: Number(data.idEtudiant), 
                 idNiveau: Number(data.idNiveau),
                 idMention: Number(data.idMention),
                 idFormation: Number(data.idFormation),
                 idStatus: Number(data.idStatusEtudiant),
-                nouvelleNiveau: data.nouvelleNiveau === "true"
+                nouvelleNiveau: data.nouvelleNiveau === "true",
+                remarque: data.remarque
             };
       const response = await fetch("/api/etudiants/changerNiveauEtudiant", {
         method: "POST",
@@ -143,11 +147,13 @@ export function ChangerNiveauEtudiant() {
     // 3. Vérification du statut HTTP (200-299)
     if (!response.ok) {
       const errorData = await response.json();
-        
+      
       const erreurMessage = errorData.error||errorData.message || "Une erreur inattendue s'est produite.";
+      console.log(erreurMessage);
       toast.error(erreurMessage);
       const errorAudio = new Audio("/sounds/error-011-352286.mp3");
       errorAudio.play();
+      return;
       // throw new Error(errorData.message||errorData.error || `Erreur serveur : ${response.status}`);
     }
 
