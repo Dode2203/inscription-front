@@ -127,10 +127,12 @@ export default function FormulaireEtudiant({ idEtudiant, nationalites, onClose, 
           duration: 5000,
         });
       } else {
-        throw new Error(result.message || 'Erreur lors de la sauvegarde');
+        const message = result.message||result.error || 'Erreur lors de la sauvegarde';
+        throw new Error(message);
       }
     } catch (error: any) {
-      toast.error(error.message);
+      const message = error.message||error.error || 'Erreur lors de la sauvegarde'; 
+      toast.error(message);
     } finally {
       setLoadingSave(false);
     }
@@ -169,11 +171,13 @@ export default function FormulaireEtudiant({ idEtudiant, nationalites, onClose, 
         setUpdatedStudentData(fullData);
         await viewReceipt(fullData);
       } else {
-        throw new Error(result.message || "Erreur lors de la récupération des détails");
+        const message = result.message || result.error || "Erreur lors de la récupération des détails";
+        throw new Error(message);
       }
     } catch (error: any) {
-      console.error('Erreur:', error);
-      toast.error(error.message || 'Erreur lors de la préparation du PDF');
+      // console.error('Erreur:', error);
+      const message = error.message||error.error|| 'Erreur lors de la préparation du PDF';
+      toast.error(message);
     } finally {
       setIsViewing(false);
     }
