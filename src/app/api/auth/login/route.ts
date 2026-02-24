@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
 
     return response;
   } catch (error: unknown) {
-    console.error("Erreur login Next.js:", error);
+    // console.error("Erreur login Next.js:", error);
 
     if (axios.isAxiosError(error)) {
       if (error.response) {
