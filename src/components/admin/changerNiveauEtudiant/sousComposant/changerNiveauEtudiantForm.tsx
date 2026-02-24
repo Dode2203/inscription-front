@@ -34,13 +34,14 @@ const ChangerNiveauEtudiantForm: React.FC<Props> = ({
   loading
 }) => {
   const [formData, setFormData] = useState({
-    idFormation: formation.idFormation?.toString() || "",
-    idNiveau: formation.idNiveau?.toString() || "none",
-    idMention: formation.idMention?.toString() || "",
-    idStatusEtudiant: formation.idStatusEtudiant?.toString() || "none",
-    nouvelleNiveau: "false",
-    remarque: formation.remarque || "none",
-  });
+  idFormation: formation.idFormation?.toString() || "",
+  idNiveau: formation.idNiveau?.toString() || "none",
+  idMention: formation.idMention?.toString() || "",
+  idStatusEtudiant: formation.idStatusEtudiant?.toString() || "none",
+  nouvelleNiveau: "false",
+  annee: formation.annee||"", // <-- Nouveau champ
+  remarque: formation.remarque || "none",
+});
 
   const status: StatusEtudiant[] = [
     { id: 1, nom: "Passant" },
@@ -168,6 +169,18 @@ const ChangerNiveauEtudiantForm: React.FC<Props> = ({
             </SelectContent>
           </Select>
         </div>
+        {formData.nouvelleNiveau === "true" && (
+          <div className="space-y-2 animate-in fade-in slide-in-from-top-1">
+            <Label htmlFor="annee">Année Universitaire</Label>
+            <Input
+              id="annee"
+              placeholder="Annee"
+              value={formData.annee}
+              onChange={(e) => handleSelectChange("annee", e.target.value)}
+              required={formData.nouvelleNiveau === "true"}
+            />
+          </div>
+        )}
         <div className="space-y-2">
           <Label htmlFor="remarque">Remarque</Label>
           <Select 

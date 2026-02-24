@@ -100,6 +100,7 @@ export interface Formation {
   matricule?: string;
   estBoursier?: number;
   remarque?: string;
+  annee?: number
   
 
 }

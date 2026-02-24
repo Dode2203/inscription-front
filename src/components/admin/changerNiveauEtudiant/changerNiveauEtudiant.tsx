@@ -131,7 +131,8 @@ export function ChangerNiveauEtudiant() {
                 idFormation: Number(data.idFormation),
                 idStatus: Number(data.idStatusEtudiant),
                 nouvelleNiveau: data.nouvelleNiveau === "true",
-                remarque: data.remarque
+                remarque: data.remarque,
+                annee: Number(data.annee)
             };
       const response = await fetch("/api/etudiants/changerNiveauEtudiant", {
         method: "POST",
