@@ -1,6 +1,7 @@
 // src/app/page.tsx
 import Link from "next/link"
 import { ArrowRight, GraduationCap, ShieldCheck, LayoutDashboard } from "lucide-react"
+import { Footer } from "../components/ui/Footer"
 
 export default function WelcomePage() {
   return (
@@ -79,12 +80,7 @@ export default function WelcomePage() {
           </div>
         </div>
       </main>
-
-      <footer className="py-8 border-t text-center text-sm text-muted-foreground">
-        <div className="container mx-auto px-6">
-          <p>© {new Date().getFullYear()} ESPA - Vontovorona</p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   )
 }
