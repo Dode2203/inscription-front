@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Search, Users, Filter, Loader2, FileText, Hash, Eye } from "lucide-react";
+import { Search, Users, Filter, Loader2, FileText, Hash, Eye, ArrowUpDown ,CalendarDays} from "lucide-react";
 import { getInitialData } from "@/lib/appConfig";
 import { Student } from "@/lib/db";
 import { toast } from "sonner";
@@ -13,6 +13,8 @@ import { generateStudentPDF } from "@/lib/generateliste";
 import { StudentDetailsModal } from "../dashboard/student-model";
 import { useRouter } from "next/navigation";
 import { useInitialData } from "@/context/DataContext";
+
+
 interface EtudiantFiltre {
   id: number;
   matricule?: string;
@@ -23,6 +25,7 @@ interface EtudiantFiltre {
   idMention: number;
   niveau: string;
   idNiveau: number;
+  dateInsertion: string;
 }
 
 export function FiltrageEtudiants() {
@@ -37,9 +40,13 @@ export function FiltrageEtudiants() {
   const [selectedNiveau, setSelectedNiveau] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
 
+  // Nouveaux états pour le Tri (Checkboxes)
+  const [sortByDate, setSortByDate] = useState(false); // false = par Nom/Prénom, true = par Date
+  const [sortDesc, setSortDesc] = useState(false); // false = Croissant, true = Décroissant
+
   // États de chargement
-  const [loading, setLoading] = useState(false); // Chargement de la liste
-  const [loadingId, setLoadingId] = useState<number | null>(null); // Chargement spécifique d'un étudiant
+  const [loading, setLoading] = useState(false); 
+  const [loadingId, setLoadingId] = useState<number | null>(null);
 
   // Chargement initial des mentions et niveaux
   const { mentions, niveaux } = useInitialData();
@@ -47,13 +54,6 @@ export function FiltrageEtudiants() {
   // Récupération de la liste des étudiants
   const fetchEtudiants = useCallback(async () => {
     setLoading(true);
-    const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-
-    if (!baseUrl) {
-      toast.error("URL Backend manquante dans .env");
-      setLoading(false);
-      return;
-    }
 
     try {
       const params = new URLSearchParams();
@@ -73,7 +73,6 @@ export function FiltrageEtudiants() {
       const result = await response.json();
       setResultats(result.status === 'success' ? result.data : []);
     } catch (error) {
-      console.error(error);
       toast.error("Impossible de joindre le serveur");
     } finally {
       setLoading(false);
@@ -84,12 +83,37 @@ export function FiltrageEtudiants() {
     fetchEtudiants();
   }, [fetchEtudiants]);
 
-  // Filtrage local pour la recherche par nom/matricule
-  const filteredData = resultats.filter(et =>
-    et.nom.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    et.prenom.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (et.matricule && et.matricule.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+  // Filtrage ET Tri (optimisé avec useMemo)
+  const filteredData = useMemo(() => {
+    // 1. On filtre
+    let data = resultats.filter(et =>
+      et.nom.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      et.prenom.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (et.matricule && et.matricule.toLowerCase().includes(searchQuery.toLowerCase()))
+    );
+
+    // 2. On trie
+    data.sort((a, b) => {
+      let comparison = 0;
+      
+      if (sortByDate) {
+        // Tri par dateInsertion
+        const dateA = new Date(a.dateInsertion || 0).getTime();
+        const dateB = new Date(b.dateInsertion || 0).getTime();
+        comparison = dateA - dateB;
+      } else {
+        // Tri par Nom puis Prénom
+        const nameA = `${a.nom} ${a.prenom}`.toLowerCase();
+        const nameB = `${b.nom} ${b.prenom}`.toLowerCase();
+        comparison = nameA.localeCompare(nameB);
+      }
+
+      // Inversion si ordre décroissant
+      return sortDesc ? -comparison : comparison;
+    });
+
+    return data;
+  }, [resultats, searchQuery, sortByDate, sortDesc]);
 
   const handleExportPDF = () => {
     const mentionLabel = mentions.find(m => m.id.toString() === selectedMention)?.nom || "";
@@ -97,14 +121,9 @@ export function FiltrageEtudiants() {
     generateStudentPDF(filteredData, mentionLabel, niveauLabel);
   };
 
-  /**
-   * CHARGEMENT DES DÉTAILS D'UN ÉTUDIANT
-   * Correction : Utilise loadingId pour cibler le bouton cliqué
-   * Synchronisation : Rafraîchit également la liste du dashboard après mise à jour
-   */
   const handleViewDetails = async (idEtudiant: number | string) => {
     try {
-      setLoadingId(Number(idEtudiant)); // On active le chargement pour CET ID uniquement
+      setLoadingId(Number(idEtudiant)); 
       const currentYear = new Date().getFullYear();
 
       const response = await fetch(
@@ -123,16 +142,13 @@ export function FiltrageEtudiants() {
         ecolage: result.data.ecolage || null
       };
 
-      // Ouvre la modal en injectant les données
       setSelectedStudent(fullStudent);
-
-      // Rafraîchit la liste du dashboard pour synchroniser les modifications
       await fetchEtudiants();
 
     } catch (error) {
       toast.error("Impossible de charger les détails de l'étudiant");
     } finally {
-      setLoadingId(null); // On remet à zéro pour libérer le bouton
+      setLoadingId(null); 
     }
   };
 
@@ -185,6 +201,63 @@ export function FiltrageEtudiants() {
               />
             </div>
           </div>
+
+          {/* NOUVELLE SECTION : Options de Tri (Checkboxes) */}
+
+          <div className="col-span-full pt-6 mt-4 border-t border-slate-200">
+            <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4">
+              Options d'affichage
+            </p>
+            
+            <div className="flex flex-wrap items-center gap-8">
+              {/* Option 1: Tri par Date */}
+              <div className="group flex items-center gap-3 cursor-pointer">
+                <div className="relative flex items-center">
+                  <input
+                    type="checkbox"
+                    id="sortByDate"
+                    checked={sortByDate}
+                    onChange={(e) => setSortByDate(e.target.checked)}
+                    className="peer h-5 w-5 cursor-pointer appearance-none rounded border border-slate-300 checked:bg-blue-600 checked:border-blue-600 transition-all focus:ring-2 focus:ring-blue-100"
+                  />
+                  <svg className="absolute h-3.5 w-3.5 text-white opacity-0 peer-checked:opacity-100 pointer-events-none left-1/2 -translate-x-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="4">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <Label 
+                  htmlFor="sortByDate" 
+                  className="cursor-pointer text-slate-600 group-hover:text-blue-600 transition-colors flex items-center gap-2"
+                >
+                  <CalendarDays className="w-4 h-4 text-slate-400 group-hover:text-blue-500" />
+                  Trier par date <span className="text-xs text-slate-400 font-normal">(vs Nom)</span>
+                </Label>
+              </div>
+
+              {/* Option 2: Ordre Décroissant */}
+              <div className="group flex items-center gap-3 cursor-pointer">
+                <div className="relative flex items-center">
+                  <input
+                    type="checkbox"
+                    id="sortDesc"
+                    checked={sortDesc}
+                    onChange={(e) => setSortDesc(e.target.checked)}
+                    className="peer h-5 w-5 cursor-pointer appearance-none rounded border border-slate-300 checked:bg-indigo-600 checked:border-indigo-600 transition-all focus:ring-2 focus:ring-indigo-100"
+                  />
+                  <svg className="absolute h-3.5 w-3.5 text-white opacity-0 peer-checked:opacity-100 pointer-events-none left-1/2 -translate-x-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="4">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <Label 
+                  htmlFor="sortDesc" 
+                  className="cursor-pointer text-slate-600 group-hover:text-indigo-600 transition-colors flex items-center gap-2"
+                >
+                  <ArrowUpDown className={`w-4 h-4 transition-transform ${sortDesc ? 'rotate-180 text-indigo-500' : 'text-slate-400'}`} />
+                  Ordre décroissant
+                </Label>
+              </div>
+            </div>
+          </div>
+
         </div>
       </Card>
 
@@ -258,7 +331,6 @@ export function FiltrageEtudiants() {
                         variant="outline"
                         size="sm"
                         className="border-blue-900 text-blue-900 hover:bg-blue-900 hover:text-white flex gap-2"
-                        // Désactivation uniquement si CET étudiant est en cours de chargement
                         disabled={loadingId === et.id}
                       >
                         {loadingId === et.id ? (
@@ -280,7 +352,7 @@ export function FiltrageEtudiants() {
           </table>
         </div>
 
-        {/* Modal : Ne s'affiche que si selectedStudent est défini */}
+        {/* Modal */}
         {selectedStudent && (
           <StudentDetailsModal
             student={selectedStudent}
