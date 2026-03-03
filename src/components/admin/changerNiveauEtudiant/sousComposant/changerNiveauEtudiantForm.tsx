@@ -48,7 +48,7 @@ const ChangerNiveauEtudiantForm: React.FC<Props> = ({
     { id: 2, nom: "Redoublant" },
     { id: 3, nom: "Suspendu" }
   ];
-  const remarques = ["R","M"];
+  const remarques = ["R","M","T"];
   const handleSelectChange = (name: string, value: string) => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };

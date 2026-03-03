@@ -16,8 +16,6 @@ import { useInitialData } from "@/context/DataContext";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 
-
-
 interface EtudiantFiltre {
   id: number;
   matricule?: string;
