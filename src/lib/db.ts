@@ -276,6 +276,7 @@ export interface ApiStudent {
       id: number;
       nom: string;
       type?: string;
+      grade?: number;
     };
     etablissement?: {
       nom: string;

@@ -76,9 +76,10 @@ export const exportService = {
         const tauxBourse = isBoursier ? "1" : "0";
         const redoublement = item.formation?.remarque ? this._str(item.formation.remarque) : "N";
 
-        // Formattage Semestre : 'S' + nom (ex: 'S1')
-        const rawSemestre = item.formation?.niveau?.nom || "";
-        const semestreLabel = rawSemestre ? `S${rawSemestre.replace(/\D/g, '')}` : "";
+        // Formattage Semestre : Formule S + ((2 * grade) - 1)
+        const grade = item.formation?.niveau?.grade || 0;
+        const semestreCalc = grade > 0 ? (Number(grade) * 2) - 1 : 0;
+        const semestreLabel = semestreCalc > 0 ? `S${semestreCalc}` : "";
 
         return [
             "",
@@ -87,7 +88,7 @@ export const exportService = {
             this._sexe(item.identite?.sexe),
             this._date(item.identite?.dateNaissance),
             this._str(item.identite?.contact?.nomMere),
-            this._str(item.identite?.cin?.numero), // Mapping CIN confirmé
+            this._str(item.identite?.cin?.numero), // Mapping CIN confirmé identite.cin.numero
             this._date(item.identite?.cin?.dateDelivrance),
             this._str(item.identite?.cin?.lieuDelivrance),
             this._str(item.identite?.nationalite?.nom),
@@ -101,7 +102,7 @@ export const exportService = {
             "Public", // Institution : Valeur fixe demandée
             "Sciences de l'Ingénieur", // Domaine : Valeur fixe demandée
             "Initiale",
-            semestreLabel, // Semestre : 'S' + grade/nom
+            semestreLabel,
             this._str(item.identite?.contact?.email),
         ];
     },
