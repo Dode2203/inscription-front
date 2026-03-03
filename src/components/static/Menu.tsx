@@ -44,11 +44,6 @@ export default function Menu({ user, activeTab, setActiveTab }: MenuProps) {
         icon: <Filter size={18} />, // Corrigé : minuscule
       },
       {
-        key: "/utilisateur/export",
-        label: "Exportation Utilisateurs",
-        icon: <Download size={18} />,
-      },
-      {
         key: "/admin/modification",
         label: "Modification",
         icon: <Filter size={18} />,
@@ -98,11 +93,6 @@ export default function Menu({ user, activeTab, setActiveTab }: MenuProps) {
         icon: <Filter size={18} />, // Corrigé : minuscule
       },
       {
-        key: "/utilisateur/export",
-        label: "Exportation Utilisateurs",
-        icon: <Download size={18} />,
-      },
-      {
         key: "/admin/modification",
         label: "Modification",
         icon: <Filter size={18} />,
@@ -116,6 +106,11 @@ export default function Menu({ user, activeTab, setActiveTab }: MenuProps) {
         key: "/admin/pre-inscription",
         label: "Pré-inscription",
         icon: <UserPlus size={18} />,
+      },
+      {
+        key: "/utilisateur/export",
+        label: "Exportation des données",
+        icon: <Download size={18} />,
       },
     );
   }
