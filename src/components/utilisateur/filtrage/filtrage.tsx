@@ -60,7 +60,7 @@ export function FiltrageEtudiants() {
       if (selectedMention) params.append("idMention", selectedMention);
       if (selectedNiveau) params.append("idNiveau", selectedNiveau);
 
-      const response = await fetch(`${baseUrl}/filtres/etudiant?${params.toString()}`);
+      const response = await fetch(`/api/filtres/etudiant?${params.toString()}`);
 
       if (response.status === 401 || response.status === 403) {
         await fetch("/api/auth/logout", { method: "POST" });
