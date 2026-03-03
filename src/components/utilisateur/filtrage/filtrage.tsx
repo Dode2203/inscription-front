@@ -6,13 +6,16 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Search, Users, Filter, Loader2, FileText, Hash, Eye, ArrowUpDown ,CalendarDays} from "lucide-react";
-import { getInitialData } from "@/lib/appConfig";
+// import { getInitialData } from "@/lib/appConfig";
 import { Student } from "@/lib/db";
 import { toast } from "sonner";
 import { generateStudentPDF } from "@/lib/generateliste";
 import { StudentDetailsModal } from "../dashboard/student-model";
 import { useRouter } from "next/navigation";
 import { useInitialData } from "@/context/DataContext";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
+
 
 
 interface EtudiantFiltre {
@@ -205,56 +208,46 @@ export function FiltrageEtudiants() {
           {/* NOUVELLE SECTION : Options de Tri (Checkboxes) */}
 
           <div className="col-span-full pt-6 mt-4 border-t border-slate-200">
-            <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4">
+            <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-5">
               Options d'affichage
             </p>
             
-            <div className="flex flex-wrap items-center gap-8">
-              {/* Option 1: Tri par Date */}
-              <div className="group flex items-center gap-3 cursor-pointer">
-                <div className="relative flex items-center">
-                  <input
-                    type="checkbox"
-                    id="sortByDate"
-                    checked={sortByDate}
-                    onChange={(e) => setSortByDate(e.target.checked)}
-                    className="peer h-5 w-5 cursor-pointer appearance-none rounded border border-slate-300 checked:bg-blue-600 checked:border-blue-600 transition-all focus:ring-2 focus:ring-blue-100"
-                  />
-                  <svg className="absolute h-3.5 w-3.5 text-white opacity-0 peer-checked:opacity-100 pointer-events-none left-1/2 -translate-x-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="4">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
-                </div>
+            <div className="flex flex-wrap items-center gap-10">
+              
+              {/* Option 1: Tri par Date (Utilisation de Checkbox shadcn) */}
+              <div className="flex items-center space-x-3">
+                <Checkbox 
+                  id="sortByDate" 
+                  checked={sortByDate}
+                  onCheckedChange={(checked: boolean) => setSortByDate(checked)}
+                  className="h-5 w-5 border-slate-300 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+                />
                 <Label 
                   htmlFor="sortByDate" 
-                  className="cursor-pointer text-slate-600 group-hover:text-blue-600 transition-colors flex items-center gap-2"
+                  className="flex items-center gap-2 text-sm font-medium leading-none cursor-pointer text-slate-700 hover:text-blue-600 transition-colors"
                 >
-                  <CalendarDays className="w-4 h-4 text-slate-400 group-hover:text-blue-500" />
-                  Trier par date <span className="text-xs text-slate-400 font-normal">(vs Nom)</span>
+                  <CalendarDays className="w-4 h-4 text-slate-400" />
+                  <span>Trier par date <span className="text-xs text-slate-400 font-normal ml-1">(vs Nom)</span></span>
                 </Label>
               </div>
 
-              {/* Option 2: Ordre Décroissant */}
-              <div className="group flex items-center gap-3 cursor-pointer">
-                <div className="relative flex items-center">
-                  <input
-                    type="checkbox"
-                    id="sortDesc"
-                    checked={sortDesc}
-                    onChange={(e) => setSortDesc(e.target.checked)}
-                    className="peer h-5 w-5 cursor-pointer appearance-none rounded border border-slate-300 checked:bg-indigo-600 checked:border-indigo-600 transition-all focus:ring-2 focus:ring-indigo-100"
-                  />
-                  <svg className="absolute h-3.5 w-3.5 text-white opacity-0 peer-checked:opacity-100 pointer-events-none left-1/2 -translate-x-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="4">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
-                </div>
+              {/* Option 2: Ordre Décroissant (Utilisation de Switch shadcn pour un look plus moderne) */}
+              <div className="flex items-center space-x-3 bg-slate-50 px-4 py-2 rounded-full border border-slate-100 shadow-sm">
+                <Switch 
+                  id="sortDesc" 
+                  checked={sortDesc}
+                  onCheckedChange={(checked: boolean) => setSortDesc(checked)}
+                  className="data-[state=checked]:bg-indigo-600"
+                />
                 <Label 
                   htmlFor="sortDesc" 
-                  className="cursor-pointer text-slate-600 group-hover:text-indigo-600 transition-colors flex items-center gap-2"
+                  className="flex items-center gap-2 text-sm font-medium cursor-pointer text-slate-700 hover:text-indigo-600 transition-colors"
                 >
-                  <ArrowUpDown className={`w-4 h-4 transition-transform ${sortDesc ? 'rotate-180 text-indigo-500' : 'text-slate-400'}`} />
+                  <ArrowUpDown className={`w-4 h-4 transition-transform duration-300 ${sortDesc ? 'rotate-180 text-indigo-500' : 'text-slate-400'}`} />
                   Ordre décroissant
                 </Label>
               </div>
+
             </div>
           </div>
 
