@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { BarChart3, Filter, Users, PlusCircle, Search, ShieldCheck, UserPlus } from "lucide-react";
+import { BarChart3, Filter, Users, PlusCircle, Search, ShieldCheck, UserPlus, Download } from "lucide-react";
 import { User } from "@/lib/db";
 import { usePathname } from "next/navigation";
 import React from "react";
@@ -44,17 +44,22 @@ export default function Menu({ user, activeTab, setActiveTab }: MenuProps) {
         icon: <Filter size={18} />, // Corrigé : minuscule
       },
       {
+        key: "/utilisateur/export",
+        label: "Exportation Utilisateurs",
+        icon: <Download size={18} />,
+      },
+      {
         key: "/admin/modification",
         label: "Modification",
         icon: <Filter size={18} />,
       },
-   /*    {
-
-        key: "/admin/inscription",
-        label: "Ajout Etudiant",
-        icon: <BarChart3 size={18} />,
-      },
-      */
+      /*    {
+   
+           key: "/admin/inscription",
+           label: "Ajout Etudiant",
+           icon: <BarChart3 size={18} />,
+         },
+         */
       {
         key: "/admin/pre-inscription",
         label: "Pré-inscription",
@@ -91,6 +96,11 @@ export default function Menu({ user, activeTab, setActiveTab }: MenuProps) {
         key: "/utilisateur/filtrage", // Corrigé : minuscule
         label: "Filtrage",
         icon: <Filter size={18} />, // Corrigé : minuscule
+      },
+      {
+        key: "/utilisateur/export",
+        label: "Exportation Utilisateurs",
+        icon: <Download size={18} />,
       },
       {
         key: "/admin/modification",

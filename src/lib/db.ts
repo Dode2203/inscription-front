@@ -45,7 +45,7 @@ export interface Contact {
   telephone?: string; // "?" signifie optionnel
   nomPere?: string;
   nomMere?: string;
-  
+
 }
 export interface Nationalite {
   id?: number | string;
@@ -101,7 +101,7 @@ export interface Formation {
   estBoursier?: number;
   remarque?: string;
   annee?: number
-  
+
 
 }
 
@@ -233,6 +233,92 @@ export interface Student {
   dateInscription?: string;
   cin?: Cin
 }
+
+// Nouvelle structure imbriquée correspondant au retour réel de l'API
+export interface ApiStudent {
+  id?: number;
+  identite: {
+    id?: number;
+    nom: string;
+    prenom: string;
+    sexe: string;
+    dateNaissance: string;
+    lieuNaissance?: string;
+    nationalite?: {
+      id?: number;
+      nom: string;
+    };
+    contact: {
+      adresse?: string;
+      telephone?: string;
+      email?: string;
+      nomMere?: string;
+    };
+    cin?: {
+      numero?: string;
+      dateDelivrance?: string;
+      lieuDelivrance?: string;
+    };
+    bacc?: {
+      anneeObtention?: string;
+      serie?: string;
+    };
+  };
+  formation: {
+    matricule: string;
+    mention?: {
+      id: number;
+      nom: string;
+      abr?: string;
+    };
+    niveau?: {
+      id: number;
+      nom: string;
+      type?: string;
+    };
+    etablissement?: {
+      nom: string;
+    };
+    isBoursier?: number;
+    tauxBourse?: string;
+    remarque?: string;
+    label?: string;
+  };
+  dateInsertion?: string;
+  dateInscription?: string;
+}
+
+// Structure plate retournée par /api/filtres/etudiant (endpoint de filtrage standard)
+export interface FlatStudent {
+  id: number;
+  matricule?: string;
+  nom: string;
+  prenom: string;
+  sexe?: string;
+  dateNaissance?: string;
+  mention?: string;
+  mentionAbr?: string;
+  idMention?: number;
+  niveau?: string;
+  idNiveau?: number;
+  dateInsertion?: string;
+  // Champs supplémentaires éventuels (selon le backend)
+  adresse?: string;
+  telephone?: string;
+  email?: string;
+  cin?: string;
+  nationalite?: string;
+  nomMere?: string;
+  isBoursier?: number | string;
+  tauxBourse?: string;
+  anneeObtention?: string;
+  serieBacc?: string;
+  lieuDelivrance?: string;
+  dateDelivrance?: string;
+  institution?: string;
+  typeFormation?: string;
+  remarque?: string;
+}
 export interface Parent {
   nomPere: string;
   nomMere: string;
@@ -244,8 +330,8 @@ export interface StatusEtudiant {
 export interface InitialData {
   niveaux: Niveau[];
   mentions: Mention[]; // Changé de 'formations' à 'mentions'
-  formations : Formation[];
-  nationalites : Nationalite[];
+  formations: Formation[];
+  nationalites: Nationalite[];
 }
 
 // In-memory storage (replace with database)
