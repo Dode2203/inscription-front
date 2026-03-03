@@ -2,14 +2,14 @@
 
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Users, FileText, Hash, Loader2, Download } from "lucide-react";
+import { Users, FileText, Hash, Loader2, Download, FileSpreadsheet } from "lucide-react";
 import { ApiStudent } from "@/lib/db";
 
 interface ExportTableProps {
     data: ApiStudent[];
     loading: boolean;
     isExporting: boolean;
-    onExport: (format: 'pdf' | 'excel' | 'csv') => void;
+    onExport: (format: 'pdf' | 'csv' | 'xlsx') => void;
 }
 
 export function ExportTable({
@@ -26,31 +26,26 @@ export function ExportTable({
                     <span className="font-bold text-blue-900">{data.length} Étudiants</span>
                 </div>
                 <div className="flex gap-2">
-                    <Button
-                        onClick={() => onExport('pdf')}
-                        disabled={isExporting || data.length === 0}
-                        variant="outline"
-                        className="border-slate-300 text-slate-700 hover:bg-slate-100 flex gap-2"
-                    >
-                        {isExporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
-                        PDF
-                    </Button>
-                    <Button
-                        onClick={() => onExport('excel')}
-                        disabled={isExporting || data.length === 0}
-                        className="bg-green-600 text-white hover:bg-green-700 flex gap-2 font-bold shadow-sm"
-                    >
-                        {isExporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-                        Excel
-                    </Button>
+                    {/* Bouton CSV —  export brut avec séparateur ; */}
                     <Button
                         onClick={() => onExport('csv')}
                         disabled={isExporting || data.length === 0}
                         variant="secondary"
-                        className="flex gap-2 font-bold shadow-sm"
+                        className="flex gap-2"
                     >
                         {isExporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-                        CSV
+                        Exporter en CSV
+                    </Button>
+
+                    {/* Bouton Canevas Excel — fichier .xlsx officiel */}
+                    <Button
+                        onClick={() => onExport('xlsx')}
+                        disabled={isExporting || data.length === 0}
+                        style={{ backgroundColor: "#217346" }}
+                        className="text-white hover:opacity-90 flex gap-2 font-bold shadow-sm"
+                    >
+                        {isExporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileSpreadsheet className="w-4 h-4" />}
+                        Générer Canevas Excel
                     </Button>
                 </div>
             </div>
@@ -86,7 +81,7 @@ export function ExportTable({
                                     </td>
                                     <td className="px-6 py-4">
                                         <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded font-bold text-xs">
-                                            {et.formation?.mention?.abr || et.mention?.abr || et.mention?.nom || "-"}
+                                            {et.formation?.mention || et.mention?.abr || et.mention?.nom || "-"}
                                         </span>
                                     </td>
                                     <td className="px-6 py-4">

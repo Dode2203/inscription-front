@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { User, EtudiantRecherche } from "@/lib/db";
@@ -15,7 +17,7 @@ import { useInitialData } from "@/context/DataContext";
 function ModificationContent() {
   const router = useRouter();
   const searchParams = useSearchParams(); // Utilisation sécurisée car enveloppée dans Suspense
-  
+
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -39,18 +41,18 @@ function ModificationContent() {
 
         const authRes = await fetch(`/api/auth/me`);
 
-        if (!authRes.ok) { 
-          router.push('/login'); 
-          return; 
+        if (!authRes.ok) {
+          router.push('/login');
+          return;
         }
 
         const data = await authRes.json();
         setUser(data.user);
 
-      } catch { 
-        router.push('/login'); 
-      } finally { 
-        setLoading(false); 
+      } catch {
+        router.push('/login');
+      } finally {
+        setLoading(false);
       }
     };
     init();
@@ -75,15 +77,15 @@ function ModificationContent() {
         setEtudiantsTrouves([]);
         setAfficherListe(false);
       }
-    } finally { 
-        setLoadingRecherche(false); 
+    } finally {
+      setLoadingRecherche(false);
     }
   };
 
   if (loading) return (
-     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-      </div>
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+    </div>
   );
 
   return (
@@ -96,11 +98,11 @@ function ModificationContent() {
         <div className="relative z-20 mb-6">
           <div className="bg-white p-2 rounded-lg shadow-sm border flex items-center gap-3">
             <Search size={18} className="text-slate-400 ml-2" />
-            <input 
-                className="flex-1 bg-transparent border-none focus:ring-0 text-sm h-9" 
-                placeholder="Nom..." 
-                value={nomSearch} 
-                onChange={(e) => setNomSearch(e.target.value)} 
+            <input
+              className="flex-1 bg-transparent border-none focus:ring-0 text-sm h-9"
+              placeholder="Nom..."
+              value={nomSearch}
+              onChange={(e) => setNomSearch(e.target.value)}
             />
             <input
               className="flex-1 bg-transparent border-none focus:ring-0 text-sm h-9 border-l pl-3"
@@ -116,10 +118,10 @@ function ModificationContent() {
           {afficherListe && (
             <div className="absolute top-full left-0 right-0 mt-1 bg-white border rounded-lg shadow-xl max-h-60 overflow-y-auto z-50">
               {etudiantsTrouves.map((e) => (
-                <div 
-                    key={e.id} 
-                    onClick={() => { setSelectedEtudiantId(e.id); setAfficherListe(false); }} 
-                    className="p-3 hover:bg-blue-50 cursor-pointer border-b text-sm font-medium"
+                <div
+                  key={e.id}
+                  onClick={() => { setSelectedEtudiantId(e.id); setAfficherListe(false); }}
+                  className="p-3 hover:bg-blue-50 cursor-pointer border-b text-sm font-medium"
                 >
                   {e.nom} {e.prenom}
                 </div>
@@ -148,9 +150,9 @@ function ModificationContent() {
 export default function ModificationPage() {
   return (
     <Suspense fallback={
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-            <Loader2 className="animate-spin h-10 w-10 text-slate-300" />
-        </div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <Loader2 className="animate-spin h-10 w-10 text-slate-300" />
+      </div>
     }>
       <ModificationContent />
     </Suspense>

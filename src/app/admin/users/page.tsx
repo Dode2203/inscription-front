@@ -1,4 +1,6 @@
-"use client"
+"use client";
+
+export const dynamic = "force-dynamic";
 
 import { useState, useEffect, useMemo } from "react"
 import { User } from "@/lib/db"
@@ -102,11 +104,10 @@ export default function AdminDashboard() {
               <button
                 key={status}
                 onClick={() => setFilterStatus(status as any)}
-                className={`px-6 py-2 rounded-lg transition-all duration-200 text-sm font-semibold ${
-                  filterStatus === status
+                className={`px-6 py-2 rounded-lg transition-all duration-200 text-sm font-semibold ${filterStatus === status
                     ? "bg-white text-blue-600 shadow-sm"
                     : "text-slate-600 hover:text-slate-900"
-                }`}
+                  }`}
               >
                 {status}
               </button>
@@ -123,12 +124,12 @@ export default function AdminDashboard() {
             <div className="grid gap-4">
               {filteredUsers.length > 0 ? (
                 filteredUsers.map((u) => (
-                  <div 
-                    key={u.id} 
+                  <div
+                    key={u.id}
                     className="group bg-white p-5 rounded-2xl border border-slate-200 hover:border-blue-300 hover:shadow-md transition-all duration-200"
                   >
                     <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-                      
+
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 flex-grow">
                         {/* Identité */}
                         <div className="flex flex-col">
@@ -152,11 +153,10 @@ export default function AdminDashboard() {
                           </div>
                           <div className="flex flex-col">
                             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Statut</span>
-                            <span className={`text-sm font-bold px-2 py-0.5 rounded w-fit ${
-                              u.status === 'Actif' 
-                                ? 'bg-emerald-50 text-emerald-600' 
+                            <span className={`text-sm font-bold px-2 py-0.5 rounded w-fit ${u.status === 'Actif'
+                                ? 'bg-emerald-50 text-emerald-600'
                                 : 'bg-rose-50 text-rose-600'
-                            }`}>
+                              }`}>
                               {u.status}
                             </span>
                           </div>
@@ -178,8 +178,8 @@ export default function AdminDashboard() {
               ) : (
                 <div className="text-center py-16 bg-white rounded-2xl border border-dashed border-slate-300">
                   <p className="text-slate-500 font-medium">
-                    {filterStatus === "Tous" 
-                      ? "Aucun utilisateur dans la base de données." 
+                    {filterStatus === "Tous"
+                      ? "Aucun utilisateur dans la base de données."
                       : `Aucun utilisateur avec le statut "${filterStatus}".`
                     }
                   </p>

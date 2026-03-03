@@ -260,7 +260,8 @@ export interface ApiStudent {
       lieuDelivrance?: string;
     };
     bacc?: {
-      anneeObtention?: string;
+      annee?: string;           // Clé API confirmée
+      anneeObtention?: string;  // Fallback
       serie?: string;
     };
   };

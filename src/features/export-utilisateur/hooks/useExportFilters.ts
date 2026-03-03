@@ -77,15 +77,19 @@ export function useExportFilters() {
     /**
      * Fonction pour déclencher l'exportation
      */
-    const handleExport = async (format: 'pdf' | 'excel' | 'csv', mentionLabel: string, niveauLabel: string) => {
+    const handleExport = async (format: 'pdf' | 'excel' | 'csv' | 'xlsx', mentionLabel: string, niveauLabel: string) => {
         setIsExporting(true);
         try {
-            const filename = `Export_Etudiants_${mentionLabel || 'Tous'}_${niveauLabel || 'Tous'}_${new Date().getTime()}.${format}`;
+            const filename = `Export_Etudiants_${mentionLabel || 'Tous'}_${niveauLabel || 'Tous'}_${new Date().getTime()}`;
 
-            if (format === 'excel' || format === 'csv') {
-                // Génération locale pour garantir l'ordre affiché
-                exportService.exportToExcel(filteredData, filename);
-                toast.success("Export terminé avec succès");
+            if (format === 'xlsx') {
+                // Canevas officiel .xlsx via ExcelJS
+                await exportService.exportToXlsx(filteredData, filename);
+                toast.success("Canevas Excel généré avec succès");
+            } else if (format === 'csv') {
+                // Export CSV brut
+                exportService.exportToCsv(filteredData, filename + ".csv");
+                toast.success("Export CSV terminé avec succès");
             } else {
                 // PDF - génération locale
                 generateStudentPDF(filteredData, mentionLabel, niveauLabel);

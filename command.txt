@@ -14,4 +14,6 @@ npm install @emailjs/browser
 
 npm install @react-pdf/renderer
 
+
 npm install exceljs file-saver
+npm install --save-dev @types/file-saver
