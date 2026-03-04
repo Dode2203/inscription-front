@@ -257,7 +257,7 @@ export const exportService = {
 
         const today = new Date();
         const dateStr = `${today.getFullYear()}${(today.getMonth() + 1).toString().padStart(2, '0')}${today.getDate().toString().padStart(2, '0')}`;
-        const finalFilename = `Export_Boursiers_${dateStr}.xlsx`;
+        const finalFilename = `Export_Inscrits_${dateStr}.xlsx`;
 
         saveAs(blob, finalFilename);
     },
