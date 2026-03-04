@@ -42,9 +42,9 @@ export const generateStudentPDF = (data: any[], mention: string, niveau: string,
 
   // --- 4. TABLEAU DES DONNÉES (Avec colonnes Date et Signature) ---
   const tableRows = data.map((et) => [
-    et.matricule || "-",
-    `${et.nom.toUpperCase()} ${et.prenom}`,
-    et.mentionAbr,
+    et.formation?.matricule || et.matricule || "-",
+    `${(et.identite?.nom || et.nom || "").toUpperCase()} ${et.identite?.prenom || et.prenom || ""}`,
+    et.formation?.mention?.abr || et.mention?.abr || et.mentionAbr || "-",
     "", // Colonne vide pour la DATE
     ""  // Colonne vide pour la SIGNATURE
   ]);

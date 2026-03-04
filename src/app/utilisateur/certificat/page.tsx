@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { User, EtudiantRecherche } from "@/lib/db";
@@ -14,7 +16,7 @@ export default function CertificatPage() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  
+
   // États recherche
   const [nomSearch, setNomSearch] = useState("");
   const [prenomSearch, setPrenomSearch] = useState("");
@@ -84,18 +86,18 @@ export default function CertificatPage() {
     <main className="min-h-screen bg-[#f8fafc]">
       <Header user={user} />
       <div className="max-w-5xl mx-auto px-4 py-6">
-        <Menu user={user} activeTab="" setActiveTab={() => {}} />
+        <Menu user={user} activeTab="" setActiveTab={() => { }} />
 
         <div className="mb-8 text-center">
-            <h1 className="text-2xl font-bold text-blue-900">Certificats de Scolarité</h1>
-            <p className="text-slate-500 text-sm">Recherchez un étudiant pour générer son document officiel</p>
+          <h1 className="text-2xl font-bold text-blue-900">Certificats de Scolarité</h1>
+          <p className="text-slate-500 text-sm">Recherchez un étudiant pour générer son document officiel</p>
         </div>
 
         {/* BARRE DE RECHERCHE */}
         <div className="relative z-20 mb-10">
           <div className="bg-white p-3 rounded-xl shadow-md border flex items-center gap-3">
             <Search size={20} className="text-slate-400 ml-2" />
-            <input className="flex-1 bg-transparent border-none focus:ring-0 text-md h-10" placeholder="Nom de l'étudiant..." value={nomSearch} onChange={(e)=>setNomSearch(e.target.value)} />
+            <input className="flex-1 bg-transparent border-none focus:ring-0 text-md h-10" placeholder="Nom de l'étudiant..." value={nomSearch} onChange={(e) => setNomSearch(e.target.value)} />
             <Button onClick={rechercheEtudiants} disabled={loadingRecherche} className="bg-blue-900 px-8">
               {loadingRecherche ? <Loader2 className="animate-spin" /> : "Rechercher"}
             </Button>
@@ -108,8 +110,8 @@ export default function CertificatPage() {
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-900 font-bold">{e.nom[0]}</div>
                     <div>
-                        <p className="font-semibold text-slate-800">{e.nom} {e.prenom}</p>
-                        <p className="text-xs text-slate-500">ID: {e.id}</p>
+                      <p className="font-semibold text-slate-800">{e.nom} {e.prenom}</p>
+                      <p className="text-xs text-slate-500">ID: {e.id}</p>
                     </div>
                   </div>
                   <FileText size={18} className="text-blue-600" />
@@ -149,9 +151,9 @@ export default function CertificatPage() {
               </div>
 
               <div className="flex justify-center">
-                <Button 
-                    onClick={handleGeneratePDF}
-                    className="bg-green-600 hover:bg-green-700 text-white px-10 h-12 gap-2 text-lg shadow-lg"
+                <Button
+                  onClick={handleGeneratePDF}
+                  className="bg-green-600 hover:bg-green-700 text-white px-10 h-12 gap-2 text-lg shadow-lg"
                 >
                   <Printer size={20} />
                   Générer le Certificat (PDF)

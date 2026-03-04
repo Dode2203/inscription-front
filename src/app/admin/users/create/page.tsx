@@ -1,5 +1,7 @@
 "use client"
 
+export const dynamic = "force-dynamic";
+
 import type React from "react"
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
@@ -13,7 +15,7 @@ export default function CreateUser() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const login = process.env.NEXT_PUBLIC_LOGIN_URL || '/login';
-  
+
   const [formData, setFormData] = useState({
     nom: "",
     prenom: "",
@@ -50,10 +52,10 @@ export default function CreateUser() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       })
-      
+
       if (response.status === 401 || response.status === 403) {
         await fetch("/api/auth/logout", { method: "POST" })
-        router.push(login); 
+        router.push(login);
         return;
       }
 
@@ -76,8 +78,8 @@ export default function CreateUser() {
       <header className="bg-primary text-primary-foreground shadow-lg sticky top-0 z-40">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center gap-4">
-            <Link 
-              href="/admin/users" 
+            <Link
+              href="/admin/users"
               className="p-2 hover:bg-white/10 rounded-full transition-colors text-white"
             >
               <ArrowLeft size={22} />
@@ -92,7 +94,7 @@ export default function CreateUser() {
 
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 md:p-10">
-          
+
           {error && (
             <div className="mb-8 p-4 bg-rose-50 border border-rose-100 rounded-xl text-rose-600 text-sm font-medium flex items-center gap-3">
               <span className="w-2 h-2 bg-rose-600 rounded-full animate-pulse"></span>
@@ -182,7 +184,7 @@ export default function CreateUser() {
                 )}
                 {loading ? "Création..." : "Enregistrer l'utilisateur"}
               </button>
-              
+
               <Link
                 href="/admin/users"
                 className="flex-1 bg-slate-100 text-slate-700 py-3.5 rounded-xl font-bold hover:bg-slate-200 transition-all text-center"
