@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 // src/app/page.tsx
 import Link from "next/link"
 import { ArrowRight, GraduationCap, ShieldCheck, LayoutDashboard } from "lucide-react"
@@ -30,12 +32,12 @@ export default function WelcomePage() {
       <main className="flex-grow flex items-center bg-slate-50/30">
         <div className="container mx-auto px-6 py-12">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
-            
+
             {/* Texte à gauche */}
             <div className="space-y-8">
               <div className="space-y-4">
                 <h2 className="text-5xl font-extrabold text-foreground leading-tight">
-                  Système de Gestion <br/>
+                  Système de Gestion <br />
                   <span className="text-primary">des Étudiants</span>
                 </h2>
                 <p className="text-xl text-muted-foreground max-w-lg">
@@ -50,7 +52,7 @@ export default function WelcomePage() {
 
             {/* IMAGE AVEC INCLINAISON DYNAMIQUE (GAUCHE / DROITE) */}
             <div className="hidden lg:block relative group [perspective:1200px]">
-              
+
               {/* Zone invisible pour détecter le survol à GAUCHE */}
               <div className="absolute inset-y-0 left-0 w-1/2 z-20 peer/left"></div>
               {/* Zone invisible pour détecter le survol à DROITE */}
@@ -60,12 +62,12 @@ export default function WelcomePage() {
               <div className="relative bg-white border border-border p-4 rounded-3xl shadow-xl transition-all duration-500 ease-out transform-gpu
                 peer-hover/left:[transform:rotateY(-12deg)_rotateX(2deg)] 
                 peer-hover/right:[transform:rotateY(12deg)_rotateX(2deg)]">
-                
+
                 {/* --- TON CODE ORIGINAL (STYLE NON CHANGÉ) --- */}
                 <div className="bg-slate-50 rounded-2xl aspect-video flex items-center justify-center border border-dashed border-muted-foreground/30 overflow-hidden ">
-                  <img 
-                    src="/Tableau_de_bord.png" 
-                    alt="Dashboard Preview" 
+                  <img
+                    src="/Tableau_de_bord.png"
+                    alt="Dashboard Preview"
                     className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity duration-500"
                   />
                 </div>

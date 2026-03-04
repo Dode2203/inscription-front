@@ -13,3 +13,7 @@ npm install @emailjs/browser
 #Commit samedi 31 janvier 2026
 
 npm install @react-pdf/renderer
+
+
+npm install exceljs file-saver
+npm install --save-dev @types/file-saver

@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 
 import { Suspense } from 'react'
 import EditUserContent from './editcontent'
@@ -20,7 +21,7 @@ function EditUserSkeleton() {
           <Skeleton className="h-8 w-64" />
         </div>
       </header>
-      
+
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="space-y-6 bg-card p-8 rounded-lg border">
           {[...Array(6)].map((_, i) => (

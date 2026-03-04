@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import { useState, useEffect } from "react";
 import { User, Formation, Mention, Nationalite } from "@/lib/db";
 import Header from "@/components/static/Header";
@@ -19,7 +21,7 @@ export default function InscriptionPage() {
   const [activeTab, setActiveTab] = useState("/admin/inscription");
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   const { formations, mentions, nationalites } = useInitialData();
   const login = process.env.NEXT_PUBLIC_LOGIN_URL || '/login';
 
@@ -40,11 +42,11 @@ export default function InscriptionPage() {
     formationId: '',
     mentionId: '',
     nationaliteId: 0,
-    proposTelephone:''
+    proposTelephone: ''
   });
 
   useEffect(() => {
-    const checkAuth= async () => {
+    const checkAuth = async () => {
       try {
         const [authRes] = await Promise.all([
           fetch(`/api/auth/me`)
@@ -59,9 +61,9 @@ export default function InscriptionPage() {
         setUser(data.user);
         if (data.user.role !== "Admin") {
           await fetch("/api/auth/logout", { method: "POST" });
-          router.push(login); 
+          router.push(login);
         }
-      
+
       } catch (err) {
         window.location.href = login;
       } finally {
@@ -114,15 +116,15 @@ export default function InscriptionPage() {
       const result = await response.json();
 
       if (response.status === 401 || response.status === 403) {
-              toast.error("Session expirée. Redirection... ");
+        toast.error("Session expirée. Redirection... ");
 
-            setLoading(false); 
-            
-            // Redirection immédiate
-            await fetch("/api/auth/logout", { method: "POST" })
-            router.push(login); 
-            return; // ⬅️ Arrêter l'exécution de la fonction ici
-        }
+        setLoading(false);
+
+        // Redirection immédiate
+        await fetch("/api/auth/logout", { method: "POST" })
+        router.push(login);
+        return; // ⬅️ Arrêter l'exécution de la fonction ici
+      }
 
       if (response.ok && result.status === "success") {
         toast.success("Candidat enregistré avec succès !");
@@ -151,7 +153,7 @@ export default function InscriptionPage() {
       }
     } catch (error: any) {
       // console.log("Erreur lors de l'enregistrement:", error);
-      toast.error(error.message || error.error|| "Une erreur est survenue lors de l'enregistrement");
+      toast.error(error.message || error.error || "Une erreur est survenue lors de l'enregistrement");
     } finally {
       setIsSubmitting(false);
     }
@@ -159,7 +161,7 @@ export default function InscriptionPage() {
 
   if (loading) {
     return (
-       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
       </div>
     );
@@ -179,7 +181,7 @@ export default function InscriptionPage() {
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-8">
-                
+
                 {/* SECTION 1 : IDENTITÉ */}
                 <section className="space-y-4">
                   <h3 className="text-lg font-semibold border-l-4 border-accent pl-2">Informations Personnelles</h3>
@@ -188,12 +190,12 @@ export default function InscriptionPage() {
                     <FormField label="Prénoms" name="prenom" value={formData.prenom} onChange={handleChange} />
                     <FormField label="Date de Naissance" name="dateNaissance" type="date" value={formData.dateNaissance} onChange={handleChange} />
                     <FormField label="Lieu de Naissance" name="lieuNaissance" value={formData.lieuNaissance} onChange={handleChange} />
-                    
+
                     <div className="space-y-1.5">
                       <Label className="text-sm font-semibold">Sexe</Label>
-                      <select 
-                        name="sexeId" 
-                        value={formData.sexeId} 
+                      <select
+                        name="sexeId"
+                        value={formData.sexeId}
                         onChange={handleChange}
                         className="flex h-10 w-full rounded-md border border-input bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
                         required
@@ -226,9 +228,9 @@ export default function InscriptionPage() {
                     </div>
                     <div className="space-y-1.5">
                       <Label className="text-sm font-semibold">Nationalité</Label>
-                      <select 
-                        name="nationaliteId" 
-                        value={formData.nationaliteId} 
+                      <select
+                        name="nationaliteId"
+                        value={formData.nationaliteId}
                         onChange={handleChange}
                         className="flex h-10 w-full rounded-md border border-input bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
                         required
@@ -246,11 +248,11 @@ export default function InscriptionPage() {
                 <section className="space-y-4">
                   <h3 className="text-lg font-semibold border-l-4 border-accent pl-2">Parcours Académique</h3>
                   <div className="grid md:grid-cols-2 gap-4">
-                                        <div className="space-y-1.5">
+                    <div className="space-y-1.5">
                       <Label className="text-sm font-semibold">Formation</Label>
-                      <select 
-                        name="formationId" 
-                        value={formData.formationId} 
+                      <select
+                        name="formationId"
+                        value={formData.formationId}
                         onChange={handleChange}
                         className="flex h-10 w-full rounded-md border border-input bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
                         required
@@ -264,9 +266,9 @@ export default function InscriptionPage() {
 
                     <div className="space-y-1.5">
                       <Label className="text-sm font-semibold">Mention</Label>
-                      <select 
-                        name="mentionId" 
-                        value={formData.mentionId} 
+                      <select
+                        name="mentionId"
+                        value={formData.mentionId}
                         onChange={handleChange}
                         className="flex h-10 w-full rounded-md border border-input bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
                         required

@@ -1,5 +1,7 @@
 "use client"
 
+export const dynamic = "force-dynamic";
+
 import { useState, useEffect } from "react";
 import { User, Student, StatsData } from "@/lib/db";
 import Header from "@/components/static/Header";
@@ -19,10 +21,10 @@ export default function UtilisateurDashboard() {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const nbJours = Number(process.env.NEXT_PUBLIC_NB_JOURS) || 2;
-  
+
   // Correction ici : On initialise activeTab avec useState pour pouvoir passer setActiveTab
   const [activeTab, setActiveTab] = useState("/utilisateur/dashboard");
-  
+
   const login = process.env.NEXT_PUBLIC_LOGIN_URL || '/login';
   const nbPagination = Number(process.env.NEXT_PUBLIC_NB_PAGINATION) || 5;
 
@@ -32,30 +34,30 @@ export default function UtilisateurDashboard() {
         const authResponse = await fetch('/api/auth/me');
         if (!authResponse.ok) {
           await fetch("/api/auth/logout", { method: "POST" })
-          router.push(login); 
+          router.push(login);
           return;
         }
-        
+
         const userData = await authResponse.json();
         setUser(userData.user);
 
         const currentYear = new Date().getFullYear();
         const limit = 10;
-        
+
         const studentsResponse = await fetch(`/api/etudiants/inscrits-par-annee?annee=${currentYear}&limit=${limit}`);
         if (studentsResponse.status === 401 || studentsResponse.status === 403) {
-            setLoading(false); 
-            
-            // Redirection immédiate
-            await fetch("/api/auth/logout", { method: "POST" })
-            router.push(login); 
-            return; // ⬅️ Arrêter l'exécution de la fonction ici
+          setLoading(false);
+
+          // Redirection immédiate
+          await fetch("/api/auth/logout", { method: "POST" })
+          router.push(login);
+          return; // ⬅️ Arrêter l'exécution de la fonction ici
         }
         if (!studentsResponse.ok) {
           toast.error('Erreur lors de la récupération des étudiants');
           return;
         }
-        
+
         const data = await studentsResponse.json();
         setStudents(data.data || []);
       } catch (err) {
@@ -77,19 +79,19 @@ export default function UtilisateurDashboard() {
         const currentYear = new Date().getFullYear();
         const response = await fetch(`/api/etudiants/statistiques?nbJours=${nbJours}`);
         if (response.status === 401 || response.status === 403) {
-            setLoading(false); 
-            
-            // Redirection immédiate
-            await fetch("/api/auth/logout", { method: "POST" })
-            router.push(login); 
-            return; // ⬅️ Arrêter l'exécution de la fonction ici
+          setLoading(false);
+
+          // Redirection immédiate
+          await fetch("/api/auth/logout", { method: "POST" })
+          router.push(login);
+          return; // ⬅️ Arrêter l'exécution de la fonction ici
         }
         if (!response.ok) {
           throw new Error(`Erreur HTTP: ${response.status}`);
         }
 
         const result = await response.json();
-        
+
         if (result.status === 'success' && result.data) {
           setStatsData(result.data);
         } else {
@@ -121,14 +123,14 @@ export default function UtilisateurDashboard() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Correction ici : Ajout de la prop setActiveTab manquante */}
         <Menu user={user} activeTab={activeTab} setActiveTab={setActiveTab} />
-        
+
         <div className="mb-8">
           <h2 className="text-3xl font-bold text-foreground mb-2">Tableau de bord</h2>
           <p className="text-muted-foreground">Vue d'ensemble de l'activité étudiante</p>
         </div>
 
         <div className="mb-8">
-          <DashboardStats 
+          <DashboardStats
             statsData={statsData}
             isLoading={statsLoading}
             error={statsError}
@@ -140,7 +142,7 @@ export default function UtilisateurDashboard() {
           <div className="md:col-span-2">
             <StudentTable students={students} nbPagination={nbPagination} />
           </div>
-          
+
           <div className="space-y-4">
             <QuickActions />
           </div>
