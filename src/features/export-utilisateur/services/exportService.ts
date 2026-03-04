@@ -73,8 +73,24 @@ export const exportService = {
         const isBoursierVal = item.formation?.isBoursier;
         const isBoursier = (isBoursierVal === 1 || String(isBoursierVal) === "1");
         const boursierLabel = isBoursier ? "Oui" : "Non";
-        const tauxBourse = isBoursier ? "1" : "0";
+        let tauxBourse = isBoursier ? 1 : 0;
+        
         const redoublement = item.formation?.remarque ? this._str(item.formation.remarque) : "N";
+        if (isBoursier) {
+            switch (redoublement) {
+                case "N":
+                    tauxBourse = 1;      // Reste à 100%
+                    break;
+                case "R":
+                    tauxBourse *= 0.25;   // Réduit de moitié (50%)
+                    break;
+                case "T":
+                    tauxBourse = 0;      // Devient nul (0%)
+                    break;
+                default:
+                    tauxBourse = 1;      // Valeur par défaut si inconnu
+            }
+        }
 
         // Formattage Semestre : Formule S + ((2 * grade) - 1)
         const grade = item.formation?.niveau?.grade || 0;
@@ -96,7 +112,7 @@ export const exportService = {
             this._str(item.identite?.bacc?.serie),
             redoublement,
             boursierLabel,
-            tauxBourse,
+            this._str(tauxBourse),
             this._str(item.identite?.contact?.adresse),
             this._str(item.identite?.contact?.telephone),
             "Public", // Institution : Valeur fixe demandée
