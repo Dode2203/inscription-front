@@ -7,12 +7,13 @@ export interface ExportParams {
     idNiveau?: string;
     format?: 'pdf' | 'excel' | 'csv' | 'xlsx';
 }
-
+const nomFichier = "Inscrits";
 export const exportService = {
     /**
      * Récupère la liste des étudiants via l'endpoint EXPORT DÉDIÉ
      * qui renvoie les objets complets (identite, formation, cin, contact, bacc...)
      */
+
     async fetchStudents(params: ExportParams): Promise<ApiStudent[]> {
         const queryParams = new URLSearchParams();
         if (params.idMention) queryParams.append("idMention", params.idMention);
@@ -161,8 +162,7 @@ export const exportService = {
         workbook.creator = "ESPA";
         workbook.created = new Date();
 
-        const sheet = workbook.addWorksheet("Boursiers");
-
+        const sheet = workbook.addWorksheet(nomFichier);
         // --- Définition des colonnes (largeurs) ---
         sheet.columns = [
             { key: "col1", width: 22 },  // Matricule
@@ -263,7 +263,7 @@ export const exportService = {
 
         const today = new Date();
         const dateStr = `${today.getFullYear()}${(today.getMonth() + 1).toString().padStart(2, '0')}${today.getDate().toString().padStart(2, '0')}`;
-        const finalFilename = `Export_Inscrits_${dateStr}.xlsx`;
+        const finalFilename = `Export_${nomFichier}_${dateStr}.xlsx`;
 
         saveAs(blob, finalFilename);
     },
