@@ -120,6 +120,8 @@ export const exportService = {
             "Initiale",
             semestreLabel,
             this._str(item.identite?.contact?.email),
+            this._str(item.formation.mention),
+            this._str(item.formation.niveau?.nom)
         ];
     },
 
@@ -133,7 +135,7 @@ export const exportService = {
             "Nom et prénom de mère", "CIN", "Date delivrance", "Lieu de délivrance",
             "NATIONALITÉ", "ANNÉE D'OBTENTION DU BACC", "SÉRIE DU BACC", "CODE DE REDOUBLEMENT",
             "BOURSIER", "TAUX DE BOURSE", "ADRESSE EXACTE", "NUMERO DE TELEPHONE",
-            "Institution", "Domaine", "Type de formation", "Semestre", "Adresse e-mail"
+            "Institution", "Domaine", "Type de formation", "Semestre", "Adresse e-mail","Mention","Niveau"
         ];
 
         const rows = data.map(item =>
@@ -185,7 +187,11 @@ export const exportService = {
             { key: "col20", width: 18 },  // Type formation
             { key: "col21", width: 16 },  // Semestre
             { key: "col22", width: 28 },  // Email
-        ];
+            { key: "col23", width: 28 },  // Mention
+            { key: "col24", width: 28 },  // Niveau
+
+            
+            ];
 
         // --- LIGNE 1 : En-têtes officiels ---
         const headerRow = sheet.addRow([
@@ -193,7 +199,7 @@ export const exportService = {
             "Nom et prénom de mère", "CIN", "Date delivrance", "Lieu de délivrance",
             "NATIONALITÉ", "ANNÉE D'OBTENTION DU BACC", "SÉRIE DU BACC", "CODE DE REDOUBLEMENT",
             "BOURSIER", "TAUX DE BOURSE", "ADRESSE EXACTE", "NUMERO DE TELEPHONE",
-            "Institution", "Domaine", "Type de formation", "Semestre", "Adresse e-mail"
+            "Institution", "Domaine", "Type de formation", "Semestre", "Adresse e-mail","Mention","Niveau"
         ]);
 
         headerRow.eachCell(cell => {
