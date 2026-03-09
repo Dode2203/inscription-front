@@ -41,6 +41,7 @@ const ChangerNiveauEtudiantForm: React.FC<Props> = ({
   nouvelleNiveau: "false",
   annee: formation.annee||"", // <-- Nouveau champ
   remarque: formation.remarque || "none",
+  isBoursier: formation.estBoursier || false
 });
 
   const status: StatusEtudiant[] = [
@@ -197,6 +198,21 @@ const ChangerNiveauEtudiantForm: React.FC<Props> = ({
                   {n}
                 </SelectItem>
               ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="isBoursier">Est Boursier ?</Label>
+          <Select
+            value={formData.isBoursier ? "true" : "false"}
+            onValueChange={(value) => handleSelectChange("isBoursier", value)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Choisir une option" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="true">Oui</SelectItem>
+              <SelectItem value="false">Non</SelectItem>
             </SelectContent>
           </Select>
         </div>

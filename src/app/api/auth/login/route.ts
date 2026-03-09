@@ -32,9 +32,11 @@ export async function POST(request: NextRequest) {
     // Stockage du token dans un cookie HTTP-only
     response.cookies.set("auth_token", data.token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      // MODIFICATION : On met false car vous êtes en HTTP sur une IP (10.142.50.24)
+      secure: false, 
       sameSite: "lax",
-      maxAge: rememberMe ? 30 * 24 * 60 * 60 : 24 * 60 * 60, // 30 jours ou 24h
+      path: "/",
+      maxAge: rememberMe ? 30 * 24 * 60 * 60 : 24 * 60 * 60,
     });
 
     return response;
