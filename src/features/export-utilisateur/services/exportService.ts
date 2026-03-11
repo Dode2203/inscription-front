@@ -56,7 +56,7 @@ export const exportService = {
             const y = date.getFullYear();
             const m = (date.getMonth() + 1).toString().padStart(2, '0');
             const d = date.getDate().toString().padStart(2, '0');
-            return `${y}-${m}-${d}`; // Format YYYY-MM-DD pour le canevas
+            return `${d}/${m}/${y}`; // Format YYYY-MM-DD pour le canevas
         } catch {
             return "";
         }
