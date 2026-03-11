@@ -85,6 +85,7 @@ export function ExportUtilisateurPage() {
                     setSortByDate={setSortByDate}
                     sortDesc={sortDesc}
                     setSortDesc={setSortDesc}
+                    loading={loading}
                 />
 
                 <ExportTable

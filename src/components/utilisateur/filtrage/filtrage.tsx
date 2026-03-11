@@ -172,6 +172,7 @@ export function FiltrageEtudiants() {
               className="w-full h-10 px-3 rounded-md border border-slate-300 outline-none focus:ring-2 focus:ring-blue-900"
               value={selectedMention}
               onChange={(e) => setSelectedMention(e.target.value)}
+              disabled={loading}
             >
               <option value="">Toutes les mentions</option>
               {mentions.map(m => <option key={m.id} value={m.id.toString()}>{m.nom}</option>)}
@@ -184,6 +185,7 @@ export function FiltrageEtudiants() {
               className="w-full h-10 px-3 rounded-md border border-slate-300 outline-none focus:ring-2 focus:ring-blue-900"
               value={selectedNiveau}
               onChange={(e) => setSelectedNiveau(e.target.value)}
+              disabled={loading}
             >
               <option value="">Tous les niveaux</option>
               {niveaux.map(n => <option key={n.id} value={n.id.toString()}>{n.nom}</option>)}
