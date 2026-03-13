@@ -2,10 +2,12 @@
 'use client';
 
 import { useState } from 'react';
-import { Download, Loader2, X, User, Calendar, MapPin, Mail, GraduationCap, CreditCard, Pencil, Eye } from 'lucide-react';
+// Ajout de FileText pour l'icône du certificat
+import { Download, Loader2, X, User, Calendar, MapPin, Mail, GraduationCap, CreditCard, Pencil, Eye, FileText } from 'lucide-react';
 import { Student } from '@/lib/db';
 import { downloadReceipt, viewReceipt } from '@/lib/receipt-helper';
 import ModifierPaiementForm from '@/components/admin/modification/ModifierPaiementForm';
+import { generateCertificatScolaritePDF } from '@/lib/genererCertificat';
 
 interface StudentDetailsModalProps {
   student: Student;
@@ -15,6 +17,11 @@ interface StudentDetailsModalProps {
 
 export function StudentDetailsModal({ student, onClose, onUpdateSuccess }: StudentDetailsModalProps) {
   const [isDownloading, setIsDownloading] = useState(false);
+  const [isViewing, setIsViewing] = useState(false);
+  
+  // NOUVEAU : État pour le bouton du certificat
+  const [isViewingCertificat, setIsViewingCertificat] = useState(false);
+  
   const [selectedPaymentForEdit, setSelectedPaymentForEdit] = useState<any>(null);
 
   const formatDate = (dateString: string) => {
@@ -31,7 +38,6 @@ export function StudentDetailsModal({ student, onClose, onUpdateSuccess }: Stude
   const handleDownloadPDF = async () => {
     try {
       setIsDownloading(true);
-      // console.log(student);
       await downloadReceipt(student);
     } catch (error) {
       console.error('Erreur:', error);
@@ -41,7 +47,6 @@ export function StudentDetailsModal({ student, onClose, onUpdateSuccess }: Stude
     }
   };
 
-  const [isViewing, setIsViewing] = useState(false);
   const handleViewPDF = async () => {
     try {
       setIsViewing(true);
@@ -53,6 +58,26 @@ export function StudentDetailsModal({ student, onClose, onUpdateSuccess }: Stude
       setIsViewing(false);
     }
   };
+
+  // NOUVEAU : Fonction pour gérer l'affichage du certificat
+  const handleViewCertificat = async () => {
+  try {
+    setIsViewingCertificat(true);
+    
+    // Appel de la fonction de génération
+    const doc = await generateCertificatScolaritePDF(student, false);
+    
+    // Ouvrir dans un nouvel onglet au lieu de télécharger directement
+    const pdfUrl = doc.output('bloburl');
+    window.open(pdfUrl as unknown as string, '_blank');
+    
+  } catch (error) {
+    console.error('Erreur:', error);
+    alert('Erreur lors de la génération du certificat');
+  } finally {
+    setIsViewingCertificat(false);
+  }
+};
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
@@ -158,7 +183,6 @@ export function StudentDetailsModal({ student, onClose, onUpdateSuccess }: Stude
             </div>
           </section>
 
-          {/* Paiements */}
           {/* Section Droits (Pédagogiques & Administratifs) */}
           {student.payments && student.payments.filter(p => p.typeDroit !== 'Ecolage').length > 0 && (
             <section>
@@ -170,10 +194,7 @@ export function StudentDetailsModal({ student, onClose, onUpdateSuccess }: Stude
                 {student.payments
                   .filter(p => p.typeDroit !== 'Ecolage')
                   .map((paiement, index) => (
-                    <div
-                      key={index}
-                      className="bg-gray-50 rounded-lg p-4 border border-gray-200"
-                    >
+                    <div key={index} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
                       <div className="flex items-center justify-between mb-2">
                         <span className="font-semibold text-gray-900">
                           {paiement.typeDroit === 'P‚dagogique' ? 'Pédagogique' : paiement.typeDroit}
@@ -217,13 +238,9 @@ export function StudentDetailsModal({ student, onClose, onUpdateSuccess }: Stude
                 {student.payments
                   .filter(p => p.typeDroit === 'Ecolage')
                   .map((paiement, index) => (
-                    <div
-                      key={index}
-                      className="bg-gray-50 rounded-lg p-4 border border-gray-200"
-                    >
+                    <div key={index} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
                       <div className="flex items-center justify-between mb-2">
                         <span className="font-semibold text-gray-900">
-                          {/* Si vous n'avez pas de propriété 'tranche', on affiche le type */}
                           {paiement.typeDroit}
                         </span>
                         <span className="text-lg font-bold text-green-600">
@@ -273,13 +290,14 @@ export function StudentDetailsModal({ student, onClose, onUpdateSuccess }: Stude
         </div>
 
         {/* Footer */}
-        <div className="bg-white border-t px-6 py-4 flex justify-end gap-3 rounded-b-lg sticky bottom-0">
+        <div className="bg-white border-t px-6 py-4 flex flex-wrap justify-end gap-3 rounded-b-lg sticky bottom-0">
           <button
             onClick={onClose}
             className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
           >
             Fermer
           </button>
+          
           <button
             onClick={handleDownloadPDF}
             disabled={isDownloading}
@@ -288,15 +306,16 @@ export function StudentDetailsModal({ student, onClose, onUpdateSuccess }: Stude
             {isDownloading ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Génération...
+                Reçu...
               </>
             ) : (
               <>
                 <Download className="h-4 w-4 mr-2" />
-                Télécharger
+                Reçu PDF
               </>
             )}
           </button>
+          
           <button
             onClick={handleViewPDF}
             disabled={isViewing}
@@ -310,7 +329,26 @@ export function StudentDetailsModal({ student, onClose, onUpdateSuccess }: Stude
             ) : (
               <>
                 <Eye className="h-4 w-4 mr-2" />
-                Visualiser / Imprimer
+                Voir le reçu
+              </>
+            )}
+          </button>
+
+          {/* NOUVEAU BOUTON : Certificat de scolarité */}
+          <button
+            onClick={handleViewCertificat}
+            disabled={isViewingCertificat}
+            className="inline-flex items-center px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-bold shadow-sm"
+          >
+            {isViewingCertificat ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Préparation...
+              </>
+            ) : (
+              <>
+                <FileText className="h-4 w-4 mr-2" />
+                Certificat de Scolarité
               </>
             )}
           </button>
