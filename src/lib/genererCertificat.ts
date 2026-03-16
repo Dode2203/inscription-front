@@ -266,7 +266,7 @@ const niveauTexte = `${niveauLettre} ${typeFormation.toUpperCase()} ${gradeTexte
   // ==========================================
   doc.setFont("times", "italic");
   doc.setFontSize(8);
-  const note = "Le Service des Etudiants ne délivre qu'un seul certificat de scolarité par année universitaire, l'étudiant peut faire plusieurs copies certifiées par le Directeur de l'Ecole Supérieure Polytechnique d'Antananarivo.";
+  const note = "Le Service des Etudiants ne délivre qu'un seul certificat de scolarité par année universitaire, l'étudiant peut faire plusieurs copies certifiées.";
   const noteLines = doc.splitTextToSize(note, pageWidth - (margin * 2));
   
   doc.line(margin, 275, pageWidth - margin, 275); // Ligne de séparation
