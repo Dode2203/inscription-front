@@ -161,7 +161,7 @@ export const generateCertificatScolaritePDF = async (
   // ==========================================
   // TITRE DU DOCUMENT
   // ==========================================
-  currentY = 70;
+  currentY = 80;
   doc.setFont("times", "bold");
   doc.setFontSize(16);
   doc.text("CERTIFICAT DE SCOLARITE", centerX, currentY, { align: "center" });
@@ -174,7 +174,7 @@ export const generateCertificatScolaritePDF = async (
   // ==========================================
   // CORPS DU TEXTE
   // ==========================================
-  currentY += 20;
+  currentY += 10;
   doc.setFont("times", "normal");
   doc.setFontSize(11);
   doc.text("Le Directeur de l'Ecole Supérieure Polytechnique d'Antananarivo certifie que :", margin, currentY);
