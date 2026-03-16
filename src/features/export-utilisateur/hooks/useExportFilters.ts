@@ -26,6 +26,10 @@ export function useExportFilters() {
     // Récupération de la liste des étudiants
     const fetchEtudiants = useCallback(async () => {
         setLoading(true);
+    
+        // 1. On vide la liste immédiatement pour montrer que le filtre est en train de s'appliquer
+        setResultats([]); 
+
         try {
             const data = await exportService.fetchStudents({
                 idMention: selectedMention,
@@ -34,10 +38,14 @@ export function useExportFilters() {
             setResultats(data);
         } catch (error: any) {
             console.error(error);
+            
             if (error.message === "Session expirée") {
                 await fetch("/api/auth/logout", { method: "POST" });
                 router.push('/login');
             } else {
+                // 2. CRUCIAL : On s'assure que la liste reste vide en cas d'erreur, 
+                // sinon les étudiants de l'ancien filtre resteront affichés.
+                setResultats([]); 
                 toast.error(error.message || "Impossible de joindre le serveur");
             }
         } finally {

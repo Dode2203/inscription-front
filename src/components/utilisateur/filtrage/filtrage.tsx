@@ -55,6 +55,9 @@ export function FiltrageEtudiants() {
   // Récupération de la liste des étudiants
   const fetchEtudiants = useCallback(async () => {
     setLoading(true);
+    // Optionnel mais recommandé : vider la liste dès qu'on commence à chercher
+    // pour bien montrer à l'utilisateur que le filtre a été pris en compte.
+    setResultats([]); 
 
     try {
       const params = new URLSearchParams();
@@ -75,6 +78,8 @@ export function FiltrageEtudiants() {
       setResultats(result.status === 'success' ? result.data : []);
     } catch (error) {
       toast.error("Impossible de joindre le serveur");
+      // CRUCIAL : Vider les résultats si la requête échoue
+      setResultats([]); 
     } finally {
       setLoading(false);
     }
@@ -172,7 +177,7 @@ export function FiltrageEtudiants() {
               className="w-full h-10 px-3 rounded-md border border-slate-300 outline-none focus:ring-2 focus:ring-blue-900"
               value={selectedMention}
               onChange={(e) => setSelectedMention(e.target.value)}
-              disabled={loading}
+              // disabled={loading}
             >
               <option value="">Toutes les mentions</option>
               {mentions.map(m => <option key={m.id} value={m.id.toString()}>{m.nom}</option>)}
@@ -185,7 +190,7 @@ export function FiltrageEtudiants() {
               className="w-full h-10 px-3 rounded-md border border-slate-300 outline-none focus:ring-2 focus:ring-blue-900"
               value={selectedNiveau}
               onChange={(e) => setSelectedNiveau(e.target.value)}
-              disabled={loading}
+              // disabled={loading}
             >
               <option value="">Tous les niveaux</option>
               {niveaux.map(n => <option key={n.id} value={n.id.toString()}>{n.nom}</option>)}
