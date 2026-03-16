@@ -23,7 +23,8 @@ function getPreviousAcademicYear(anneeCurrent?: string): string {
   }
 
   return defaultYear;
-};
+}
+
 /**
  * Formate une date en JJ/MM/AAAA
  * @param dateStr exemple: "2022-05-02"
@@ -51,6 +52,46 @@ const formatDateFR = (dateStr: any): string => {
     return "";
   }
 };
+
+/**
+ * Fonction utilitaire pour imprimer du texte avec des parties en gras dans jsPDF
+ * Utilise la syntaxe **texte en gras**
+ */
+const printRichText = (doc: jsPDF, text: string, startX: number, startY: number, maxWidth: number, lineHeight: number) => {
+  const chunks = text.split('**');
+  let cursorX = startX;
+  let cursorY = startY;
+
+  chunks.forEach((chunk, index) => {
+    // Les index impairs (1, 3, 5...) correspondent au texte entre les **
+    const isBold = index % 2 !== 0;
+    doc.setFont("times", isBold ? "bold" : "normal");
+    
+    // Découper le chunk en mots et en espaces
+    const tokens = chunk.match(/\S+|\s+/g) || [];
+    
+    tokens.forEach(token => {
+      if (token.trim() === '') {
+        // Si c'est un espace, on avance juste le curseur
+        cursorX += doc.getTextWidth(token);
+      } else {
+        // Si c'est un mot, on vérifie s'il dépasse la ligne
+        const wordWidth = doc.getTextWidth(token);
+        if (cursorX + wordWidth > startX + maxWidth) {
+          cursorX = startX;          // Retour au début de la ligne
+          cursorY += lineHeight;     // Descente d'une ligne
+        }
+        doc.text(token, cursorX, cursorY);
+        cursorX += wordWidth;
+      }
+    });
+  });
+  
+  // On remet la police à la normale par sécurité à la fin
+  doc.setFont("times", "normal");
+  return cursorY; // Retourne la position Y finale utile pour la suite
+};
+
 export const generateCertificatScolaritePDF = async (
   student: Student,
   shouldSave: boolean = true
@@ -104,8 +145,10 @@ export const generateCertificatScolaritePDF = async (
     currentY += 4.5;
   });
 
-  doc.setFont("times", "normal");
-  doc.text(`Réf : UA/ESPA/SDE/ CS/${Math.floor(Math.random() * 90000) + 10000}`, margin, currentY + 2);
+  // --- RÉFÉRENCE EN GRAS ---
+  doc.setFont("times", "bold");
+  doc.text(`Réf : UA/ESPA/SDE/ CS/${student.id}`, margin, currentY + 2);
+  doc.setFont("times", "normal"); // Retour à la normale
 
   // --- LOGO (A DROITE) ---
   if (logoImg) {
@@ -143,27 +186,63 @@ export const generateCertificatScolaritePDF = async (
   doc.text(nomComplet, margin, currentY);
 
   currentY += 10;
-  doc.setFont("times", "normal");
   doc.setFontSize(11);
-  doc.text(`Né(e) le ${formatDateFR(student.dateNaissance)}`, margin, currentY);
-  doc.text(`à ${student.lieuNaissance || "................................."}`, 70, currentY);
+  const dateTexte = formatDateFR(student.dateNaissance);
+  const lieuTexte = student.lieuNaissance || ".................................";
+
+  // --- LIEU DE NAISSANCE EN GRAS ---
+  doc.setFont("times", "normal");
+  const phraseNaissance = `Né(e) le ${dateTexte} à `;
+  doc.text(phraseNaissance, margin, currentY);
+  
+  doc.setFont("times", "bold");
+  doc.text(lieuTexte, margin + doc.getTextWidth(phraseNaissance), currentY);
+  doc.setFont("times", "normal");
 
   currentY += 10;
-  const niveau = student.niveau?.nom || "Niveau non défini";
+// 1. On récupère le chiffre du grade
+const niveauGrade = student.niveau?.grade || 0;
+
+// 2. On définit la correspondance entre le chiffre et le texte
+const gradeEnLettres: { [key: number]: string } = {
+  1: "Première Année",
+  2: "Deuxième Année",
+  3: "Troisième Année",
+  4: "Quatrième Année",
+  5: "Cinquième Année"
+};
+
+// 3. On récupère le libellé (ex: "Première Année") ou on garde le chiffre par défaut
+const gradeTexte = gradeEnLettres[niveauGrade] || `${niveauGrade}ème Année`;
+
+// 4. Détermination Licence ou Master
+const niveauLettre = niveauGrade > 3 ? "MASTER" : "LICENCE";
+
+let typeFormation = student.formation?.type?.nom || "Formation non définie";
+
+// Ajustement du genre pour MASTER PROFESSIONNEL
+if (niveauLettre === "MASTER" && typeFormation?.toUpperCase() === "PROFESSIONNELLE") {
+  typeFormation = "PROFESSIONNEL";
+}
+
+// 5. Construction du niveauTexte final
+// Résultat ex: "PREMIERE ANNEE DE LICENCE PROFESSIONNELLE"
+const niveauTexte = `${niveauLettre} ${typeFormation.toUpperCase()} ${gradeTexte.toUpperCase()}`;
   const mention = student.mention?.nom || "Mention non définie";
-  const parcours = student.parcours?.nom || student.formation?.nom || "Parcours non défini";
+  const mentionAbr = student.mention?.abr|| "";
+
   const matricule = student.matricule || student.inscription?.matricule || "En cours";
 
-  // Texte justifié (simulé avec splitTextToSize)
-  const corpsTexte = `est régulièrement inscrit(e) comme étudiant(e) permanent(e) en : ${niveau.toUpperCase()} de la Mention ${mention.toUpperCase()} - Parcours au sein de notre Ecole durant l'année Universitaire ${anneeUniv} sous le matricule : ${matricule}.`;
+  // --- MENTION ET MATRICULE EN GRAS (Utilisation de la fonction utilitaire) ---
+  const corpsTexte = `est régulièrement inscrit(e) comme étudiant(e) permanent(e) en **: ${niveauTexte.toUpperCase()} ** de la Mention **${mention.toUpperCase()}** (**${mentionAbr}**) au sein de notre Ecole durant l'année Universitaire ${anneeUniv} sous le matricule : **${matricule}**.`;
   
-  const textLines = doc.splitTextToSize(corpsTexte, pageWidth - (margin * 2));
-  doc.text(textLines, margin, currentY, { lineHeightFactor: 1.5 });
+  // printRichText gère le gras et les retours à la ligne, et nous renvoie la nouvelle position Y
+  currentY = printRichText(doc, corpsTexte, margin, currentY, pageWidth - (margin * 2), 6.5);
 
   // ==========================================
   // BLOC DE SIGNATURE
   // ==========================================
-  currentY += 40;
+  currentY += 30; // Ajustement de l'espacement car currentY est maintenant à la fin du paragraphe
   const signatureX = 120;
   
   const dateStr = today.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
