@@ -63,33 +63,32 @@ const printRichText = (doc: jsPDF, text: string, startX: number, startY: number,
   let cursorY = startY;
 
   chunks.forEach((chunk, index) => {
-    // Les index impairs (1, 3, 5...) correspondent au texte entre les **
     const isBold = index % 2 !== 0;
     doc.setFont("times", isBold ? "bold" : "normal");
     
-    // Découper le chunk en mots et en espaces
-    const tokens = chunk.match(/\S+|\s+/g) || [];
+    // On sépare par mot mais on garde les espaces pour les traiter
+    const words = chunk.split(/(\s+)/); 
     
-    tokens.forEach(token => {
-      if (token.trim() === '') {
-        // Si c'est un espace, on avance juste le curseur
-        cursorX += doc.getTextWidth(token);
-      } else {
-        // Si c'est un mot, on vérifie s'il dépasse la ligne
-        const wordWidth = doc.getTextWidth(token);
-        if (cursorX + wordWidth > startX + maxWidth) {
-          cursorX = startX;          // Retour au début de la ligne
-          cursorY += lineHeight;     // Descente d'une ligne
-        }
-        doc.text(token, cursorX, cursorY);
-        cursorX += wordWidth;
+    words.forEach(word => {
+      if (word === '') return;
+
+      const wordWidth = doc.getTextWidth(word);
+
+      // Si le mot (ou l'espace) dépasse la largeur max, on passe à la ligne
+      // (Sauf si c'est un espace en début de ligne, on l'ignore)
+      if (cursorX + wordWidth > startX + maxWidth && word.trim() !== '') {
+        cursorX = startX;
+        cursorY += lineHeight;
       }
+
+      // COMMANDE CRUCIALE : On dessine le texte, même si c'est un espace
+      doc.text(word, cursorX, cursorY);
+      cursorX += wordWidth;
     });
   });
   
-  // On remet la police à la normale par sécurité à la fin
   doc.setFont("times", "normal");
-  return cursorY; // Retourne la position Y finale utile pour la suite
+  return cursorY;
 };
 
 export const generateCertificatScolaritePDF = async (
@@ -240,9 +239,14 @@ if (student.formation?.nom.toUpperCase()=="MASTER RECHERCHE") {
   const mentionAbr = student.mention?.abr|| "";
 
   const matricule = student.matricule || student.inscription?.matricule || "En cours";
-
+  const mentionGras = mention
+  .trim()                         // 1. Enlève les espaces au tout début et à la fin
+  .toUpperCase()                  
+  .split(/\s+/)                   // 2. Coupe par n'importe quel bloc d'espaces (gère les doubles espaces)
+  .map(mot => `**${mot}** `)       // 3. Met chaque mot en gras individuellement
+  .join(' ');                      // 4. Rejoint avec UN SEUL espace standard
   // --- MENTION ET MATRICULE EN GRAS (Utilisation de la fonction utilitaire) ---
-  const corpsTexte = `est régulièrement inscrit(e) comme étudiant(e) permanent(e) en **: ${niveauTexte.toUpperCase()} ** de la Mention **${mention.toUpperCase()}** (**${mentionAbr}**) au sein de notre Ecole durant l'année Universitaire ${anneeUniv} sous le matricule : **${matricule}**.`;
+  const corpsTexte = `est régulièrement inscrit(e) comme étudiant(e) permanent(e) en **: ${niveauTexte.toUpperCase()} ** de la Mention  ${mentionGras}  (**${mentionAbr}**) au sein de notre Ecole durant l'année Universitaire ${anneeUniv} sous le matricule : **${matricule}**.`;
   
   // printRichText gère le gras et les retours à la ligne, et nous renvoie la nouvelle position Y
   currentY = printRichText(doc, corpsTexte, margin, currentY, pageWidth - (margin * 2), 6.5);
