@@ -4,9 +4,10 @@ import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 import { Toaster } from 'sonner';
 
-// --- AJOUTS : Imports de vos données et du Provider ---
+// --- Imports de vos données et Providers ---
 import { getInitialData } from '@/lib/appConfig';
 import { DataProvider } from '@/context/DataContext';
+import { UserProvider } from '@/context/UserContext'; // <-- 1. NOUVEL IMPORT ICI
 
 const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
@@ -27,25 +28,27 @@ export const metadata: Metadata = {
   },
 }
 
-// Note: RootLayout devient "async" pour appeler getInitialData()
+// ... vos imports
+
 export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
   
-  // 1. On appelle l'API UNE SEULE FOIS côté serveur ici
   const initialData = await getInitialData();
+  const currentUser = null; 
 
   return (
-    <html lang="en">
-      <body className={`font-sans antialiased`}>
+    <html lang="fr">
+      <body className="font-sans antialiased">
         <Toaster position="top-right" />
         
-        {/* 2. On enveloppe les enfants avec le DataProvider pour partager les données */}
-        <DataProvider data={initialData}>
-          {children}
-        </DataProvider>
+        <UserProvider initialUser={currentUser}>
+          <DataProvider data={initialData}>
+            {children}
+          </DataProvider>
+        </UserProvider>
 
         <Analytics />
       </body>

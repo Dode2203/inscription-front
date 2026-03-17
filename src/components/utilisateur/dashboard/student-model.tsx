@@ -8,6 +8,7 @@ import { Student } from '@/lib/db';
 import { downloadReceipt, viewReceipt } from '@/lib/receipt-helper';
 import ModifierPaiementForm from '@/components/admin/modification/ModifierPaiementForm';
 import { generateCertificatScolaritePDF } from '@/lib/genererCertificat';
+import { useUser } from '@/context/UserContext';
 
 interface StudentDetailsModalProps {
   student: Student;
@@ -18,7 +19,7 @@ interface StudentDetailsModalProps {
 export function StudentDetailsModal({ student, onClose, onUpdateSuccess }: StudentDetailsModalProps) {
   const [isDownloading, setIsDownloading] = useState(false);
   const [isViewing, setIsViewing] = useState(false);
-  
+  const { user } = useUser();
   // NOUVEAU : État pour le bouton du certificat
   const [isViewingCertificat, setIsViewingCertificat] = useState(false);
   
@@ -65,7 +66,12 @@ export function StudentDetailsModal({ student, onClose, onUpdateSuccess }: Stude
     setIsViewingCertificat(true);
     
     // Appel de la fonction de génération
-    const doc = await generateCertificatScolaritePDF(student, false);
+    let isChef = false;
+    if (user?.role == "Admin") {
+      isChef = true;
+    }
+    let nomPrenom = user?.nom + " " + user?.prenom;
+    const doc = await generateCertificatScolaritePDF(student, nomPrenom, isChef,false);
     
     // Ouvrir dans un nouvel onglet au lieu de télécharger directement
     const pdfUrl = doc.output('bloburl');

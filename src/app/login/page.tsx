@@ -6,14 +6,17 @@ import { useState } from "react"
 // import Link from "next/link"
 import Image from "next/image"
 import { Eye, EyeOff } from "lucide-react"
-
+import { useUser } from "@/context/UserContext";
+import { useRouter } from "next/navigation";
 export default function AdminLoginPage() {
   const [email, setEmail] = useState("test@gmail.com")
   const [password, setPassword] = useState("admin")
   const [showPassword, setShowPassword] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
   const [error, setError] = useState("")
+  const { setUser } = useUser();
   const [loading, setLoading] = useState(false)
+  const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -37,21 +40,23 @@ export default function AdminLoginPage() {
 
       // ✅ récupération du token et du membre
       const { token, membre } = data;
-
+      setUser(membre);
+      
       // // ✅ stockage côté client
       // if (token) localStorage.setItem("token", token);
       // if (membre) localStorage.setItem("membre", JSON.stringify(membre));
 
         // ✅ redirection selon le rôle
-          if (membre?.role === "Admin") {
-            window.location.href = "/utilisateur/dashboard";
-          } else if (membre?.role === "Utilisateur") {
-            window.location.href = "utilisateur/dashboard";
-          }  else if (membre?.role === "Ecolage") {
-          window.location.href = "/ecolage";
-          } else {
-            window.location.href = "/login";
-          }
+          // ✅ Utilise le router pour une navigation fluide sans perte de contexte
+        if (membre?.role === "Admin") {
+          router.push("/utilisateur/dashboard");
+        } else if (membre?.role === "Utilisateur") {
+          router.push("/utilisateur/dashboard");
+        } else if (membre?.role === "Ecolage") {
+          router.push("/ecolage");
+        } else {
+          router.push("/login");
+        }
 
     } catch (err) {
       console.error(err);

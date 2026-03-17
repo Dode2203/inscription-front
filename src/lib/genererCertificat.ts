@@ -94,7 +94,11 @@ const printRichText = (doc: jsPDF, text: string, startX: number, startY: number,
 
 export const generateCertificatScolaritePDF = async (
   student: Student,
-  shouldSave: boolean = true
+  nomPrenom: string,
+  isChef: boolean = false,
+  shouldSave: boolean = true,
+  
+  
 ) => {
   const doc = new jsPDF({
     orientation: 'p',
@@ -254,12 +258,12 @@ const niveauTexte = `${niveauLettre} ${typeFormation.toUpperCase()} ${gradeTexte
   currentY += 5;
   doc.text("Par délégation", signatureX, currentY);
   currentY += 5;
-  doc.text("Le Chef du Service des Etudiants", signatureX, currentY);
+  doc.text(isChef ? "Le Chef du Service des Etudiants" : "L'Adjoint au Chef du Service des Etudiants", signatureX, currentY);
 
   // Nom du responsable
   currentY += 35;
   doc.setFont("times", "bold");
-  doc.text("RAZAFINTSALAMA Hantanirina Tahinasoa", signatureX - 5, currentY);
+  doc.text(nomPrenom, signatureX - 5, currentY);
 
   // ==========================================
   // PIED DE PAGE (NOTE)

@@ -2,6 +2,7 @@
 
 import { LogOut } from "lucide-react";
 import { User } from "@/lib/db";
+import { useUser } from "@/context/UserContext";
 
 interface HeaderProps {
   user: User | null;
@@ -9,7 +10,9 @@ interface HeaderProps {
 
 export default function Header({ user}: HeaderProps) {
       const logout = process.env.NEXT_PUBLIC_LOGOUT_URL;
+      const { setUser } = useUser();
       const handleLogout = async () => {
+        setUser(null);
         await fetch("/api/auth/logout", { method: "POST" })
         window.location.href = logout || "/";
       };
