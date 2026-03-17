@@ -229,9 +229,13 @@ if (niveauLettre === "MASTER" && typeFormation?.toUpperCase() === "PROFESSIONNEL
   typeFormation = "PROFESSIONNEL";
 }
 
+
 // 5. Construction du niveauTexte final
 // Résultat ex: "PREMIERE ANNEE DE LICENCE PROFESSIONNELLE"
-const niveauTexte = `${niveauLettre} ${typeFormation.toUpperCase()} ${gradeTexte.toUpperCase()}`;
+let niveauTexte = `${niveauLettre} ${typeFormation.toUpperCase()} ${gradeTexte.toUpperCase()}`;
+if (student.formation?.nom.toUpperCase()=="MASTER RECHERCHE") {
+  niveauTexte = "MASTER A VISEE DE RECHERCHE";
+}
   const mention = student.mention?.nom || "Mention non définie";
   const mentionAbr = student.mention?.abr|| "";
 
@@ -258,7 +262,7 @@ const niveauTexte = `${niveauLettre} ${typeFormation.toUpperCase()} ${gradeTexte
   currentY += 5;
   doc.text("Par délégation", signatureX, currentY);
   currentY += 5;
-  doc.text(isChef ? "Le Chef du Service des Etudiants" : "L'Adjoint au Chef du Service des Etudiants", signatureX, currentY);
+  doc.text(isChef ? "Le Chef de Service des Etudiants" : "L'Adjoint au Chef de Service des Etudiants", signatureX, currentY);
 
   // Nom du responsable
   currentY += 35;
